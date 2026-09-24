@@ -1,0 +1,131 @@
+.fl-root { --paper: #fbf7ee; --ink: #1b2233; position: fixed; inset: 0; overflow: hidden; font-family: 'Inter', system-ui, sans-serif; color: var(--ink);
+  background: radial-gradient(120% 80% at 50% 0%, color-mix(in srgb, var(--brand) 22%, #eef2f8) 0%, #e6ebf3 60%, #d9e0ec 100%);
+  -webkit-tap-highlight-color: transparent; }
+.fl-root button { font-family: inherit; cursor: pointer; }
+.fl-eyebrow { font: 700 12px/1 'JetBrains Mono', monospace; letter-spacing: .3em; text-transform: uppercase; color: color-mix(in srgb, var(--ink) 60%, transparent); margin: 0 0 18px; }
+.fl-btn { margin-top: 26px; border: 0; border-radius: 999px; padding: 15px 30px; font-weight: 800; font-size: 16px; color: #fff; background: var(--brand);
+  box-shadow: 0 14px 30px -12px color-mix(in srgb, var(--brand) 80%, black); transition: transform .15s, opacity .2s; }
+.fl-btn:hover { transform: translateY(-2px); } .fl-btn:disabled { opacity: .6; }
+.fl-btn.sm { margin-top: 14px; padding: 11px 20px; font-size: 14px; }
+.fl-btn.ghost { background: transparent; color: var(--ink); border: 2px solid color-mix(in srgb, var(--ink) 30%, transparent); box-shadow: none; }
+.fl-hint { margin-top: 14px; font-size: 12px; color: color-mix(in srgb, var(--ink) 55%, transparent); }
+
+/* ── split flap ── */
+.fl-flap { display: inline-flex; gap: 3px; }
+.fl-flap i { position: relative; display: inline-grid; place-items: center; width: 1.05em; height: 1.5em; font-style: normal; background: linear-gradient(180deg, #1c1c1f 0 49%, #111113 51% 100%);
+  color: #ffd23f; border-radius: 3px; box-shadow: inset 0 -1px 0 rgba(255,255,255,.05), 0 1px 0 rgba(0,0,0,.6); }
+.fl-flap i::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(0,0,0,.8); }
+
+/* ── departures board ── */
+.fl-board { position: absolute; inset: 0; background: #0b0c10; color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; gap: 22px; cursor: pointer; }
+.fl-board-head { width: min(860px, 100%); display: flex; justify-content: space-between; font: 800 clamp(18px, 3vw, 28px)/1 'JetBrains Mono', monospace; color: #ffd23f; letter-spacing: .12em; }
+.fl-board-table { width: min(860px, 100%); display: grid; gap: 10px; font: 700 clamp(11px, 1.9vw, 20px)/1 'JetBrains Mono', monospace; }
+.fl-board-row { display: grid; grid-template-columns: auto auto 1fr auto; gap: clamp(8px, 2vw, 22px); align-items: center; padding: 10px; border-radius: 8px; overflow: hidden; }
+.fl-board-row.th { color: #8a8f9c; font-size: .7em; letter-spacing: .2em; padding-block: 0; }
+.fl-board-row.me { background: rgba(255, 210, 63, .08); outline: 1px solid rgba(255,210,63,.35); animation: flBlink 1.4s steps(1) 2s infinite; }
+@keyframes flBlink { 50% { outline-color: transparent; } }
+.fl-board-call { color: #c9ccd6; font-size: 14px; text-align: center; animation: flFade 1s 1.4s both; }
+.fl-board-call b { color: #fff; }
+@keyframes flFade { from { opacity: 0; } }
+@media (max-width: 560px) { .fl-board-row { grid-template-columns: auto 1fr; } .fl-board-row > :nth-child(2) { display: none; } .fl-board-row > :nth-child(4) { grid-column: 1 / -1; } .fl-board-row.th { display: none; } }
+
+/* ── boarding pass ── */
+.fl-pass-scene { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+.fl-pass { position: relative; display: grid; grid-template-columns: 1fr 200px; width: min(880px, 100%); filter: drop-shadow(0 30px 40px rgba(20,30,60,.28));
+  animation: flSlide .9s cubic-bezier(.2,1.2,.3,1) both; }
+@keyframes flSlide { from { transform: translateY(60px) rotate(-3deg); opacity: 0; } }
+.fl-main, .fl-stub { background: var(--paper); position: relative; }
+.fl-main { border-radius: 20px 0 0 20px; padding: 22px 26px; overflow: hidden; }
+.fl-main::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 62px; background: var(--brand); }
+.fl-stub { border-radius: 0 20px 20px 0; border-left: 3px dashed #cfc7b6; padding: 22px 18px; transition: transform 1.2s cubic-bezier(.5,0,.3,1), opacity 1.2s; }
+.fl-main::after, .fl-stub::before { content: ''; position: absolute; width: 26px; height: 26px; border-radius: 50%; background: #e3e8f1; right: -13px; }
+.fl-main::after { top: -13px; box-shadow: 0 calc(100% + 0px) 0 #e3e8f1; }
+.fl-stub::before { left: -14px; right: auto; bottom: -13px; }
+.fl-pass.torn .fl-stub { transform: translate(60px, 180px) rotate(24deg); opacity: 0; }
+.fl-pass.torn .fl-main { animation: flShake .35s; }
+@keyframes flShake { 30% { transform: translateX(-4px); } 60% { transform: translateX(3px); } }
+.fl-head { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; color: #fff; height: 18px; margin-bottom: 36px; }
+.fl-logo { font-weight: 900; letter-spacing: .06em; font-size: 16px; text-transform: uppercase; }
+.fl-class { font: 700 11px/1 'JetBrains Mono', monospace; letter-spacing: .2em; padding: 6px 10px; border: 1.5px solid rgba(255,255,255,.7); border-radius: 999px; }
+.fl-route { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px; }
+.fl-route b { display: block; font: 800 clamp(34px, 7vw, 54px)/1 'JetBrains Mono', monospace; letter-spacing: -.02em; }
+.fl-route small { font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: .08em; }
+.fl-route .r { text-align: right; }
+.fl-plane { display: flex; align-items: center; gap: 8px; color: var(--brand); font-size: 22px; }
+.fl-plane i { flex: 1; height: 0; border-top: 2px dashed color-mix(in srgb, var(--brand) 50%, transparent); }
+.fl-fields { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 18px; margin-top: 22px; padding-top: 18px; border-top: 1px solid #e7e0d0; }
+.fl-fields small, .fl-stub small { display: block; font: 700 10px/1 'JetBrains Mono', monospace; letter-spacing: .18em; text-transform: uppercase; color: #8b8f99; margin-bottom: 5px; }
+.fl-fields strong { font-size: 15px; font-weight: 800; }
+.fl-captain { margin: 18px 0 0; font-size: 12px; color: #6b7280; }
+.fl-stub-in { display: flex; flex-direction: column; gap: 6px; height: 100%; }
+.fl-stub-in strong { font-size: 16px; }
+.fl-stub-in span { font: 700 12px/1.4 'JetBrains Mono', monospace; }
+.fl-barcode { margin-top: auto; width: 100%; height: 56px; fill: var(--ink); }
+@media (max-width: 640px) {
+  .fl-pass { grid-template-columns: 1fr; width: min(380px, 100%); }
+  .fl-main { border-radius: 20px 20px 0 0; padding: 20px; }
+  .fl-stub { border-radius: 0 0 20px 20px; border-left: 0; border-top: 3px dashed #cfc7b6; padding: 16px 20px; }
+  .fl-stub-in { display: grid; grid-template-columns: 1fr 1fr; align-items: center; }
+  .fl-barcode { grid-column: 1 / -1; height: 44px; }
+  .fl-fields { grid-template-columns: repeat(2, 1fr); }
+  .fl-pass.torn .fl-stub { transform: translate(0, 220px) rotate(-8deg); }
+}
+
+/* ── map journey ── */
+.fl-journey { position: absolute; inset: 0; background: #cfe3ee; }
+.fl-map { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.fl-sea { fill: #cfe6f1; }
+.fl-land path { fill: #f3e9d2; stroke: #c9b78e; stroke-width: 4; }
+.fl-compass circle { fill: none; stroke: rgba(40,60,90,.25); stroke-width: 3; }
+.fl-compass path { fill: rgba(40,60,90,.35); }
+.fl-compass text { text-anchor: middle; font: 800 22px 'JetBrains Mono', monospace; fill: rgba(40,60,90,.45); }
+.fl-route-ghost { fill: none; stroke: rgba(29,40,70,.18); stroke-width: 4; stroke-dasharray: 2 14; stroke-linecap: round; }
+.fl-route-line { fill: none; stroke: var(--brand); stroke-width: 5; stroke-linecap: round; }
+.fl-pin circle { fill: #fff; stroke: #9aa3b5; stroke-width: 4; transition: all .4s; }
+.fl-pin .dot { fill: #9aa3b5; stroke: none; }
+.fl-pin.on circle { stroke: var(--brand); } .fl-pin.on .dot { fill: var(--brand); }
+.fl-pin.end circle { fill: var(--brand); stroke: #fff; }
+.fl-heart { text-anchor: middle; font-size: 22px; fill: #fff; }
+.fl-code { text-anchor: middle; font: 800 24px 'JetBrains Mono', monospace; fill: var(--ink); paint-order: stroke; stroke: #fff; stroke-width: 6px; }
+.fl-plane-icon path { fill: var(--ink); stroke: #fff; stroke-width: 1.5; }
+.fl-plane-icon .shadow { fill: rgba(0,0,0,.15); }
+.fl-hud { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; padding: 10px 16px; border-radius: 999px;
+  background: rgba(15,22,40,.82); color: #fff; font: 700 12px/1 'JetBrains Mono', monospace; letter-spacing: .06em; backdrop-filter: blur(8px); max-width: calc(100% - 24px); }
+.fl-hud .alt { color: #ffd23f; }
+.fl-postcard-wrap { position: absolute; inset: 0; display: grid; place-items: end center; padding: 20px 16px max(24px, env(safe-area-inset-bottom)); pointer-events: none; }
+.fl-postcard { pointer-events: auto; display: grid; grid-template-columns: 220px 1fr; width: min(640px, 100%); background: var(--paper); border-radius: 14px; overflow: hidden;
+  box-shadow: 0 30px 60px -20px rgba(15,25,50,.5); animation: flCard .7s cubic-bezier(.2,1.3,.3,1) both; }
+@keyframes flCard { from { transform: translateY(120%) rotate(4deg); } }
+.fl-pc-photo { background: linear-gradient(135deg, var(--brand), #7aa7d8); display: grid; place-items: center; min-height: 220px; }
+.fl-pc-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fl-pc-photo span { font-size: 40px; color: #fff; }
+.fl-pc-body { position: relative; padding: 20px 22px 22px; }
+.fl-pc-body small { font: 700 11px/1 'JetBrains Mono', monospace; letter-spacing: .14em; text-transform: uppercase; color: #8b8f99; }
+.fl-pc-body h2 { margin: 6px 0 8px; font-size: 24px; font-weight: 900; letter-spacing: -.02em; padding-right: 70px; }
+.fl-pc-body p { margin: 0; font-size: 15px; line-height: 1.55; color: #3b4252; }
+.fl-pc-stamp { position: absolute; right: 16px; top: 16px; width: 64px; height: 64px; border-radius: 50%; border: 3px double var(--brand); color: var(--brand); display: grid; place-items: center;
+  font: 900 15px/1 'JetBrains Mono', monospace; transform: rotate(-14deg); opacity: .85; animation: flStamp .5s .5s cubic-bezier(.2,1.8,.4,1) both; }
+@keyframes flStamp { from { transform: scale(2.4) rotate(-14deg); opacity: 0; } }
+@media (max-width: 600px) { .fl-postcard { grid-template-columns: 1fr; } .fl-pc-photo { min-height: 0; height: 34vh; } }
+
+/* ── landing ── */
+.fl-land-scene { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; gap: 26px;
+  background: radial-gradient(100% 70% at 50% 100%, color-mix(in srgb, var(--brand) 30%, #f7e7ef), #eef2f8); }
+.fl-arrivals { display: flex; gap: 14px; font: 800 clamp(18px, 4vw, 30px)/1 'JetBrains Mono', monospace; background: #0b0c10; padding: 14px 18px; border-radius: 12px; }
+.fl-passport { position: relative; width: min(560px, 100%); background: var(--paper); border-radius: 18px; padding: 34px 30px 28px; text-align: center; box-shadow: 0 30px 60px -24px rgba(20,30,60,.4);
+  background-image: repeating-linear-gradient(45deg, rgba(0,0,0,.018) 0 2px, transparent 2px 8px); animation: flSlide .9s .3s cubic-bezier(.2,1.2,.3,1) both; }
+.fl-passport h1 { font-size: clamp(28px, 6vw, 40px); margin: 8px 0 12px; letter-spacing: -.03em; font-weight: 900; }
+.fl-passport p { margin: 0; font-size: 16px; line-height: 1.6; color: #3b4252; white-space: pre-wrap; }
+.fl-passport .fl-sign { margin-top: 18px; font-weight: 800; color: var(--brand); }
+.fl-stamp { position: absolute; right: -14px; top: -30px; width: 128px; height: 128px; border-radius: 50%; border: 4px solid #d6336c; color: #d6336c; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; transform: rotate(14deg); background: rgba(255,255,255,.6); animation: flStamp .55s 1.2s cubic-bezier(.2,1.8,.4,1) both; font-family: 'JetBrains Mono', monospace; text-align: center; }
+.fl-stamp span { font-weight: 800; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; max-width: 100px; overflow: hidden; }
+.fl-stamp b { font-size: 13px; } .fl-stamp small { font-size: 10px; }
+
+@media (max-width: 600px) {
+  .fl-hud { flex-wrap: nowrap; white-space: nowrap; font-size: 10px; gap: 10px; padding: 8px 12px; }
+  .fl-hud span:first-child { display: none; }
+  .fl-passport { padding-top: 54px; }
+  .fl-stamp { width: 96px; height: 96px; right: 50%; margin-right: -48px; top: -62px; transform: rotate(-8deg); }
+  .fl-stamp span, .fl-stamp b { font-size: 10px; }
+}

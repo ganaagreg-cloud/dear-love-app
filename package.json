@@ -1,0 +1,45 @@
+{
+  "name": "dear-love",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@buildry-wire/wire": "^1.0.0",
+    "@fontsource/bad-script": "^5.3.0",
+    "@fontsource/caveat": "^5.3.0",
+    "@fontsource/cormorant-garamond": "^5.3.0",
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@fontsource/lobster": "^5.3.0",
+    "@fontsource/lora": "^5.3.0",
+    "@fontsource/manrope": "^5.3.0",
+    "@fontsource/marck-script": "^5.3.0",
+    "@fontsource/oswald": "^5.3.0",
+    "@fontsource/playfair-display": "^5.3.0",
+    "@fontsource/press-start-2p": "^5.3.0",
+    "@fontsource/unbounded": "^5.3.0",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.117.1",
+    "canvas-confetti": "^1.9.4",
+    "framer-motion": "^13.4.1",
+    "nanoid": "^5.1.6",
+    "next": "^16.3.6",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-pageflip": "^2.0.3",
+    "server-only": "^0.0.1",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "typescript": "^5.9.0"
+  }
+}

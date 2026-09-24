@@ -1,0 +1,174 @@
+/* ============================================================
+   LOVEFLIX — exact styles extracted from reference (viewer mode).
+   Accent = #E50914 (swap via --lf-accent if you want).
+   Fonts: Bebas Neue + Inter (Google Fonts).
+   ============================================================ */
+.loveflix { -webkit-font-smoothing: antialiased; width:100%; min-height:100vh; background:#141414; color:#fff; position:relative; overflow-x:hidden;
+  font-family:'Netflix Sans','Inter','Helvetica Neue',Arial,sans-serif; --lf-accent:#E50914; }
+.loveflix * { box-sizing: border-box; }
+.loveflix .lf-screen { width: 100%; min-height: 100vh; position: relative; }
+
+/* Logo */
+.loveflix .lf-logo { font-family: 'Oswald', Impact, sans-serif; text-transform: uppercase; font-weight: 600; color: var(--lf-accent); letter-spacing: 1px; font-weight: 400; text-shadow: 0 2px 18px rgba(229,9,20,0.45); }
+.loveflix .lf-logo-top { position: absolute; top: 28px; left: 50%; transform: translateX(-50%); font-size: clamp(2rem, 7vw, 3rem); }
+
+/* Mobile "best on big screen" banner */
+.loveflix .lf-reco { position: fixed; top: 0; left: 0; right: 0; z-index: 400; display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(229,9,20,0.95); color: #fff; font-size: 12.5px; line-height: 1.4; box-shadow: 0 2px 12px rgba(0,0,0,0.4); }
+.loveflix .lf-reco span { flex: 1; }
+.loveflix .lf-reco-x { flex-shrink: 0; background: transparent; border: none; color: rgba(255,255,255,0.85); font-size: 16px; cursor: pointer; padding: 2px 6px; line-height: 1; }
+
+/* ── 1. PROFILES ── */
+.loveflix .lf-profiles { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 90px 20px 60px; background: #141414; min-height: 100vh; }
+.loveflix .lf-profiles-title { font-size: clamp(1.8rem, 6vw, 3.4rem); font-weight: 400; color: #fff; margin: 0 0 44px; text-align: center; }
+.loveflix .lf-profiles-grid { display: flex; flex-wrap: wrap; gap: clamp(16px, 4vw, 36px); justify-content: center; align-items: flex-start; max-width: 760px; }
+.loveflix .lf-profile { display: flex; flex-direction: column; align-items: center; gap: 14px; cursor: pointer; }
+.loveflix .lf-profile-decoy { cursor: not-allowed; opacity: 0.62; }
+.loveflix .lf-avatar { width: clamp(90px, 22vw, 150px); height: clamp(90px, 22vw, 150px); border-radius: 8px; overflow: hidden; position: relative; border: 3px solid transparent; transition: border-color 0.2s, transform 0.2s; }
+.loveflix .lf-avatar img { width:100%; height:100%; object-fit:cover; display:block; border-radius: 6px; }
+.loveflix .lf-profile-main:hover .lf-avatar-main { border-color: #fff; transform: scale(1.04); }
+.loveflix .lf-avatar-fallback { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: clamp(2.4rem, 9vw, 4.5rem); font-weight: 800; color: #fff; font-family: 'Oswald', Impact, sans-serif; text-transform: uppercase; font-weight: 600; }
+.loveflix .lf-avatar-decoy { display: flex; align-items: center; justify-content: center; }
+.loveflix .lf-decoy-emoji { font-size: clamp(2rem, 8vw, 3.4rem); }
+.loveflix .lf-profile-name { color: #aaa; font-size: clamp(0.95rem, 3.5vw, 1.3rem); transition: color 0.2s; text-align: center; max-width: 150px; }
+.loveflix .lf-profile-main:hover .lf-profile-name { color: #fff; }
+.loveflix .lf-profile-name-decoy { color: #777; }
+.loveflix .lf-manage { margin-top: 48px; color: #777; font-size: 0.95rem; letter-spacing: 0.05em; animation: lfPulse 2.2s ease-in-out infinite; }
+@keyframes lfPulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+/* ── 2. INTRO (N logo "ta-dum") ── */
+.loveflix .lf-intro { background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+.loveflix .lf-n-wrap { position: relative; width: clamp(120px, 34vw, 200px); height: clamp(200px, 56vw, 330px); display: flex; align-items: center; justify-content: center; }
+.loveflix .lf-n-svg { width: 100%; height: 100%; filter: drop-shadow(0 0 30px rgba(229,9,20,0.55)); }
+.loveflix .lf-n-bar, .loveflix .lf-n-diag { opacity: 0; }
+.loveflix .lf-n-left { animation: lfBar 0.5s ease forwards 0.1s; transform-origin: bottom; transform-box: fill-box; }
+.loveflix .lf-n-right { animation: lfBar 0.5s ease forwards 0.35s; transform-origin: bottom; transform-box: fill-box; }
+.loveflix .lf-n-diag { animation: lfDiag 0.6s ease forwards 0.6s; }
+@keyframes lfBar { from { opacity: 0; transform: scaleY(0); } to { opacity: 1; transform: scaleY(1); } }
+@keyframes lfDiag { from { opacity: 0; transform: scaleX(0.4); } to { opacity: 1; transform: scaleX(1); } }
+.loveflix .lf-n-heart { position: absolute; font-size: clamp(2.4rem, 9vw, 4rem); color: rgba(255,255,255,0.0); animation: lfHeart 1.6s ease forwards 1s; z-index: -1; }
+@keyframes lfHeart { 0% { transform: scale(0.4); opacity: 0; } 60% { opacity: 0.18; } 100% { transform: scale(2.4); opacity: 0; } }
+.loveflix .lf-intro-word { margin-top: 30px; font-family: 'Oswald', Impact, sans-serif; text-transform: uppercase; font-weight: 600; font-size: clamp(1.4rem, 5vw, 2.4rem); letter-spacing: 0.3em; color: var(--lf-accent); opacity: 0; animation: lfWord 0.8s ease forwards 1.3s; text-shadow: 0 0 24px rgba(229,9,20,0.5); }
+@keyframes lfWord { from { opacity: 0; letter-spacing: 0.6em; } to { opacity: 1; letter-spacing: 0.3em; } }
+
+/* ── 3. BROWSE: NAV ── */
+.loveflix .lf-nav { position: absolute; top: 0; left: 0; right: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; padding: 18px clamp(16px, 4vw, 48px); background: linear-gradient(180deg, rgba(0,0,0,0.85), transparent); }
+.loveflix .lf-nav .lf-logo { font-size: clamp(1.5rem, 5vw, 2.2rem); }
+.loveflix .lf-nav-links { display: none; gap: 20px; color: #e5e5e5; font-size: 0.9rem; }
+.loveflix .lf-nav-avatar { width: 34px; height: 34px; border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-family: 'Oswald', Impact, sans-serif; text-transform: uppercase; font-weight: 600; font-size: 1.1rem; background: linear-gradient(135deg, var(--lf-accent), #b1060f); }
+@media (min-width: 700px) { .loveflix .lf-nav-links { display: flex; } }
+
+/* ── BROWSE: HERO ── */
+.loveflix .lf-hero { position: relative; width: 100%; min-height: clamp(460px, 88vh, 760px); display: flex; align-items: flex-end; }
+.loveflix .lf-hero-bg { position: absolute; inset: 0; z-index: 0; }
+.loveflix .lf-hero-img, .loveflix .lf-hero-placeholder { width: 100%; height: 100%; object-fit: cover; }
+.loveflix .lf-hero-placeholder { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 30% 20%, rgba(229,9,20,.33), transparent 60%), linear-gradient(180deg,#2a2a2a,#0c0c0c); }
+.loveflix .lf-hero-fade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(77deg, rgba(20,20,20,0.92) 0%, rgba(20,20,20,0.55) 38%, transparent 70%); }
+.loveflix .lf-hero-fade-bottom { position: absolute; left: 0; right: 0; bottom: 0; height: 45%; pointer-events: none; background: linear-gradient(180deg, transparent, #141414); }
+.loveflix .lf-hero-content { position: relative; z-index: 10; padding: 0 clamp(16px, 4vw, 48px) clamp(40px, 8vh, 90px); max-width: 640px; }
+.loveflix .lf-hero-badge { display: flex; align-items: center; gap: 8px; font-size: clamp(0.7rem, 2.6vw, 0.85rem); letter-spacing: 0.14em; color: #ddd; font-weight: 600; margin-bottom: 14px; }
+.loveflix .lf-n-mark { font-family: 'Oswald', Impact, sans-serif; text-transform: uppercase; font-weight: 600; font-size: 1.5em; font-weight: 700; color: var(--lf-accent); }
+.loveflix .lf-hero-title { font-family: 'Oswald', Impact, sans-serif; text-transform: uppercase; font-weight: 600; color: #fff; font-size: clamp(2.8rem, 11vw, 6rem); line-height: 0.92; margin: 0 0 16px; font-weight: 400; text-shadow: 0 2px 6px rgba(0,0,0,0.85), 0 4px 30px rgba(0,0,0,0.7); letter-spacing: 1px; }
+.loveflix .lf-hero-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 16px; font-size: clamp(0.78rem, 3vw, 0.95rem); color: #ddd; }
+.loveflix .lf-match { color: #4ade80; font-weight: 700; }
+.loveflix .lf-rating { border: 1px solid #555; padding: 1px 7px; font-size: 0.8em; }
+.loveflix .lf-hd { border: 1px solid #555; padding: 0 5px; border-radius: 3px; font-size: 0.7em; letter-spacing: 0.05em; }
+.loveflix .lf-hero-synopsis { font-size: clamp(0.92rem, 3.4vw, 1.15rem); line-height: 1.5; color: #eee; margin: 0 0 24px; text-shadow: 0 2px 8px rgba(0,0,0,0.6); }
+.loveflix .lf-hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+/* Buttons */
+.loveflix .lf-btn { display: inline-flex; align-items: center; gap: 10px; border: none; border-radius: 5px; font-size: clamp(0.95rem, 3.4vw, 1.15rem); font-weight: 700; cursor: pointer; padding: 12px 26px; font-family: 'Inter', sans-serif; transition: transform 0.12s, opacity 0.15s, background 0.15s; }
+.loveflix .lf-btn:hover { transform: scale(1.03); }
+.loveflix .lf-btn-play { background: #fff; color: #141414; }
+.loveflix .lf-btn-play:hover { background: rgba(255,255,255,0.82); }
+.loveflix .lf-btn-info { background: rgba(109,109,110,0.6); color: #fff; }
+.loveflix .lf-btn-info:hover { background: rgba(109,109,110,0.45); }
+.loveflix .lf-btn-big { padding: 15px 40px; font-size: clamp(1rem, 4vw, 1.3rem); }
+.loveflix .lf-play-tri { width: 0; height: 0; border-style: solid; border-width: 9px 0 9px 16px; border-color: transparent transparent transparent currentColor; display: inline-block; }
+.loveflix .lf-info-i { display: inline-flex; align-items: center; justify-content: center; width: 1.25em; height: 1.25em; border: 1.5px solid currentColor; border-radius: 50%; font-style: normal; font-size: 0.8em; font-weight: 700; }
+
+/* ── BROWSE: ROWS (wrap; only the page scrolls) ── */
+.loveflix .lf-rows { position: relative; z-index: 10; margin-top: -40px; padding: 0 0 60px; background: #141414; }
+.loveflix .lf-row { margin: 0 0 38px; }
+.loveflix .lf-row-title { font-size: clamp(1.1rem, 4vw, 1.5rem); font-weight: 700; margin: 0 0 14px; padding: 0 clamp(16px, 4vw, 48px); color: #e5e5e5; }
+.loveflix .lf-row-scroll { display: flex; flex-wrap: wrap; gap: 12px; overflow: visible; padding: 6px clamp(16px, 4vw, 48px) 4px; }
+.loveflix .lf-card { flex: 0 0 auto; width: clamp(150px, 42vw, 220px); cursor: pointer; transition: transform 0.22s; position: relative; }
+.loveflix .lf-card:hover { transform: scale(1.04); z-index: 5; }
+.loveflix .lf-card-img { position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 6px; overflow: hidden; background: #1c1c1c; }
+.loveflix .lf-card-img img { width:100%; height:100%; object-fit:cover; display:block; }
+.loveflix .lf-card-placeholder { position: absolute; inset: 0; }
+.loveflix .lf-progress { position: absolute; left: 8px; right: 8px; bottom: 7px; height: 3px; background: rgba(255,255,255,0.3); border-radius: 2px; }
+.loveflix .lf-progress span { display: block; height: 100%; border-radius: 2px; background: var(--lf-accent); }
+.loveflix .lf-card-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #fff; opacity: 0; background: rgba(0,0,0,0.3); transition: opacity 0.2s; }
+.loveflix .lf-card:hover .lf-card-play { opacity: 1; }
+.loveflix .lf-card-title { margin-top: 7px; font-size: clamp(0.8rem, 3vw, 0.95rem); color: #ccc; padding: 0 2px; }
+
+/* Top reasons (Top-10 style) */
+.loveflix .lf-top10 { align-items: stretch; }
+.loveflix .lf-rank { flex: 0 0 auto; display: flex; align-items: center; position: relative; }
+.loveflix .lf-rank-num { font-family: 'Oswald', Impact, sans-serif; text-transform: uppercase; font-weight: 600; font-size: clamp(4.5rem, 16vw, 8rem); line-height: 0.8; color: #141414; -webkit-text-fill-color: #141414; -webkit-text-stroke: 2px var(--lf-accent); margin-right: -8px; position: relative; z-index: 1; }
+.loveflix .lf-rank-card { background: #1c1c1c; border: 1px solid rgba(229,9,20,.33); border-radius: 8px; padding: 16px 18px 16px 22px; min-width: clamp(140px, 40vw, 210px); min-height: 92px; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+.loveflix .lf-rank-heart { font-size: 1.1rem; color: var(--lf-accent); }
+.loveflix .lf-rank-text { font-size: clamp(0.95rem, 3.4vw, 1.15rem); font-weight: 600; color: #fff; line-height: 1.25; }
+.loveflix .lf-row-cta { text-align: center; padding: 18px 20px 10px; }
+
+/* ── 4. EPISODE (interactive choice) ── */
+.loveflix .lf-episode, .loveflix .lf-climax { display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.loveflix .lf-ep-bg { position: absolute; inset: 0; z-index: 0; }
+.loveflix .lf-ep-placeholder { position: absolute; inset: 0; z-index: 0; pointer-events: none; width: 100%; height: 100%; }
+.loveflix .lf-ep-img-layer { position: absolute; inset: 0; z-index: 1; }
+.loveflix .lf-ep-img-layer img { width: 100%; height: 100%; object-fit: cover; }
+.loveflix .lf-ep-vignette { position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(rgba(8,8,8,0.58), rgba(8,8,8,0.66)), radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.7) 100%); }
+.loveflix .lf-ep-content { position: relative; z-index: 10; max-width: 640px; padding: 70px 24px; text-align: center; }
+.loveflix .lf-ep-label { font-size: 0.8rem; letter-spacing: 0.25em; color: var(--lf-accent); font-weight: 700; margin-bottom: 20px; }
+.loveflix .lf-ep-narration { font-size: clamp(1.3rem, 5.5vw, 2.2rem); line-height: 1.35; font-weight: 600; color: #fff; margin: 0 0 36px; text-shadow: 0 2px 18px rgba(0,0,0,0.8); }
+.loveflix .lf-ep-timer { width: min(320px, 80vw); margin: 0 auto 30px; }
+.loveflix .lf-ep-timer-bar { width: 100%; height: 5px; background: rgba(255,255,255,0.22); border-radius: 3px; overflow: hidden; }
+.loveflix .lf-ep-timer-bar span { display: block; height: 100%; transition: width 0.1s linear; background: var(--lf-accent); }
+.loveflix .lf-ep-choices { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.loveflix .lf-choice { background: rgba(40,40,40,0.7); border: 2px solid rgba(255,255,255,0.35); color: #fff; padding: 16px 28px; border-radius: 8px; font-size: clamp(1rem, 4vw, 1.25rem); font-weight: 600; cursor: pointer; min-width: clamp(160px, 44vw, 230px); backdrop-filter: blur(6px); transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s, background 0.2s; font-family: 'Inter', sans-serif; }
+.loveflix .lf-choice:hover { transform: translateY(-3px) scale(1.03); border-color: #fff; background: rgba(60,60,60,0.85); }
+.loveflix .lf-choice.chosen { background: rgba(229,9,20,0.25); border-color: var(--lf-accent); box-shadow: 0 0 24px rgba(229,9,20,.67); }
+
+/* ── 5. CLIMAX (the question) ── */
+.loveflix .lf-climax-content { position: relative; z-index: 10; max-width: 700px; padding: 70px 24px; text-align: center; }
+.loveflix .lf-climax-title { font-family: 'Oswald', Impact, sans-serif; text-transform: uppercase; font-weight: 600; color: #ffffff !important; font-size: clamp(3rem, 12vw, 6rem); line-height: 0.95; margin: 0 0 18px; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.9), 0 0 30px rgba(229,9,20,0.55), 0 8px 40px rgba(0,0,0,0.8); }
+.loveflix .lf-climax-sub { font-size: clamp(1.05rem, 4vw, 1.45rem); color: #f0f0f0; margin: 0 0 40px; line-height: 1.4; text-shadow: 0 2px 12px rgba(0,0,0,0.8); }
+.loveflix .lf-climax-cta { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; align-items: center; }
+.loveflix .lf-cta-yes { background: var(--lf-accent) !important; color: #fff !important; }
+.loveflix .lf-cta-yes:hover { background: #f6121d !important; }
+.loveflix .lf-cta-no { background: rgba(80,80,80,0.5); color: #ccc; border: 1px solid rgba(255,255,255,0.2); padding: 13px 30px; border-radius: 5px; font-size: clamp(0.95rem, 3.6vw, 1.1rem); font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
+
+/* ── 7. END CREDITS ── */
+.loveflix .lf-credits { height: 100vh; height: 100dvh; min-height: 560px; overflow: hidden; background: radial-gradient(circle at 50% 120%, rgba(229,9,20,0.15), transparent 38%), #050505; }
+.loveflix .lf-credits-roll { width: min(760px, calc(100% - 40px)); margin: 0 auto; padding: 12vh 0 24vh; text-align: center; animation: lf-credits-roll 28s linear forwards; will-change: transform; }
+.loveflix .lf-credits-kicker { color: var(--lf-accent); font-size: clamp(0.72rem, 2.4vw, 0.9rem); font-weight: 800; letter-spacing: 0.28em; text-transform: uppercase; }
+.loveflix .lf-credits-title { margin: 22px 0 20px; font-family: 'Oswald', Impact, sans-serif; text-transform: uppercase; font-weight: 600; font-size: clamp(4rem, 17vw, 8rem); font-weight: 400; line-height: 0.9; letter-spacing: 0.02em; }
+.loveflix .lf-credits-note { max-width: 580px; margin: 0 auto 96px; color: #c8c8c8; font-size: clamp(1rem, 3.5vw, 1.3rem); line-height: 1.7; }
+.loveflix .lf-credits-list { display: grid; gap: 56px; }
+.loveflix .lf-credit-role, .loveflix .lf-credits-dedication > div { margin-bottom: 10px; color: #858585; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.24em; text-transform: uppercase; }
+.loveflix .lf-credit-name { color: #fff; font-family: 'Oswald', Impact, sans-serif; text-transform: uppercase; font-weight: 600; font-size: clamp(1.8rem, 7vw, 3.35rem); letter-spacing: 0.04em; }
+.loveflix .lf-credits-dedication { margin-top: 110px; }
+.loveflix .lf-credits-dedication p { margin: 0; color: var(--lf-accent); font-family: 'Oswald', Impact, sans-serif; text-transform: uppercase; font-weight: 600; font-size: clamp(3rem, 12vw, 6rem); }
+.loveflix .lf-credits-last-line { max-width: 620px; margin: 120px auto 0; font-family: 'Oswald', Impact, sans-serif; text-transform: uppercase; font-weight: 600; font-size: clamp(2.1rem, 8vw, 4.4rem); line-height: 1.08; }
+.loveflix .lf-credits-heart { margin-top: 60px; color: var(--lf-accent); font-size: 3rem; }
+.loveflix .lf-credits-controls { position: absolute; top: max(18px, env(safe-area-inset-top)); right: 18px; z-index: 20; display: flex; gap: 8px; }
+.loveflix .lf-credits-controls button, .loveflix .lf-credits-actions button { border: 1px solid rgba(255,255,255,0.28); border-radius: 5px; background: rgba(10,10,10,0.72); color: #fff; padding: 10px 14px; font: 700 0.72rem/1 'Inter', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; backdrop-filter: blur(8px); }
+.loveflix .lf-credits-finished { display: grid; place-items: center; text-align: center; }
+.loveflix .lf-credits-endcard { width: min(700px, calc(100% - 36px)); }
+.loveflix .lf-credits-endcard .lf-logo { font-size: clamp(1.5rem, 6vw, 2.4rem); }
+.loveflix .lf-credits-endcard > p { margin: 48px 0 14px; color: #777; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.32em; }
+.loveflix .lf-credits-endcard h1 { margin: 0; font-family: 'Oswald', Impact, sans-serif; text-transform: uppercase; font-weight: 600; font-size: clamp(3.2rem, 13vw, 7rem); line-height: 0.95; }
+.loveflix .lf-credits-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 52px; }
+.loveflix .lf-credits-actions button:first-child { border-color: var(--lf-accent); background: var(--lf-accent); }
+@keyframes lf-credits-roll { from { transform: translateY(100vh); } to { transform: translateY(calc(-100% - 16vh)); } }
+@media (max-width: 560px) {
+  .loveflix .lf-credits-controls { left: 12px; right: 12px; justify-content: flex-end; }
+  .loveflix .lf-credits-controls button { padding: 9px 10px; font-size: 0.65rem; }
+  .loveflix .lf-credits-note { margin-bottom: 72px; }
+  .loveflix .lf-credits-list { gap: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loveflix .lf-credits { height: auto; min-height: 100vh; overflow-y: auto; }
+  .loveflix .lf-credits-roll { padding-top: 110px; animation: none; transform: none; }
+}
+.loveflix .lf-hero-img { position: relative; }
