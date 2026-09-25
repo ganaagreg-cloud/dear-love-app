@@ -18,8 +18,17 @@ export function wire() {
 const operators = () =>
   (process.env.WIRE_ALLOWED_OPERATORS || 'sandbox').split(',').map((s) => s.trim()).filter(Boolean);
 
-/** Wire amounts are MNT minor units (x100). Our prices are whole ₮. */
-export const toMinor = (mnt: number) => Math.round(mnt) * 100;
+/**
+ * TEMPORARY WORKAROUND (2026-09-25): Wire's docs say MNT amounts are minor units (x100) —
+ * confirmed via their own API (PaymentIntent.amount echoed back as documented) — but a real
+ * live QPay checkout charged the raw un-divided number (sent 10000 minor units for a 100₮
+ * price, QPay invoice + bank app showed 10,000₮, a 100x overcharge). Their PaymentIntent layer
+ * and QPay connector disagree on the convention. Reported to Wire support.
+ * Until they confirm a fix, send whole ₮ directly (no x100) so real charges match our prices.
+ * REVERT to `Math.round(mnt) * 100` once Wire confirms this is fixed — check with a small live
+ * test again first, since flipping this back too early silently 100x-UNDERcharges instead.
+ */
+export const toMinor = (mnt: number) => Math.round(mnt);
 
 export async function createCheckout(opts: {
   orderId: string; amountMnt: number; description: string; successUrl: string; cancelUrl: string;

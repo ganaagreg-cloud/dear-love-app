@@ -1,6 +1,6 @@
 import 'server-only';
 import { store, type OrderRow, type OrderStatus } from './store';
-import { createCheckout, isDead, isSucceeded, mockPaymentsAllowed, retrieveIntent, wireConfigured } from './wire';
+import { createCheckout, isDead, isSucceeded, mockPaymentsAllowed, retrieveIntent, toMinor, wireConfigured } from './wire';
 import { SITE_URL } from './env';
 import { getTemplate } from '@/templates/registry';
 
@@ -59,7 +59,7 @@ export async function markOrderDead(orderId: string, status: Exclude<OrderStatus
 export async function syncOrder(order: OrderRow): Promise<OrderStatus> {
   if (order.status !== 'pending' || order.provider !== 'wire' || !order.wire_payment_intent_id) return order.status;
   const pi = await retrieveIntent(order.wire_payment_intent_id);
-  if (isSucceeded(pi) && pi.amount === order.amount * 100) { await markOrderPaid(order.id); return 'paid'; }
+  if (isSucceeded(pi) && pi.amount === toMinor(order.amount)) { await markOrderPaid(order.id); return 'paid'; }
   if (isDead(pi)) { const s = pi.status === 'canceled' ? 'canceled' : 'failed'; await markOrderDead(order.id, s); return s; }
   return 'pending';
 }

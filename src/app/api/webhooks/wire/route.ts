@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { SIGNATURE_HEADER, Webhooks, type WireEvent } from '@buildry-wire/wire';
 import { store } from '@/lib/store';
 import { markOrderDead, markOrderPaid } from '@/lib/orders';
-import { isSucceeded, retrieveIntent } from '@/lib/wire';
+import { isSucceeded, retrieveIntent, toMinor } from '@/lib/wire';
 
 export const runtime = 'nodejs';
 
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
   try {
     if (event.type === 'payment_intent.succeeded') {
       const pi = await retrieveIntent(piId); // never trust the payload alone
-      if (isSucceeded(pi) && pi.amount === order.amount * 100) await markOrderPaid(order.id);
+      if (isSucceeded(pi) && pi.amount === toMinor(order.amount)) await markOrderPaid(order.id);
     } else if (event.type === 'payment_intent.canceled') {
       await markOrderDead(order.id, 'canceled');
     } else if (event.type === 'payment_intent.payment_failed') {
