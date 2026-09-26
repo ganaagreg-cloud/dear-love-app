@@ -16,6 +16,15 @@ export const flightMeta: TemplateMeta = {
   features: ['Нислэгийн самбар', 'Урдаг тасалбар', 'Хөдөлгөөнт газрын зураг', '6 буудал зурагтай', 'Паспортын тамга'],
   schema: [
     {
+      id: 'route', title: 'Хаанаас → Хаашаа', previewPage: 'board',
+      fields: [
+        { type: 'text', key: 'fromCode', label: 'Хөөрөх код', max: 4 },
+        { type: 'text', key: 'fromCity', label: 'Хөөрөх хот', max: 20 },
+        { type: 'text', key: 'toCode', label: 'Очих код', max: 4 },
+        { type: 'text', key: 'toCity', label: 'Очих газар', max: 20 },
+      ],
+    },
+    {
       id: 'ticket', title: 'Тасалбар', previewPage: 'pass',
       fields: [
         { type: 'text', key: 'passenger', label: 'Зорчигч (түүний нэр)', max: 22 },
@@ -28,15 +37,6 @@ export const flightMeta: TemplateMeta = {
         { type: 'text', key: 'seat', label: 'Суудал', max: 14 },
         { type: 'text', key: 'cabin', label: 'Зэрэглэл', max: 16 },
         { type: 'color', key: 'color', label: 'Компанийн өнгө', presets: ['#1F4FD1', '#D6336C', '#0F766E', '#7C3AED', '#C2410C', '#111827'] },
-      ],
-    },
-    {
-      id: 'route', title: 'Хаанаас → Хаашаа', previewPage: 'board',
-      fields: [
-        { type: 'text', key: 'fromCode', label: 'Хөөрөх код', max: 4 },
-        { type: 'text', key: 'fromCity', label: 'Хөөрөх хот', max: 20 },
-        { type: 'text', key: 'toCode', label: 'Очих код', max: 4 },
-        { type: 'text', key: 'toCity', label: 'Очих газар', max: 20 },
       ],
     },
     {
