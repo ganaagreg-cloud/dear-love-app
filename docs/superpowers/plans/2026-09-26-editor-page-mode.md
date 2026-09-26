@@ -20,8 +20,8 @@
 ## Review Focus
 
 - Wrapped: the pinned section's target slide isn't currently in `slides[]` (e.g. every song title was cleared while "Топ 5 дуу" is open) — must fall back to the cover, never crash or render blank. (Task 1)
-- LoveFlix: pinning to `'episode'` while `sceneStep` is left over at `2` (climax) from a prior full-preview session — must reset to the first episode scene (`sceneStep = 0`), not resume mid-climax. (Task 4)
-- Book: the schema split must preserve all 20 original field keys with no loss or duplication, and previously-saved content under those keys must still populate the new sections correctly. (Task 5)
+- LoveFlix: pinning to `'episode'` while `sceneStep` is left over at `2` (climax) from a prior full-preview session — must reset to the first episode scene (`sceneStep = 0`), not resume mid-climax. (Task 5)
+- Book: the schema split must preserve all 20 original field keys with no loss or duplication, and previously-saved content under those keys must still populate the new sections correctly. (Task 6)
 - Switching sections fast (open "ticket" then immediately "route") relies on the existing 700ms debounce already covering `pin` changes, not just `content` changes — must not flash the wrong scene before settling. (Task 1)
 - The preview toggle and section-open state must never be sent to `/api/pages/[id]` or mark the page dirty — only `content` is persisted; toggling preview/pin must not trigger the "unsaved changes" `beforeunload` warning. (Task 2)
 
@@ -419,7 +419,98 @@ git commit -m "Add full-preview toggle to the editor toolbar"
 
 ---
 
-## Task 3: Flight support (the reported bug)
+## Task 3: Next-section button in the editor sidebar
+
+**Files:**
+- Modify: `src/components/editor/Editor.tsx`
+
+**Interfaces:**
+- Consumes: `meta.schema` (already in scope in `Editor.tsx`), `open`/`setOpen` (already exist).
+- Produces: nothing new consumed elsewhere — purely a sidebar navigation convenience.
+
+- [ ] **Step 1: Compute the next section**
+
+In `src/components/editor/Editor.tsx`, find the line added in Task 2:
+
+```ts
+  const [previewingFull, setPreviewingFull] = useState(false);
+  const pin = previewingFull ? null : (meta.schema.find((s) => s.id === open)?.previewPage ?? null);
+```
+
+Immediately after it, add:
+
+```ts
+  const openIndex = meta.schema.findIndex((s) => s.id === open);
+  const nextSection = openIndex >= 0 ? meta.schema[openIndex + 1] : undefined;
+```
+
+- [ ] **Step 2: Add the button to the open section's body**
+
+Find the accordion section body:
+
+```tsx
+            {open === s.id && (
+              <div className="ed-sec-body" id={`ed-sec-body-${s.id}`}>
+                {s.description && <p className="ed-help" style={{ marginTop: 0 }}>{s.description}</p>}
+                {s.fields.map((f) => (
+                  <FieldControl key={f.key} field={f} value={content[f.key]} onChange={(v) => set(f.key, v)} upload={upload} />
+                ))}
+              </div>
+            )}
+```
+
+Replace with:
+
+```tsx
+            {open === s.id && (
+              <div className="ed-sec-body" id={`ed-sec-body-${s.id}`}>
+                {s.description && <p className="ed-help" style={{ marginTop: 0 }}>{s.description}</p>}
+                {s.fields.map((f) => (
+                  <FieldControl key={f.key} field={f} value={content[f.key]} onChange={(v) => set(f.key, v)} upload={upload} />
+                ))}
+                {nextSection && (
+                  <button className="btn btn-sm" style={{ marginTop: 10 }} onClick={() => setOpen(nextSection.id)}>
+                    Дараах: {nextSection.title} →
+                  </button>
+                )}
+              </div>
+            )}
+```
+
+(`nextSection` is computed once from the currently-`open` section, outside the
+`.map()`. It's only rendered inside the block that already requires `open === s.id`,
+so by the time this JSX renders, `nextSection` correctly refers to the section right
+after `s`. The last section in a schema has no `nextSection`, so it renders no
+button — matching the spec's "Нийтлэх already covers what's next" reasoning.)
+
+- [ ] **Step 3: Typecheck**
+
+Run: `npm run typecheck`
+Expected: still fails only on `netflix`, `book`, `flight` (their own later tasks) —
+unrelated to this change.
+
+- [ ] **Step 4: Manual verification**
+
+1. In the Wrapped editor, open the first section ("Үндсэн"). Confirm a "Дараах: Таны
+   №1 мөч →" button appears below its fields.
+2. Click it. Confirm the accordion switches to "Таны №1 мөч" (closing "Үндсэн") and
+   the preview updates to match (per Task 1's pinning).
+3. Click through every remaining section's "Дараах →" button in turn, ending at
+   "Мессеж" (the last section). Confirm no button appears there.
+4. Confirm clicking a section header directly (skipping ahead, e.g. straight to
+   "Хайрын төрөл" from "Үндсэн") still works exactly as before — the accordion
+   remains fully clickable, this button is additive only.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/components/editor/Editor.tsx
+git commit -m "Add next-section button to the editor sidebar"
+```
+
+---
+
+## Task 4: Flight support (the reported bug)
 
 **Files:**
 - Modify: `src/templates/flight/meta.ts`
@@ -545,7 +636,7 @@ git commit -m "Pin editor live preview to the open section (Flight)"
 
 ---
 
-## Task 4: LoveFlix support
+## Task 5: LoveFlix support
 
 **Files:**
 - Modify: `src/templates/netflix/meta.ts`
@@ -677,7 +768,7 @@ git commit -m "Pin editor live preview to the open section (LoveFlix)"
 
 ---
 
-## Task 5: Book schema split and page-jump support
+## Task 6: Book schema split and page-jump support
 
 **Files:**
 - Modify: `src/templates/book/meta.ts`
@@ -912,7 +1003,7 @@ git commit -m "Pin editor live preview to the open section (Book)"
 
 ---
 
-## Task 6: Full regression pass
+## Task 7: Full regression pass
 
 **Files:** none (verification only)
 
@@ -939,12 +1030,17 @@ Expected: passes with zero errors.
 2. Confirm the demo preview autoplays exactly as before — no `pin` is ever sent from
    this route (it doesn't use `Editor.tsx` or its `postMessage` at all).
 
-- [ ] **Step 4: Confirm Quest and Locket are completely unaffected**
+- [ ] **Step 4: Confirm Quest and Locket are completely unaffected by pinning**
 
-1. Buy the Quest ("Хайрын адал явдал") template, open its editor. Confirm the editor
-   sidebar and live preview behave exactly as before this feature — no jumping, no
-   change in the title-screen/gameplay flow.
+1. Buy the Quest ("Хайрын адал явдал") template, open its editor. Confirm the live
+   preview behaves exactly as before this feature — no jumping, no change in the
+   title-screen/gameplay flow.
 2. Buy the Locket ("Медальон түүх") template, open its editor. Confirm the same.
+3. In both editors, confirm the "Дараах →" button from Task 3 still appears and
+   advances through sections normally (it's generic to every template's accordion,
+   Quest/Locket included) — it just has no pinning effect on their previews, since
+   neither template's `meta.ts` sets `previewPage`. This is expected, not a bug: the
+   button is a sidebar-navigation convenience independent of pinning support.
 
 - [ ] **Step 5: Final commit (if any cleanup was needed)**
 
