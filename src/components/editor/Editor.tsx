@@ -43,7 +43,8 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   /* ── live preview (iframe + postMessage) ── */
   const frame = useRef<HTMLIFrameElement>(null);
   const latest = useRef(content); latest.current = content;
-  const pin = meta.schema.find((s) => s.id === open)?.previewPage ?? null;
+  const [previewingFull, setPreviewingFull] = useState(false);
+  const pin = previewingFull ? null : (meta.schema.find((s) => s.id === open)?.previewPage ?? null);
   const post = useCallback(
     () => frame.current?.contentWindow?.postMessage({ type: 'dear:content', content: latest.current, pin }, window.location.origin),
     [pin],
@@ -142,6 +143,13 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
             <button className={device === 'desktop' ? 'on' : ''} onClick={() => setDevice('desktop')} title="Компьютер">🖥</button>
             <button className={device === 'mobile' ? 'on' : ''} onClick={() => setDevice('mobile')} title="Утас">📱</button>
           </div>
+          <button
+            className={`btn btn-sm ${previewingFull ? 'btn-primary' : ''}`}
+            onClick={() => setPreviewingFull((v) => !v)}
+            title="Хэсэг тус бүрт зогсолгүй, эхнээс дуустал бүтнээр нь үзэх"
+          >
+            ▶ Бүтнээр
+          </button>
           {status === 'published'
             ? <button className="btn btn-sm btn-rose" onClick={() => setShare(true)}>Хуваалцах</button>
             : <button className="btn btn-sm btn-rose" onClick={publish} disabled={publishing}>{publishing ? 'Нийтэлж байна…' : 'Нийтлэх'}</button>}
