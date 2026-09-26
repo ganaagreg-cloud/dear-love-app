@@ -41,10 +41,11 @@ function RadiatingHearts({ intro = false, stage = false }: { intro?: boolean; st
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FlipApi = { pageFlip: () => any };
 
-export default function Scrapbook({ data = defaults }: { data?: ScrapbookData }) {
+export default function Scrapbook({ data = defaults, pin = null }: { data?: ScrapbookData; pin?: string | number | null }) {
   const book = useRef<FlipApi | null>(null);
   const [page, setPage] = useState(0);
   const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('landscape');
+  const [apiReady, setApiReady] = useState(false);
 
   // intro → arrive state machine
   const [introVisible, setIntroVisible] = useState(true);
@@ -57,6 +58,20 @@ export default function Scrapbook({ data = defaults }: { data?: ScrapbookData })
     t.current = window.setTimeout(() => setEntering(false), 1500);
   };
   useEffect(() => () => window.clearTimeout(t.current), []);
+
+  useEffect(() => {
+    if (!apiReady || typeof pin !== 'number') return;
+    setIntroVisible(false);
+    // turnToPage() is an instant jump (no animation) — flip() is animated and, for
+    // targets far from the current page while the book is still on its closed cover,
+    // only completes its first internal step before stopping (verified: flip(6),
+    // flip(10), and flip(11) from a fresh mount all landed on page 2, the natural
+    // "cover just opened" spread, regardless of the requested target). An instant
+    // jump is also the semantically correct choice here regardless of that bug,
+    // since Book remounts on every keystroke — an animated multi-second flip would
+    // replay constantly while a buyer is still typing.
+    book.current?.pageFlip()?.turnToPage(pin);
+  }, [pin, apiReady]);
 
   const prev = useCallback(() => book.current?.pageFlip()?.flipPrev('top'), []);
   const next = useCallback(() => book.current?.pageFlip()?.flipNext('top'), []);
@@ -106,7 +121,7 @@ export default function Scrapbook({ data = defaults }: { data?: ScrapbookData })
               {...FLIP_CONFIG}
               onFlip={(e: { data: number }) => setPage(e.data)}
               onChangeOrientation={(e: { data: 'portrait' | 'landscape' }) => setOrientation(e.data)}
-              onInit={(e: { data: { page: number; mode: 'portrait' | 'landscape' } }) => setOrientation(e.data.mode)}
+              onInit={(e: { data: { page: number; mode: 'portrait' | 'landscape' } }) => { setOrientation(e.data.mode); setApiReady(true); }}
             >
               {pages}
             </HTMLFlipBook>

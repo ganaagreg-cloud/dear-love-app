@@ -23,13 +23,13 @@ export function toScrapbook(c: Content): ScrapbookData {
   };
 }
 
-export default function BookView({ content }: { content: Content }) {
+export default function BookView({ content, pin }: { content: Content; pin?: string | number | null }) {
   const data = useMemo(() => toScrapbook(content), [content]);
   // react-pageflip can't re-render its children in place → remount when content changes
   const key = useMemo(() => JSON.stringify(data).length + ':' + hash(JSON.stringify(data)), [data]);
   return (
     <div className="dl-book-root">
-      <Scrapbook key={key} data={data} />
+      <Scrapbook key={key} data={data} pin={pin} />
     </div>
   );
 }

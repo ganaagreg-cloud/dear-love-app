@@ -49,7 +49,7 @@ export const bookMeta: TemplateMeta = {
   features: ['12 эргэдэг хуудас', '10 хүртэл зураг', 'Spotify дуу', '30+ тэмдэглэл'],
   schema: [
     {
-      id: 'basics', title: 'Нүүр ба үндсэн',
+      id: 'basics', title: 'Нүүр ба үндсэн', previewPage: 0,
       fields: [
         { type: 'text', key: 'partnerName', label: 'Түүний нэр (нүүрэн дээр)', max: 30, placeholder: 'хайрт минь' },
         { type: 'text', key: 'texts.coverEyebrow', label: 'Нүүрний дээд бичвэр', max: 30 },
@@ -64,7 +64,7 @@ export const bookMeta: TemplateMeta = {
       fields: [{ type: 'images', key: 'photos', label: 'Номын зургууд', max: 10 }],
     },
     {
-      id: 'song', title: 'Таны дуу',
+      id: 'song', title: 'Таны дуу', previewPage: 1,
       fields: [
         { type: 'spotify', key: 'spotify', label: 'Spotify дууны холбоос', placeholder: 'https://open.spotify.com/track/…' },
         { type: 'text', key: 'songName', label: 'Дууны нэр (Spotify холбоосгүй бол)', max: 60 },
@@ -79,20 +79,39 @@ export const bookMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'pages', title: 'Хуудасны тэмдэглэлүүд',
-      description: 'Шинэ мөр хэрэгтэй газар Enter дарна.',
+      id: 'lucky', title: 'Азтай', previewPage: 2,
       fields: [
         { type: 'textarea', key: 'texts.lucky', label: 'Том үг (3-р хуудас)', max: 30, rows: 2 },
         { type: 'textarea', key: 'texts.luckyNote', label: 'Тэмдэглэл (3-р хуудас)', max: 120, rows: 2 },
+      ],
+    },
+    {
+      id: 'letter', title: 'Захидал', previewPage: 3,
+      fields: [
         { type: 'text', key: 'texts.letterEyebrow', label: 'Захидлын дээд бичвэр', max: 30 },
         { type: 'text', key: 'texts.letterTitle', label: 'Захидлын гарчиг', max: 30 },
         { type: 'textarea', key: 'texts.letterBody', label: 'Захидлын бичвэр', max: 160, rows: 3 },
         { type: 'text', key: 'texts.ticket', label: 'Тасалбар дээрх үг', max: 10 },
+      ],
+    },
+    {
+      id: 'little', title: 'Жижигхэн зүйлс', previewPage: 4,
+      fields: [
         { type: 'text', key: 'texts.littleTitle', label: '«Жижигхэн зүйлс» гарчиг', max: 30 },
         { type: 'textarea', key: 'texts.littleNote', label: '«Жижигхэн зүйлс» тэмдэглэл', max: 140, rows: 3 },
+      ],
+    },
+    {
+      id: 'places', title: 'Газрууд', previewPage: 5,
+      fields: [
         { type: 'text', key: 'texts.placesLabel', label: 'Газрын гарчиг', max: 40 },
         { type: 'textarea', key: 'texts.placesNote', label: 'Газрын тэмдэглэл', max: 120, rows: 2 },
         { type: 'textarea', key: 'texts.postmark', label: 'Шуудангийн тамга', max: 30, rows: 2 },
+      ],
+    },
+    {
+      id: 'notes', title: 'Тэмдэглэлүүд', previewPage: 6,
+      fields: [
         { type: 'text', key: 'texts.notesTitle', label: 'Тэмдэглэлийн хуудасны гарчиг', max: 40 },
         { type: 'text', key: 'texts.noteOneLabel', label: '1-р тэмдэглэлийн шошго', max: 30 },
         { type: 'text', key: 'texts.noteOne', label: '1-р тэмдэглэл', max: 60 },
@@ -100,12 +119,17 @@ export const bookMeta: TemplateMeta = {
         { type: 'text', key: 'texts.noteTwo', label: '2-р тэмдэглэл', max: 60 },
         { type: 'textarea', key: 'texts.noteThree', label: '3-р тэмдэглэл', max: 100, rows: 2 },
         { type: 'textarea', key: 'texts.finalList', label: 'Жижигхэн зүйлсийн жагсаалт', max: 200, rows: 5 },
+      ],
+    },
+    {
+      id: 'pocket', title: 'Халаастай хуудас', previewPage: 10,
+      fields: [
         { type: 'text', key: 'texts.pocketTitle', label: 'Халаастай хуудасны гарчиг', max: 40 },
         { type: 'text', key: 'texts.tomorrow', label: 'Халаастай хуудасны тэмдэглэл', max: 60 },
       ],
     },
     {
-      id: 'back', title: 'Арын хавтас',
+      id: 'back', title: 'Арын хавтас', previewPage: 11,
       fields: [
         { type: 'text', key: 'texts.backTitle', label: 'Арын гарчиг', max: 24 },
         { type: 'text', key: 'texts.backTicket', label: 'Тасалбар дээрх үг', max: 12 },
