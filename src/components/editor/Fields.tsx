@@ -40,7 +40,7 @@ function Control({ field: f, value, onChange, upload }: Props) {
       return (
         <div className="ed-seg">
           {f.options.map((o) => (
-            <button type="button" key={o.value} className={asStr(value) === o.value ? 'on' : ''} onClick={() => onChange(o.value)}>{o.label}</button>
+            <button type="button" key={o.value} aria-pressed={asStr(value) === o.value} className={asStr(value) === o.value ? 'on' : ''} onClick={() => onChange(o.value)}>{o.label}</button>
           ))}
         </div>
       );
@@ -55,7 +55,7 @@ function Control({ field: f, value, onChange, upload }: Props) {
       return (
         <div className="ed-colors">
           {(f.presets ?? []).map((c) => (
-            <button type="button" key={c} aria-label={c} className={asStr(value).toLowerCase() === c.toLowerCase() ? 'on' : ''} style={{ background: c }} onClick={() => onChange(c)} />
+            <button type="button" key={c} aria-label={c} aria-pressed={asStr(value).toLowerCase() === c.toLowerCase()} className={asStr(value).toLowerCase() === c.toLowerCase() ? 'on' : ''} style={{ background: c }} onClick={() => onChange(c)} />
           ))}
           <label className="ed-color-custom" title="Өөр өнгө сонгох">
             <input type="color" value={/^#[0-9a-f]{6}$/i.test(asStr(value)) ? asStr(value) : '#ffffff'} onChange={(e) => onChange(e.target.value)} />

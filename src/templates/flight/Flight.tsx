@@ -298,7 +298,7 @@ function Journey({ data, stops, pts, d, onLand }: { data: FlightData; stops: Sto
       {s && (
         <div className="fl-postcard-wrap">
           <div className="fl-postcard" key={atStop}>
-            <div className="fl-pc-photo">{s.photo ? <PhotoImg src={s.photo} /> : <span>♥</span>}</div>
+            <div className="fl-pc-photo">{s.photo ? <PhotoImg src={s.photo} alt={s.name} /> : <span>♥</span>}</div>
             <div className="fl-pc-body">
               <div className="fl-pc-stamp">{(s.code || s.name.slice(0, 3)).toUpperCase()}</div>
               <small>{atStop! + 1}-р буудал · {s.date}</small>
@@ -313,7 +313,7 @@ function Journey({ data, stops, pts, d, onLand }: { data: FlightData; stops: Sto
   );
 }
 
-function PhotoImg({ src }: { src: string }) {
+function PhotoImg({ src, alt }: { src: string; alt?: string }) {
   const [bad, setBad] = useState(false);
-  return bad ? <span>♥</span> : <img src={src} alt="" onError={() => setBad(true)} />;
+  return bad ? <span>♥</span> : <img src={src} alt={alt || 'хайрын зураг'} onError={() => setBad(true)} />;
 }

@@ -32,7 +32,7 @@
 /* ── boarding pass ── */
 .fl-pass-scene { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
 .fl-pass { position: relative; display: grid; grid-template-columns: 1fr 200px; width: min(880px, 100%); filter: drop-shadow(0 30px 40px rgba(20,30,60,.28));
-  animation: flSlide .9s cubic-bezier(.2,1.2,.3,1) both; }
+  animation: flSlide .9s cubic-bezier(.16,1,.3,1) both; }
 @keyframes flSlide { from { transform: translateY(60px) rotate(-3deg); opacity: 0; } }
 .fl-main, .fl-stub { background: var(--paper); position: relative; }
 .fl-main { border-radius: 20px 0 0 20px; padding: 22px 26px; overflow: hidden; }
@@ -94,7 +94,7 @@
 .fl-hud .alt { color: #ffd23f; }
 .fl-postcard-wrap { position: absolute; inset: 0; display: grid; place-items: end center; padding: 20px 16px max(24px, env(safe-area-inset-bottom)); pointer-events: none; }
 .fl-postcard { pointer-events: auto; display: grid; grid-template-columns: 220px 1fr; width: min(640px, 100%); background: var(--paper); border-radius: 14px; overflow: hidden;
-  box-shadow: 0 30px 60px -20px rgba(15,25,50,.5); animation: flCard .7s cubic-bezier(.2,1.3,.3,1) both; }
+  box-shadow: 0 30px 60px -20px rgba(15,25,50,.5); animation: flCard .7s cubic-bezier(.16,1,.3,1) both; }
 @keyframes flCard { from { transform: translateY(120%) rotate(4deg); } }
 .fl-pc-photo { background: linear-gradient(135deg, var(--brand), #7aa7d8); display: grid; place-items: center; min-height: 220px; }
 .fl-pc-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -104,7 +104,7 @@
 .fl-pc-body h2 { margin: 6px 0 8px; font-size: 24px; font-weight: 900; letter-spacing: -.02em; padding-right: 70px; }
 .fl-pc-body p { margin: 0; font-size: 15px; line-height: 1.55; color: #3b4252; }
 .fl-pc-stamp { position: absolute; right: 16px; top: 16px; width: 64px; height: 64px; border-radius: 50%; border: 3px double var(--brand); color: var(--brand); display: grid; place-items: center;
-  font: 900 15px/1 'JetBrains Mono', monospace; transform: rotate(-14deg); opacity: .85; animation: flStamp .5s .5s cubic-bezier(.2,1.8,.4,1) both; }
+  font: 900 15px/1 'JetBrains Mono', monospace; transform: rotate(-14deg); opacity: .85; animation: flStamp .5s .5s cubic-bezier(.16,1,.3,1) both; }
 @keyframes flStamp { from { transform: scale(2.4) rotate(-14deg); opacity: 0; } }
 @media (max-width: 600px) { .fl-postcard { grid-template-columns: 1fr; } .fl-pc-photo { min-height: 0; height: 34vh; } }
 
@@ -113,12 +113,12 @@
   background: radial-gradient(100% 70% at 50% 100%, color-mix(in srgb, var(--brand) 30%, #f7e7ef), #eef2f8); }
 .fl-arrivals { display: flex; gap: 14px; font: 800 clamp(18px, 4vw, 30px)/1 'JetBrains Mono', monospace; background: #0b0c10; padding: 14px 18px; border-radius: 12px; }
 .fl-passport { position: relative; width: min(560px, 100%); background: var(--paper); border-radius: 18px; padding: 34px 30px 28px; text-align: center; box-shadow: 0 30px 60px -24px rgba(20,30,60,.4);
-  background-image: repeating-linear-gradient(45deg, rgba(0,0,0,.018) 0 2px, transparent 2px 8px); animation: flSlide .9s .3s cubic-bezier(.2,1.2,.3,1) both; }
+  background-image: repeating-linear-gradient(45deg, rgba(0,0,0,.018) 0 2px, transparent 2px 8px); animation: flSlide .9s .3s cubic-bezier(.16,1,.3,1) both; }
 .fl-passport h1 { font-size: clamp(28px, 6vw, 40px); margin: 8px 0 12px; letter-spacing: -.03em; font-weight: 900; }
 .fl-passport p { margin: 0; font-size: 16px; line-height: 1.6; color: #3b4252; white-space: pre-wrap; }
 .fl-passport .fl-sign { margin-top: 18px; font-weight: 800; color: var(--brand); }
 .fl-stamp { position: absolute; right: -14px; top: -30px; width: 128px; height: 128px; border-radius: 50%; border: 4px solid #d6336c; color: #d6336c; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 4px; transform: rotate(14deg); background: rgba(255,255,255,.6); animation: flStamp .55s 1.2s cubic-bezier(.2,1.8,.4,1) both; font-family: 'JetBrains Mono', monospace; text-align: center; }
+  gap: 4px; transform: rotate(14deg); background: rgba(255,255,255,.6); animation: flStamp .55s 1.2s cubic-bezier(.16,1,.3,1) both; font-family: 'JetBrains Mono', monospace; text-align: center; }
 .fl-stamp span { font-weight: 800; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; max-width: 100px; overflow: hidden; }
 .fl-stamp b { font-size: 13px; } .fl-stamp small { font-size: 10px; }
 
@@ -128,4 +128,10 @@
   .fl-passport { padding-top: 54px; }
   .fl-stamp { width: 96px; height: 96px; right: 50%; margin-right: -48px; top: -62px; transform: rotate(-8deg); }
   .fl-stamp span, .fl-stamp b { font-size: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fl-board-row.me, .fl-board-call, .fl-pass, .fl-pass.torn .fl-main,
+  .fl-postcard, .fl-pc-stamp, .fl-passport, .fl-stamp { animation: none; }
+  .fl-stub { transition-duration: .01s; }
 }

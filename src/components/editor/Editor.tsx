@@ -97,6 +97,10 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
     if (ok) { setStatus('paid'); setShare(false); }
   };
   const copy = async () => { await navigator.clipboard?.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1600); };
+  const shareToFacebook = () => {
+    const w = window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=580,height=650,noopener,noreferrer');
+    w?.focus();
+  };
 
   /* ── scale the preview device to fit ── */
   const stage = useRef<HTMLDivElement>(null);
@@ -144,11 +148,11 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
         <div className="ed-lock">🔒 Энэ хуудсыг зөвхөн та засах эрхтэй</div>
         {meta.schema.map((s) => (
           <section key={s.id} className={`ed-sec ${open === s.id ? 'open' : ''}`}>
-            <button className="ed-sec-head" onClick={() => setOpen(open === s.id ? '' : s.id)}>
+            <button className="ed-sec-head" aria-expanded={open === s.id} aria-controls={`ed-sec-body-${s.id}`} onClick={() => setOpen(open === s.id ? '' : s.id)}>
               <span>{s.title}</span><i>{open === s.id ? '−' : '+'}</i>
             </button>
             {open === s.id && (
-              <div className="ed-sec-body">
+              <div className="ed-sec-body" id={`ed-sec-body-${s.id}`}>
                 {s.description && <p className="ed-help" style={{ marginTop: 0 }}>{s.description}</p>}
                 {s.fields.map((f) => (
                   <FieldControl key={f.key} field={f} value={content[f.key]} onChange={(v) => set(f.key, v)} upload={upload} />
@@ -188,11 +192,15 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
             <div className="ed-link"><input readOnly value={url} onFocus={(e) => e.target.select()} /></div>
             <div className="row" style={{ justifyContent: 'center', flexWrap: 'wrap' }}>
               <button className="btn btn-primary" onClick={copy}>{copied ? 'Хуулсан ✓' : 'Линк хуулах'}</button>
+              <button className="btn btn-fb" onClick={shareToFacebook}>Facebook</button>
               {typeof navigator !== 'undefined' && 'share' in navigator && (
-                <button className="btn" onClick={() => navigator.share({ title: 'Танд зориулав ♡', url }).catch(() => {})}>Хуваалцах…</button>
+                <button className="btn" onClick={() => navigator.share({ title: 'Танд зориулав ♡', url }).catch(() => {})}>Instagram, TikTok, Messenger…</button>
               )}
               <a className="btn" href={url} target="_blank" rel="noreferrer">Нээх</a>
             </div>
+            {!(typeof navigator !== 'undefined' && 'share' in navigator) && (
+              <p className="ed-help">Instagram, TikTok зэрэг апп руу шууд хуваалцах товч утасны мобайл хөтчид гардаг. Компьютер дээрээс бол линкийг хуулаад тухайн апп-даа буулгаарай.</p>
+            )}
             <button className="btn btn-ghost btn-sm" onClick={unpublish} style={{ marginTop: 8 }}>Нийтлэлээс буцаах</button>
           </div>
         </div>

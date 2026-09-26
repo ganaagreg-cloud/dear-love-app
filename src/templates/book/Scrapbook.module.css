@@ -1,7 +1,7 @@
 /* ============================================================
    DIGITAL SCRAPBOOK BOOK — exact styles extracted from reference
    (CSS-module class names, prefix stripped). Viewer mode only.
-   Textures: free Unsplash photos (hotlinked). Stickers: Twemoji (CC-BY 4.0).
+   Textures: self-hosted paper photos (/public/tpl/book). Stickers: Twemoji (CC-BY 4.0).
    ============================================================ */
 
 /* ---------- SHELL / STAGE ---------- */
@@ -10,7 +10,7 @@
   font-family:var(--font-inter),Arial,sans-serif;
   background: radial-gradient(circle at 50% 44%, rgba(143,67,72,.42), rgba(0,0,0,0) 39%),
               linear-gradient(135deg, rgba(91,29,39,.96), rgba(45,20,21,.98)),
-              url(https://images.unsplash.com/photo-1709467587315-ff312abdd440?w=720&q=60&auto=format&fit=crop) 50% center / 720px auto;
+              url(/tpl/book/book-pattern-roughness.jpg) 50% center / 720px auto;
   outline:none; flex-direction:column; justify-content:center; display:flex; position:relative; overflow:clip; }
 .scrapbookShell::before { content:""; z-index:-1; pointer-events:none; opacity:.34;
   background: radial-gradient(circle at 50% 25%, rgba(255,239,226,.74), rgba(0,0,0,0) 39%),
@@ -37,7 +37,7 @@
 
 /* ---------- BASE PAGE ---------- */
 .page { box-sizing:border-box; width:100%; height:100%; color:var(--ink);
-  background:linear-gradient(rgba(238,229,214,.92), rgba(238,229,214,.92)), url(https://images.unsplash.com/photo-1615800098746-73af8261e3df?w=1200&q=70&auto=format&fit=crop) 50% center / cover;
+  background:linear-gradient(rgba(238,229,214,.92), rgba(238,229,214,.92)), url(/tpl/book/paper-light.webp) 50% center / cover;
   position:relative; overflow:hidden; box-shadow:rgba(64,39,30,.16) 0 0 30px inset; }
 .page::before { content:""; z-index:40; pointer-events:none; border:1px solid rgba(59,38,30,.22); position:absolute; inset:0;
   box-shadow:rgba(59,38,30,.12) 15px 0 23px inset, rgba(91,65,49,.12) 0 0 15px inset; }
@@ -51,13 +51,13 @@
 .intro { z-index:300;
   background: radial-gradient(circle, rgba(154,70,78,.48), rgba(0,0,0,0) 42%),
               linear-gradient(135deg, rgb(132,44,59), rgb(59,23,28) 72%),
-              url(https://images.unsplash.com/photo-1709467587315-ff312abdd440?w=720&q=60&auto=format&fit=crop) 50% center / 720px auto;
+              url(/tpl/book/book-pattern-roughness.jpg) 50% center / 720px auto;
   place-items:center; transition:opacity .9s, visibility .9s step-end; display:grid; position:absolute; inset:0; overflow:hidden; }
 .introVisible { opacity:1; visibility:visible; }
 .introHidden { opacity:0; visibility:hidden; pointer-events:none; }
 .introNote { z-index:5; width:min(480px,72vw); min-height:215px; color:var(--ink);
   clip-path:polygon(1.5% 6%,12% 2%,24% 5%,39% 1%,53% 5%,68% 2%,82% 4%,98% 1%,96.5% 18%,99% 33%,97% 48%,99% 66%,96% 83%,98% 98%,82% 96%,68% 99%,51% 96%,34% 99%,18% 96%,2% 99%,4% 80%,1% 65%,3% 49%,1% 31%);
-  cursor:pointer; background:linear-gradient(rgba(242,232,215,.93), rgba(242,232,215,.93)), url(https://images.unsplash.com/photo-1615800098746-73af8261e3df?w=1200&q=70&auto=format&fit=crop) 50% center / cover;
+  cursor:pointer; background:linear-gradient(rgba(242,232,215,.93), rgba(242,232,215,.93)), url(/tpl/book/paper-light.webp) 50% center / cover;
   border:0; padding:36px 38px 30px; position:relative; transform:rotate(-1.1deg); box-shadow:rgba(76,39,34,.22) 0 20px 45px; }
 .introNote span { font:italic 24px/1.1 var(--font-playfair),Georgia,serif; display:block; }
 .introNote strong { font:600 clamp(3.2rem,8vw,5.6rem)/.98 var(--font-playfair),Georgia,serif; letter-spacing:-.06em; display:block; }
@@ -75,7 +75,7 @@
   filter:drop-shadow(0 0 11px color-mix(in srgb, var(--heart-color) 35%, transparent)); }
 
 /* ---------- P0 FRONT COVER (hard) ---------- */
-.frontCover, .backCover { color:var(--ivory); background:linear-gradient(rgba(68,44,36,.87), rgba(68,44,36,.87)), url(https://images.unsplash.com/photo-1763030861291-b7e65ae261c9?w=1200&q=70&auto=format&fit=crop) 50% center / cover; }
+.frontCover, .backCover { color:var(--ivory); background:linear-gradient(rgba(68,44,36,.87), rgba(68,44,36,.87)), url(/tpl/book/paper.webp) 50% center / cover; }
 .crumples { opacity:.42; mix-blend-mode:soft-light; position:absolute; inset:0;
   background:linear-gradient(112deg, rgba(0,0,0,0) 22%, rgba(255,255,255,.15) 22.5%, rgba(0,0,0,0) 24%),
              linear-gradient(43deg, rgba(0,0,0,0) 67%, rgba(14,7,5,.18) 68%, rgba(0,0,0,0) 70%),
@@ -96,7 +96,7 @@
 .coverStarTwo { bottom:18%; left:6%; }
 
 /* ---------- P1 RECORD ---------- */
-.recordPage { background:url(https://images.unsplash.com/photo-1763030861291-b7e65ae261c9?w=1200&q=70&auto=format&fit=crop) 50% center / cover rgb(75,49,41); }
+.recordPage { background:url(/tpl/book/paper.webp) 50% center / cover rgb(75,49,41); }
 .vinyl { aspect-ratio:1/1; background:repeating-radial-gradient(circle, rgb(29,24,22) 0, rgb(29,24,22) 3px, rgb(41,33,30) 4px, rgb(41,33,30) 7px, rgb(25,21,19) 8px, rgb(25,21,19) 9px); border-radius:50%; width:108%; position:absolute; top:-7%; left:-29%; box-shadow:rgba(21,10,7,.35) 5px 12px 25px; }
 .vinyl::after { content:""; aspect-ratio:1/1; background:radial-gradient(circle, rgb(43,34,31) 0, rgb(43,34,31) 5%, rgb(155,126,103) 6%, rgb(155,126,103) 34%, rgb(210,188,160) 35%, rgb(210,188,160) 100%); border-radius:50%; width:18%; position:absolute; top:41%; left:41%; }
 .vinyl span { border:1px solid rgba(255,255,255,.06); border-radius:50%; position:absolute; inset:8%; }
@@ -109,7 +109,7 @@
 .whiteFlowers { z-index:12; filter:saturate(.5) brightness(1.15); width:34%; position:absolute; top:4%; right:-6%; transform:rotate(14deg); }
 
 /* ---------- P2 LUCKY ---------- */
-.luckyPage { background:url(https://images.unsplash.com/photo-1763030861291-b7e65ae261c9?w=1200&q=70&auto=format&fit=crop) 50% center / cover rgb(140,115,90); }
+.luckyPage { background:url(/tpl/book/paper.webp) 50% center / cover rgb(140,115,90); }
 .luckyPaper { color:rgba(42,29,24,.88); letter-spacing:-.08em; opacity:.75; font:900 78px/.78 Arial,sans-serif; position:absolute; inset:0; overflow:hidden; transform:rotate(-11deg) scale(1.18); }
 .luckyMainPhoto, .luckyTopPhoto, .cameraPhoto { z-index:6; box-sizing:border-box; background:rgb(238,229,215); padding:7px 7px 22px; position:absolute; box-shadow:rgba(29,15,10,.32) 0 12px 22px; }
 .luckyMainPhoto { width:51%; height:42%; top:26%; left:16%; transform:rotate(-3deg); }
@@ -123,7 +123,7 @@
 .metalStar { z-index:12; color:rgb(183,174,161); filter:drop-shadow(rgba(32,18,12,.45) 2px 3px 2px); font-size:37px; position:absolute; top:45%; left:7%; }
 
 /* ---------- P3 LETTER ---------- */
-.letterPage { background:url(https://images.unsplash.com/photo-1763030861291-b7e65ae261c9?w=1200&q=70&auto=format&fit=crop) 50% center / cover rgb(67,46,40); }
+.letterPage { background:url(/tpl/book/paper.webp) 50% center / cover rgb(67,46,40); }
 .tornLayer { clip-path:polygon(0 8%,8% 4%,17% 7%,27% 2%,39% 5%,49% 1%,61% 4%,73% 2%,87% 6%,100% 2%,98% 96%,86% 99%,72% 96%,56% 99%,42% 96%,28% 100%,13% 96%,1% 99%); opacity:.72; background:rgb(192,170,139); position:absolute; inset:10% 5% 7% 6%; }
 .envelope { z-index:4; background:rgb(173,129,90); width:57%; height:38%; position:absolute; top:20%; left:10%; transform:rotate(-5deg); box-shadow:rgba(26,12,8,.25) 0 10px 20px; }
 .envelope::after { content:""; clip-path:polygon(0 0,50% 60%,100% 0); background:rgb(195,155,116); position:absolute; inset:0; }
@@ -155,7 +155,7 @@
   width:34%; height:34%; position:absolute; top:3%; right:-4%; transform:rotate(8deg); }
 
 /* ---------- P5 PLACES ---------- */
-.placesPage { background:url(https://images.unsplash.com/photo-1763030861291-b7e65ae261c9?w=1200&q=70&auto=format&fit=crop) 50% center / cover rgb(185,154,120); }
+.placesPage { background:url(/tpl/book/paper.webp) 50% center / cover rgb(185,154,120); }
 .placesLabel { z-index:9; background:rgb(238,227,211); padding:10px 15px; font:18px/1 "Segoe Print",cursive; position:absolute; top:7%; left:8%; transform:rotate(-3deg); }
 .mapLarge { opacity:.52; clip-path:polygon(2% 6%,13% 2%,24% 5%,38% 1%,52% 5%,67% 2%,79% 6%,97% 2%,94% 97%,81% 94%,68% 99%,55% 95%,40% 98%,24% 94%,8% 98%);
   background:repeating-linear-gradient(19deg, transparent 0, transparent 29px, rgba(64,72,59,.4) 30px, rgba(64,72,59,.4) 32px),
@@ -170,7 +170,7 @@
 .placesTape { z-index:12; position:absolute; top:20%; left:27%; transform:rotate(8deg); }
 
 /* ---------- P6 NOTES ---------- */
-.notesPage { background:url(https://images.unsplash.com/photo-1763030861291-b7e65ae261c9?w=1200&q=70&auto=format&fit=crop) 50% center / cover rgb(74,48,41); }
+.notesPage { background:url(/tpl/book/paper.webp) 50% center / cover rgb(74,48,41); }
 .notesTitle { z-index:18; color:rgb(255,245,229); clip-path:polygon(1% 9%,12% 3%,25% 8%,39% 2%,54% 7%,68% 3%,83% 8%,99% 2%,97% 93%,84% 98%,69% 93%,54% 98%,39% 94%,24% 99%,2% 93%); text-shadow:rgba(25,8,7,.35) 0 2px 3px; background:rgb(117,58,67); padding:10px 14px 11px; font:23px/1 "Segoe Print",cursive; position:absolute; top:5%; left:7%; transform:rotate(-2deg); box-shadow:rgba(20,8,6,.28) 0 8px 16px; }
 .notesPhoto { z-index:5; box-sizing:border-box; background:rgb(239,229,214); width:57%; height:42%; padding:8px 8px 28px; position:absolute; top:17%; left:8%; transform:rotate(-4deg); box-shadow:rgba(18,8,5,.34) 0 13px 23px; }
 .paperNoteOne, .paperNoteTwo, .paperNoteThree { z-index:8; box-sizing:border-box; color:rgb(56,41,34); background:rgb(233,220,198); max-height:22%; padding:14px 16px; font-family:"Segoe Print",cursive; position:absolute; overflow:hidden; box-shadow:rgba(18,8,5,.24) 0 8px 14px; }
@@ -205,8 +205,8 @@
 .notesFilmStrip { grid-template-rows:minmax(0,1fr); grid-template-columns:repeat(3,1fr); width:46%; height:18%; bottom:6%; left:5%; transform:rotate(2deg); }
 
 /* ---------- P7 + P8 SOUNDTRACK SPREAD ---------- */
-.soundtrackLeftPage { background:linear-gradient(rgba(161,128,94,.38), rgba(161,128,94,.38)), url(https://images.unsplash.com/photo-1763030861291-b7e65ae261c9?w=1200&q=70&auto=format&fit=crop) 50% center / cover; }
-.soundtrackRightPage { background:linear-gradient(rgba(80,49,39,.88), rgba(80,49,39,.88)), url(https://images.unsplash.com/photo-1763030861291-b7e65ae261c9?w=1200&q=70&auto=format&fit=crop) 50% center / cover; }
+.soundtrackLeftPage { background:linear-gradient(rgba(161,128,94,.38), rgba(161,128,94,.38)), url(/tpl/book/paper.webp) 50% center / cover; }
+.soundtrackRightPage { background:linear-gradient(rgba(80,49,39,.88), rgba(80,49,39,.88)), url(/tpl/book/paper.webp) 50% center / cover; }
 .ransomTitle { z-index:18; flex-wrap:wrap; align-items:center; gap:3px; display:flex; position:absolute; }
 .ransomTitle > span:not(.ransomSpace) { color:rgb(61,37,31); text-transform:uppercase; background:rgb(234,216,183); border:1px solid rgba(55,31,24,.16); place-items:center; min-width:21px; height:30px; padding:0 3px; font:900 22px/.9 Georgia,serif; display:grid; transform:rotate(-4deg); box-shadow:rgba(57,31,23,.22) 1px 2px; }
 .ransomTitle > span:nth-child(3n) { color:rgb(237,228,207); background:rgb(128,57,67); font-family:Arial,sans-serif; transform:rotate(4deg); }
@@ -248,7 +248,7 @@
 .headphoneWire { z-index:15; pointer-events:none; border:3px solid; border-color:rgb(36,27,24) rgb(36,27,24) transparent transparent; border-radius:50%; width:44%; height:24%; position:absolute; bottom:24%; right:7%; transform:rotate(24deg); }
 
 /* ---------- P9 FINAL DARK ---------- */
-.finalDarkPage { background:url(https://images.unsplash.com/photo-1763030861291-b7e65ae261c9?w=1200&q=70&auto=format&fit=crop) 50% center / cover rgb(63,43,37); }
+.finalDarkPage { background:url(/tpl/book/paper.webp) 50% center / cover rgb(63,43,37); }
 .finalHeroPhoto { z-index:4; box-sizing:border-box; background:rgb(238,227,212); width:66%; height:48%; padding:8px 8px 24px; position:absolute; top:12%; left:9%; transform:rotate(2deg); box-shadow:rgba(18,8,5,.32) 0 12px 23px; }
 .finalTinyPhoto { z-index:7; box-sizing:border-box; background:rgb(238,228,214); width:31%; height:24%; padding:5px 5px 17px; position:absolute; bottom:8%; left:48%; transform:rotate(7deg); box-shadow:rgba(18,8,5,.3) 0 9px 16px; }
 .finalFern { z-index:9; object-fit:contain; filter:sepia(.3) saturate(.45) brightness(.86); width:34%; height:41%; position:absolute; bottom:5%; left:3%; transform:rotate(-14deg); }

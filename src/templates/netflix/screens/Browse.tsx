@@ -14,7 +14,7 @@ function Card({ item, accent, onPlay }: { item: CardItem; accent: string; onPlay
     <div className="lf-card" role="button" tabIndex={0} onClick={onPlay} onKeyDown={(e) => e.key === 'Enter' && onPlay()}>
       <div className="lf-card-img">
         {item.photo ? (
-          <img src={item.photo} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+          <img src={item.photo} alt={item.title || 'хайрын зураг'} loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
         ) : (
           <div className="lf-card-placeholder" style={{ background: `linear-gradient(135deg, ${accent}55, rgba(20,20,20,.55)), ${NEBULA}` }} />
         )}
@@ -57,7 +57,7 @@ export default function Browse({ data, copy, onPlay }: ScreenProps & { onPlay: (
 
       <div className="lf-hero">
         <div className="lf-hero-bg">
-          <div className="lf-hero-placeholder" />{data.heroPhoto && <img className="lf-hero-img" src={data.heroPhoto} alt="" onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
+          <div className="lf-hero-placeholder" />{data.heroPhoto && <img className="lf-hero-img" src={data.heroPhoto} alt={copy.heroTitle || 'хайрын зураг'} onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
           <div className="lf-hero-fade" />
           <div className="lf-hero-fade-bottom" />
         </div>

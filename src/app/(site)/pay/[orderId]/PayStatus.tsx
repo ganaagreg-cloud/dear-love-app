@@ -26,11 +26,11 @@ export default function PayStatus({ orderId, canceled }: { orderId: string; canc
     return () => { stop = true; clearTimeout(timer); };
   }, [orderId]);
 
-  if (err) return <div className="panel center"><h1>Уучлаарай…</h1><p className="err">{err}</p><Link className="btn" href="/dashboard">Миний хуудсууд</Link></div>;
-  if (!s) return <div className="panel center"><div className="spinner" /><p className="muted">Төлбөрийг шалгаж байна…</p></div>;
+  if (err) return <div className="panel center" role="status" aria-live="polite"><h1>Уучлаарай…</h1><p className="err">{err}</p><Link className="btn" href="/dashboard">Миний хуудсууд</Link></div>;
+  if (!s) return <div className="panel center" role="status" aria-live="polite"><div className="spinner" /><p className="muted">Төлбөрийг шалгаж байна…</p></div>;
 
   if (s.status === 'paid') return (
-    <div className="panel center stack">
+    <div className="panel center stack" role="status" aria-live="polite">
       <div style={{ fontSize: 44 }}>💝</div>
       <h1>Төлбөр амжилттай</h1>
       <p className="muted" style={{ margin: 0 }}>Таны хуудас нээгдлээ. Засварлагч руу шилжиж байна…</p>
@@ -39,7 +39,7 @@ export default function PayStatus({ orderId, canceled }: { orderId: string; canc
   );
 
   if (s.status === 'pending') return (
-    <div className="panel center stack">
+    <div className="panel center stack" role="status" aria-live="polite">
       <div className="spinner" />
       <h1>QPay-г хүлээж байна…</h1>
       <p className="muted small" style={{ margin: 0 }}>
@@ -51,7 +51,7 @@ export default function PayStatus({ orderId, canceled }: { orderId: string; canc
   );
 
   return (
-    <div className="panel center stack">
+    <div className="panel center stack" role="status" aria-live="polite">
       <h1>Төлбөр {s.status === 'canceled' ? 'цуцлагдлаа' : 'амжилтгүй боллоо'}</h1>
       <p className="muted small" style={{ margin: 0 }}>Мөнгө хасагдаагүй. Дахин оролдож болно.</p>
       <PayButton pageId={s.pageId} label="Дахин төлөх" />

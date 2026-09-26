@@ -12,7 +12,7 @@
 .ed-tabs button, .ed-devices button { border: 0; background: transparent; padding: 7px 14px; border-radius: 999px; font-weight: 600; font-size: .82rem; }
 .ed-tabs button.on, .ed-devices button.on { background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .12); }
 .ed-devices { display: flex; background: var(--bg-2); border-radius: 999px; padding: 3px; }
-.ed-devices button { padding: 6px 10px; }
+.ed-devices button { padding: 6px 10px; min-height: 40px; }
 
 .ed-side { grid-area: side; overflow-y: auto; padding: 14px 14px 0; background: #fbf8fa; border-right: 1px solid var(--line); }
 .ed-lock { font-size: .76rem; font-weight: 600; color: var(--ink-2); background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; margin-bottom: 12px; }
@@ -34,28 +34,29 @@
 .ed-seg button { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 7px 12px; font-size: .82rem; font-weight: 600; }
 .ed-seg button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
 .ed-colors { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.ed-colors > button { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line); }
+.ed-colors > button { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line); }
 .ed-colors > button.on { box-shadow: 0 0 0 2px var(--ink); }
 .ed-color-custom { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; color: var(--ink-2); cursor: pointer; }
-.ed-color-custom input { width: 30px; height: 30px; border: 0; padding: 0; background: none; cursor: pointer; }
+.ed-color-custom input { width: 40px; height: 40px; border: 0; padding: 0; background: none; cursor: pointer; }
 .ed-toggle { display: flex; align-items: center; gap: 10px; font-size: .88rem; font-weight: 600; cursor: pointer; }
-.ed-toggle input { display: none; }
-.ed-toggle i { width: 40px; height: 24px; border-radius: 999px; background: #ddd; position: relative; transition: background .2s; flex: none; }
+.ed-toggle input { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.ed-toggle i { width: 40px; height: 24px; border-radius: 999px; background: #ddd; position: relative; transition: background .2s, box-shadow .15s; flex: none; }
 .ed-toggle i::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 1px 3px rgba(0, 0, 0, .2); }
 .ed-toggle input:checked + i { background: var(--rose); }
 .ed-toggle input:checked + i::after { transform: translateX(16px); }
+.ed-toggle input:focus-visible + i { box-shadow: 0 0 0 3px rgba(240, 124, 155, .4); }
 
-.ed-images { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
-.ed-images.single { grid-template-columns: 140px; }
+.ed-images { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.ed-images.single { grid-template-columns: 150px; }
 .ed-thumb, .ed-add { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; }
 .ed-thumb { background: #eee; }
 .ed-thumb img { width: 100%; height: 100%; object-fit: cover; }
 .ed-thumb.loading { display: grid; place-items: center; }
 .ed-num { position: absolute; left: 6px; top: 6px; background: rgba(0, 0, 0, .55); color: #fff; font-size: .68rem; font-weight: 700; border-radius: 6px; padding: 2px 6px; }
-.ed-thumb-actions { position: absolute; inset: auto 0 0 0; display: flex; justify-content: center; gap: 4px; padding: 6px; background: linear-gradient(transparent, rgba(0, 0, 0, .6)); opacity: 0; transition: opacity .2s; }
+.ed-thumb-actions { position: absolute; inset: auto 0 0 0; display: flex; justify-content: center; gap: 6px; padding: 8px; background: linear-gradient(transparent, rgba(0, 0, 0, .6)); opacity: 0; transition: opacity .2s; }
 .ed-thumb:hover .ed-thumb-actions, .ed-thumb:focus-within .ed-thumb-actions { opacity: 1; }
 @media (hover: none) { .ed-thumb-actions { opacity: 1; } }
-.ed-thumb-actions button { border: 0; background: rgba(255, 255, 255, .92); border-radius: 8px; padding: 4px 7px; font-size: .72rem; font-weight: 700; }
+.ed-thumb-actions button { flex: 1; border: 0; background: rgba(255, 255, 255, .92); border-radius: 8px; padding: 8px 4px; font-size: .78rem; font-weight: 700; min-width: 40px; min-height: 40px; }
 .ed-thumb-actions button:disabled { opacity: .35; }
 .ed-add { border: 1.5px dashed #dccbd8; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--ink-2); font-size: .74rem; font-weight: 600; transition: border-color .2s, background .2s; }
 .ed-add:hover { border-color: var(--rose-2); background: #fff7fa; }

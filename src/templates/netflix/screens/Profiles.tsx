@@ -21,7 +21,7 @@ export default function Profiles({ data, onSelect }: ScreenProps & { onSelect: (
         >
           <div className="lf-avatar lf-avatar-main">
             {data.profilePhoto && !bad ? (
-              <img src={data.profilePhoto} alt="" onError={() => setBad(true)} />
+              <img src={data.profilePhoto} alt={name} onError={() => setBad(true)} />
             ) : (
               <div className="lf-avatar-fallback" style={{ background: `linear-gradient(135deg, ${data.accent}, #b1060f)` }}>
                 {initial(name)}

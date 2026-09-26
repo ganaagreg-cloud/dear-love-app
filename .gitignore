@@ -5,3 +5,8 @@ node_modules
 *.tsbuildinfo
 next-env.d.ts
 .demo-data
+
+.vercel
+.env*
+
+.impeccable/hook.cache.json

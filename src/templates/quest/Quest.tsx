@@ -465,7 +465,7 @@ export default function Quest({ data }: { data: QuestData }) {
 
             {dlg && (
               <>
-                {dlg.photo !== undefined && <PixelPhoto key={dlg.photo || dlg.name} src={dlg.photo} />}
+                {dlg.photo !== undefined && <PixelPhoto key={dlg.photo || dlg.name} src={dlg.photo} alt={dlg.name} />}
                 <div className="qs-dialog">
                   {dlg.badge && <span className="qs-badge">{dlg.badge}</span>}
                   <span className="qs-name">{dlg.name}</span>
@@ -521,7 +521,7 @@ export default function Quest({ data }: { data: QuestData }) {
 }
 
 /** Photo that "de-pixelates" in, like a game loading a memory. */
-function PixelPhoto({ src }: { src: string }) {
+function PixelPhoto({ src, alt }: { src: string; alt?: string }) {
   const cv = useRef<HTMLCanvasElement>(null);
   const [done, setDone] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -556,7 +556,7 @@ function PixelPhoto({ src }: { src: string }) {
       {src && !failed ? (
         <>
           <canvas ref={cv} style={{ display: done ? 'none' : 'block' }} />
-          {done && <img src={src} alt="" />}
+          {done && <img src={src} alt={alt || 'хайрын зураг'} />}
         </>
       ) : <div className="qs-photo-empty">♥</div>}
     </div>

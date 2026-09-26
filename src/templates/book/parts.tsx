@@ -10,7 +10,7 @@ export function Photo({ src, className }: { src?: string; className?: string }) 
   return (
     <div className={cx(s.photo, className)}>
       {src && !failed ? (
-        <img src={src} alt="" loading="lazy" decoding="async" draggable={false} onError={() => setFailed(true)} />
+        <img src={src} alt="хайрын зураг" loading="lazy" decoding="async" draggable={false} onError={() => setFailed(true)} />
       ) : (
         <div className={x.photoEmpty} aria-hidden>
           <i><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="9" cy="10" r="1.6" /><path d="M21 16l-5-5-8 8" /></svg></i>

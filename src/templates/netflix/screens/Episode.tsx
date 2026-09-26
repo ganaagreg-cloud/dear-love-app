@@ -18,11 +18,11 @@ export default function Episode(props: Props) {
   return <Scene key={step} {...s} label={copy.epTitle} accent={data.accent} onChoose={onNext} />;
 }
 
-function Backdrop({ accent, bg, glow, at, base }: { accent: string; bg?: string; glow: string; at: string; base: string }) {
+function Backdrop({ accent, bg, glow, at, base, alt }: { accent: string; bg?: string; glow: string; at: string; base: string; alt?: string }) {
   return (
     <div className="lf-ep-bg">
       <div className="lf-ep-placeholder" style={{ background: `radial-gradient(ellipse at ${at}, ${accent}${glow}, transparent 60%), ${base}` }} />
-      {bg && <div className="lf-ep-img-layer"><img src={bg} alt="" /></div>}
+      {bg && <div className="lf-ep-img-layer"><img src={bg} alt={alt || 'хайрын зураг'} /></div>}
       <div className="lf-ep-vignette" />
     </div>
   );
@@ -45,12 +45,12 @@ function Scene({ narration, a, b, bg, label, accent, onChoose }: {
 
   return (
     <section className="lf-screen lf-episode">
-      <Backdrop accent={accent} bg={bg} glow="33" at="50% 30%" base="#0a0a0a" />
+      <Backdrop accent={accent} bg={bg} glow="33" at="50% 30%" base="#0a0a0a" alt={label} />
       <motion.div className="lf-ep-content" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         <div className="lf-ep-label">{label}</div>
         <p className="lf-ep-narration">{narration}</p>
         <div className="lf-ep-timer" aria-label={`Сонгоход ${Math.ceil(time)} секунд үлдлээ`}>
-          <div className="lf-ep-timer-bar"><span style={{ width: `${pct}%` }} /></div>
+          <div className="lf-ep-timer-bar"><span style={{ transform: `scaleX(${pct / 100})` }} /></div>
         </div>
         <div className="lf-ep-choices">
           {[a, b].map((opt) => (
@@ -94,7 +94,7 @@ function Climax({ data, copy, onCredits }: Props) {
 
   return (
     <section className="lf-screen lf-climax">
-      <Backdrop accent={data.accent} bg={data.climaxBg} glow="44" at="50% 35%" base="#080808" />
+      <Backdrop accent={data.accent} bg={data.climaxBg} glow="44" at="50% 35%" base="#080808" alt={copy.climaxTitle} />
       <motion.div className="lf-climax-content" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6 }}>
         <div className="lf-ep-label">УЛИРЛЫН ТӨГСГӨЛ</div>
         <h1 className="lf-climax-title">{copy.climaxTitle}</h1>

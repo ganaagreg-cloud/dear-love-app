@@ -35,7 +35,7 @@ export default async function Dashboard() {
             const link = p.slug ? pageUrl(p.slug) : '';
             return (
               <div className="dash-item" key={p.id}>
-                <img src={t?.cover} alt="" />
+                <img src={t?.cover} alt="" loading="lazy" />
                 <div>
                   <h3>{t?.name ?? p.title}</h3>
                   <span className={`pill ${p.status === 'pending_payment' ? 'pending' : p.status}`}>{label}</span>

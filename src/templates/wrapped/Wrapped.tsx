@@ -38,11 +38,11 @@ function useCount(to: number, run: boolean, ms = 1600) {
   return v;
 }
 
-function Photo({ src, className, style }: { src: string; className?: string; style?: CSSProperties }) {
+function Photo({ src, alt, className, style }: { src: string; alt?: string; className?: string; style?: CSSProperties }) {
   const [bad, setBad] = useState(false);
   return (
     <div className={`wr-photo ${className ?? ''}`} style={style}>
-      {src && !bad ? <img src={src} alt="" onError={() => setBad(true)} /> : <span>♥</span>}
+      {src && !bad ? <img src={src} alt={alt || 'хайрын зураг'} onError={() => setBad(true)} /> : <span>♥</span>}
     </div>
   );
 }
@@ -76,7 +76,7 @@ export default function Wrapped({ data }: { data: WrappedData }) {
   slides.push({ id: 'top', node: () => (
     <div className="wr-center">
       <p className="wr-kicker">{data.year} оны №1 мөч</p>
-      <Photo src={data.topPhoto} className="wr-top-photo" />
+      <Photo src={data.topPhoto} alt={data.topCaption} className="wr-top-photo" />
       <h2 className="wr-h2">{data.topCaption}</h2>
     </div>
   ) });
@@ -146,7 +146,7 @@ export default function Wrapped({ data }: { data: WrappedData }) {
     <div className="wr-summary">
       <div className="wr-card">
         <div className="wr-card-top">
-          <Photo src={data.topPhoto} className="wr-card-photo" />
+          <Photo src={data.topPhoto} alt={data.topCaption} className="wr-card-photo" />
           <div><small>{data.year} · Wrapped</small><strong>{data.them} &amp; {data.you}</strong></div>
         </div>
         <div className="wr-card-grid">
