@@ -45,6 +45,8 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   const latest = useRef(content); latest.current = content;
   const [previewingFull, setPreviewingFull] = useState(false);
   const pin = previewingFull ? null : (meta.schema.find((s) => s.id === open)?.previewPage ?? null);
+  const openIndex = meta.schema.findIndex((s) => s.id === open);
+  const nextSection = openIndex >= 0 ? meta.schema[openIndex + 1] : undefined;
   const post = useCallback(
     () => frame.current?.contentWindow?.postMessage({ type: 'dear:content', content: latest.current, pin }, window.location.origin),
     [pin],
@@ -169,6 +171,11 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
                 {s.fields.map((f) => (
                   <FieldControl key={f.key} field={f} value={content[f.key]} onChange={(v) => set(f.key, v)} upload={upload} />
                 ))}
+                {nextSection && (
+                  <button className="btn btn-sm" style={{ marginTop: 10 }} onClick={() => setOpen(nextSection.id)}>
+                    Дараах: {nextSection.title} →
+                  </button>
+                )}
               </div>
             )}
           </section>

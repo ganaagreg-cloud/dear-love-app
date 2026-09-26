@@ -184,7 +184,11 @@ export default function Wrapped({ data, pin }: { data: WrappedData; pin?: string
     if (!pin) return;
     if (pin === '__intro__') { setI(-1); return; }
     const idx = slides.findIndex((sl) => sl.id === pin);
-    if (idx >= 0) go(idx);
+    // Target slide missing (e.g. the buyer cleared its content) — fall back to the
+    // cover, same as the initializer above, rather than silently keeping stale content
+    // from whichever slide was showing before. `go()` clamps to index 0, so the
+    // fallback needs a direct `setI(-1)`, not `go(-1)`.
+    if (idx >= 0) go(idx); else setI(-1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pin]);
 
