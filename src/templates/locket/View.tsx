@@ -34,7 +34,7 @@ export function toLocketConfig(c: Content) {
 /** JSON that is safe to drop inside a <script> tag. */
 const scriptJson = (o: unknown) => JSON.stringify(o).replace(/</g, '\\u003c').replace(/\u2028|\u2029/g, '');
 
-export default function LocketView({ content }: { content: Content }) {
+export default function LocketView({ content }: { content: Content; pin?: string | number | null }) {
   const [html, setHtml] = useState<string | null>(null);
   useEffect(() => { loadHtml().then(setHtml); }, []);
   const doc = useMemo(

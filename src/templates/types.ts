@@ -17,7 +17,11 @@ export type Field =
 
 export type FieldType = Field['type'];
 
-export type Section = { id: string; title: string; description?: string; fields: Field[] };
+export type Section = {
+  id: string; title: string; description?: string; fields: Field[];
+  /** Which slide/scene/screen/page in the template's own preview this section's fields affect — drives the editor's live-preview pinning. */
+  previewPage?: string | number;
+};
 
 /** Flat map: field key → value. Stored as jsonb in pages.content. */
 export type ContentValue = string | string[] | boolean;

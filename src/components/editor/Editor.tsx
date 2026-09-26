@@ -43,7 +43,11 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   /* ── live preview (iframe + postMessage) ── */
   const frame = useRef<HTMLIFrameElement>(null);
   const latest = useRef(content); latest.current = content;
-  const post = useCallback(() => frame.current?.contentWindow?.postMessage({ type: 'dear:content', content: latest.current }, window.location.origin), []);
+  const pin = meta.schema.find((s) => s.id === open)?.previewPage ?? null;
+  const post = useCallback(
+    () => frame.current?.contentWindow?.postMessage({ type: 'dear:content', content: latest.current, pin }, window.location.origin),
+    [pin],
+  );
   useEffect(() => {
     const onMsg = (e: MessageEvent) => { if (e.origin === window.location.origin && e.data?.type === 'dear:ready') post(); };
     window.addEventListener('message', onMsg);

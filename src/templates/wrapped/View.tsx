@@ -29,7 +29,7 @@ export function toWrapped(c: Content): WrappedData {
   };
 }
 
-export default function WrappedView({ content }: { content: Content }) {
+export default function WrappedView({ content, pin }: { content: Content; pin?: string | number | null }) {
   const data = useMemo(() => toWrapped(content), [content]);
-  return <Wrapped key={JSON.stringify(data).length} data={data} />;
+  return <Wrapped key={JSON.stringify(data).length} data={data} pin={pin} />;
 }

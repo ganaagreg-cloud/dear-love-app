@@ -16,7 +16,7 @@ export const wrappedMeta: TemplateMeta = {
   features: ['Стори слайдууд', 'Топ 5 дуу ба газар', 'Хайрын төрөл', 'Хураангуй карт', '4 өнгөний загвар'],
   schema: [
     {
-      id: 'basics', title: 'Үндсэн',
+      id: 'basics', title: 'Үндсэн', previewPage: '__intro__',
       fields: [
         { type: 'text', key: 'them', label: 'Түүний нэр', max: 20 },
         { type: 'text', key: 'you', label: 'Таны нэр', max: 20 },
@@ -29,14 +29,14 @@ export const wrappedMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'moment', title: 'Таны №1 мөч',
+      id: 'moment', title: 'Таны №1 мөч', previewPage: 'top',
       fields: [
         { type: 'image', key: 'topPhoto', label: 'Зураг' },
         { type: 'text', key: 'topCaption', label: 'Тайлбар', max: 60 },
       ],
     },
     {
-      id: 'songs', title: 'Топ 5 дуу',
+      id: 'songs', title: 'Топ 5 дуу', previewPage: 'songs',
       fields: [
         { type: 'list', key: 'songTitles', label: 'Дууны нэр', count: 5, max: 40, itemLabel: 'Дуу' },
         { type: 'list', key: 'songArtists', label: 'Дуучин', count: 5, max: 40, itemLabel: 'Дуучин' },
@@ -44,18 +44,18 @@ export const wrappedMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'places', title: 'Топ 5 газар',
+      id: 'places', title: 'Топ 5 газар', previewPage: 'places',
       fields: [
         { type: 'list', key: 'places', label: 'Газрууд', count: 5, max: 36, itemLabel: 'Газар' },
         { type: 'list', key: 'placeCounts', label: 'Газар бүрийн доорх бичвэр', count: 5, max: 30, itemLabel: 'ж: 23 удаа' },
       ],
     },
     {
-      id: 'words', title: 'Хамгийн их хэлдэг үгс',
+      id: 'words', title: 'Хамгийн их хэлдэг үгс', previewPage: 'words',
       fields: [{ type: 'list', key: 'words', label: 'Үг / хэллэг', count: 8, max: 18, itemLabel: 'Үг' }],
     },
     {
-      id: 'persona', title: 'Хайрын төрөл',
+      id: 'persona', title: 'Хайрын төрөл', previewPage: 'persona',
       fields: [
         { type: 'text', key: 'personaEmoji', label: 'Эможи', max: 4 },
         { type: 'text', key: 'personaTitle', label: 'Нэр', max: 30 },
@@ -63,11 +63,11 @@ export const wrappedMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'photos', title: 'Зургийн цуглуулга',
+      id: 'photos', title: 'Зургийн цуглуулга', previewPage: 'photos',
       fields: [{ type: 'images', key: 'photos', label: '6 хүртэл зураг', max: 6 }],
     },
     {
-      id: 'message', title: 'Мессеж',
+      id: 'message', title: 'Мессеж', previewPage: 'msg',
       fields: [{ type: 'textarea', key: 'message', label: 'Таны мессеж', max: 600, rows: 6 }],
     },
   ],

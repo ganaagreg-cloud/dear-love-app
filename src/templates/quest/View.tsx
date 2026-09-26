@@ -24,7 +24,7 @@ export function toQuest(c: Content): QuestData {
   };
 }
 
-export default function QuestView({ content }: { content: Content }) {
+export default function QuestView({ content }: { content: Content; pin?: string | number | null }) {
   const data = useMemo(() => toQuest(content), [content]);
   // remount the game when the content changes (editor live preview)
   const key = useMemo(() => JSON.stringify(data).length + ':' + data.title + data.playerName + data.consoleColor, [data]);

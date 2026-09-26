@@ -58,7 +58,7 @@ function Typed({ text, run }: { text: string; run: boolean }) {
   return <>{text.slice(0, n)}<i className="wr-caret" /></>;
 }
 
-export default function Wrapped({ data }: { data: WrappedData }) {
+export default function Wrapped({ data, pin }: { data: WrappedData; pin?: string | number | null }) {
   const pal = THEMES[data.theme] ?? THEMES.neon;
   const days = useMemo(() => {
     const s = Date.parse(data.startDate + 'T00:00:00');
@@ -160,7 +160,8 @@ export default function Wrapped({ data }: { data: WrappedData }) {
     </div>
   ) });
 
-  const [i, setI] = useState(-1);
+  const pinnedIndex = pin === '__intro__' ? -1 : pin ? slides.findIndex((sl) => sl.id === pin) : -1;
+  const [i, setI] = useState(pin === '__intro__' || pinnedIndex >= 0 ? pinnedIndex : -1);
   const [paused, setPaused] = useState(false);
   const [prog, setProg] = useState(0);
   const audio = useRef<HTMLAudioElement | null>(null);
@@ -176,9 +177,20 @@ export default function Wrapped({ data }: { data: WrappedData }) {
   };
   useEffect(() => () => audio.current?.pause(), []);
 
+  // Switching sections in the editor changes `pin` without editing any field, so `content`
+  // (and therefore WrappedView's remount key) doesn't change — the initializer above only
+  // covers the first mount. Re-apply `pin` reactively so pure section-switching works too.
+  useEffect(() => {
+    if (!pin) return;
+    if (pin === '__intro__') { setI(-1); return; }
+    const idx = slides.findIndex((sl) => sl.id === pin);
+    if (idx >= 0) go(idx);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pin]);
+
   // auto-advance
   useEffect(() => {
-    if (i < 0 || paused || i === last) return;
+    if (i < 0 || paused || i === last || pin) return;
     let raf = 0, t0 = performance.now() - prog * DUR;
     const dur = slides[i]?.long ? DUR * 2.2 : DUR;
     t0 = performance.now() - prog * dur;
