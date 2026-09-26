@@ -147,10 +147,21 @@ protocol changes.
 - New state: `editTarget: { field: string; index?: number; rect: DOMRect } | null`.
 - New listener for `dear:edit` (same-origin-checked): looks up
   `const f = allFields(meta).find((x) => x.key === field)` (reusing the
-  existing `allFields` helper from `types.ts`); looks up the owning `Section`
-  (`meta.schema.find((s) => s.fields.some((x) => x.key === field))`) and calls
-  `setOpen(section.id)` so the sidebar/pin state stays consistent with today's
-  behavior; sets `editTarget`.
+  existing `allFields` helper from `types.ts`) and sets `editTarget`. It
+  deliberately does **not** call `setOpen(...)` or otherwise touch `pin`/
+  `open` — a field's owning `Section` (for sidebar/pin purposes) is not
+  reliably the scene the buyer was actually looking at when they clicked:
+  Flight's `toCity`, for instance, belongs to the `route` section (pinned to
+  the `board` scene) but is also rendered — and clickable — inside the
+  `pass` scene's route line. Re-deriving and applying a pin from the clicked
+  field would yank the preview to a different scene at the exact moment the
+  buyer clicked something on the scene they were looking at, fighting the
+  click instead of responding to it. Canvas-click editing and the sidebar's
+  section-driven pin are independent: clicking a field only opens its
+  popover; only the sidebar's own step nav / "Дараах" button change `open`.
+  `editTarget` (and therefore the `editing` hint sent downstream) is cleared
+  when the buyer opens a different section from the sidebar, toggles
+  `previewingFull`, or explicitly closes the popover.
 - Posts `editing: editTarget && { field: editTarget.field, index: editTarget.index }`
   as part of the existing debounced `post()` call (folded into the same
   `useEffect` that already re-sends on `content`/`pin` change).
