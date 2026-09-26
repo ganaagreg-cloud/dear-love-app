@@ -11,7 +11,7 @@ import Credits from './screens/Credits';
 
 type Screen = 'profiles' | 'intro' | 'browse' | 'episode' | 'credits';
 
-export default function LoveFlix({ data }: { data: LoveData }) {
+export default function LoveFlix({ data, pin }: { data: LoveData; pin?: string | number | null }) {
   const [screen, setScreen] = useState<Screen>('profiles');
   const [sceneStep, setSceneStep] = useState(0); // 0,1 = choice scenes, 2 = climax
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
@@ -39,10 +39,16 @@ export default function LoveFlix({ data }: { data: LoveData }) {
 
   const selectProfile = () => { playTaDum(); setScreen('intro'); };
   useEffect(() => {
-    if (screen !== 'intro') return;
+    if (screen !== 'intro' || pin) return;
     const t = setTimeout(() => setScreen('browse'), 2600);
     return () => clearTimeout(t);
-  }, [screen]);
+  }, [screen, pin]);
+  const isScreen = (v: unknown): v is Screen => v === 'profiles' || v === 'intro' || v === 'browse' || v === 'episode' || v === 'credits';
+  useEffect(() => {
+    if (!isScreen(pin)) return;
+    setScreen(pin);
+    if (pin === 'episode') setSceneStep(0);
+  }, [pin]);
   const play = () => { setSceneStep(0); setScreen('episode'); window.scrollTo({ top: 0 }); };
   const nextScene = () => setSceneStep((s) => Math.min(s + 1, 2));
   const toCredits = () => { setScreen('credits'); window.scrollTo({ top: 0 }); };

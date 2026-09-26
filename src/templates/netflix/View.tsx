@@ -47,11 +47,11 @@ export function toLoveData(c: Content): LoveData {
   };
 }
 
-export default function NetflixView({ content }: { content: Content }) {
+export default function NetflixView({ content, pin }: { content: Content; pin?: string | number | null }) {
   const data = useMemo(() => toLoveData(content), [content]);
   return (
     <div style={{ minHeight: '100dvh', background: '#141414' }}>
-      <LoveFlix data={data} />
+      <LoveFlix data={data} pin={pin} />
     </div>
   );
 }

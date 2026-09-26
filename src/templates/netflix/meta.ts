@@ -18,7 +18,7 @@ export const netflixMeta: TemplateMeta = {
   features: ['4 төрөл', '11 хүртэл зураг', 'Интерактив анги', 'Зугтдаг «Үгүй» товч', 'Кино титр'],
   schema: [
     {
-      id: 'basics', title: 'Төрөл ба нэрс',
+      id: 'basics', title: 'Төрөл ба нэрс', previewPage: 'browse',
       fields: [
         {
           type: 'select', key: 'occasion', label: 'Ямар үйл явдал вэ?',
@@ -35,7 +35,7 @@ export const netflixMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'photos', title: 'Зургууд',
+      id: 'photos', title: 'Зургууд', previewPage: 'browse',
       fields: [
         { type: 'image', key: 'profilePhoto', label: 'Профайл зураг («Хэн үзэж байна?»)' },
         { type: 'image', key: 'heroPhoto', label: 'Том нүүр зураг' },
@@ -47,7 +47,7 @@ export const netflixMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'show', title: 'Цуврал',
+      id: 'show', title: 'Цуврал', previewPage: 'browse',
       description: blankOverride,
       fields: [
         { type: 'text', key: 'ov.heroTitle', label: 'Цувралын нэр', max: 40 },
@@ -61,7 +61,7 @@ export const netflixMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'episode', title: 'Интерактив анги',
+      id: 'episode', title: 'Интерактив анги', previewPage: 'episode',
       description: blankOverride,
       fields: [
         { type: 'textarea', key: 'ov.ep1Narration', label: '1-р хэсгийн үг', max: 220, rows: 3 },
