@@ -87,8 +87,9 @@ function Land() {
   );
 }
 
-export default function Flight({ data }: { data: FlightData }) {
-  const [scene, setScene] = useState<Scene>('board');
+export default function Flight({ data, pin }: { data: FlightData; pin?: string | number | null }) {
+  const isScene = (v: unknown): v is Scene => v === 'board' || v === 'pass' || v === 'fly' || v === 'land';
+  const [scene, setScene] = useState<Scene>(isScene(pin) ? pin : 'board');
   const [torn, setTorn] = useState(false);
   const stops = data.stops.filter((s) => s.name.trim());
   const pts = useMemo(() => stopPositions(stops.length), [stops.length]);
@@ -101,7 +102,17 @@ export default function Flight({ data }: { data: FlightData }) {
     audio.current.play().catch(() => {});
   };
   useEffect(() => () => audio.current?.pause(), []);
-  useEffect(() => { if (scene === 'board') { const t = setTimeout(() => setScene('pass'), 4200); return () => clearTimeout(t); } }, [scene]);
+
+  // Switching sections in the editor changes `pin` without editing any field, so
+  // `content` (and therefore FlightView's remount key) doesn't change — the
+  // initializer above only covers the first mount. Re-apply `pin` reactively so pure
+  // section-switching works too (same fix as Wrapped.tsx's equivalent effect).
+  useEffect(() => {
+    if (isScene(pin)) setScene(pin);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pin]);
+
+  useEffect(() => { if (scene === 'board' && !pin) { const t = setTimeout(() => setScene('pass'), 4200); return () => clearTimeout(t); } }, [scene, pin]);
 
   const board = () => {
     if (torn) return;

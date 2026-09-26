@@ -16,7 +16,7 @@ export const flightMeta: TemplateMeta = {
   features: ['Нислэгийн самбар', 'Урдаг тасалбар', 'Хөдөлгөөнт газрын зураг', '6 буудал зурагтай', 'Паспортын тамга'],
   schema: [
     {
-      id: 'ticket', title: 'Тасалбар',
+      id: 'ticket', title: 'Тасалбар', previewPage: 'pass',
       fields: [
         { type: 'text', key: 'passenger', label: 'Зорчигч (түүний нэр)', max: 22 },
         { type: 'text', key: 'captain', label: 'Нисгэгч (таны нэр)', max: 22 },
@@ -31,7 +31,7 @@ export const flightMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'route', title: 'Хаанаас → Хаашаа',
+      id: 'route', title: 'Хаанаас → Хаашаа', previewPage: 'board',
       fields: [
         { type: 'text', key: 'fromCode', label: 'Хөөрөх код', max: 4 },
         { type: 'text', key: 'fromCity', label: 'Хөөрөх хот', max: 20 },
@@ -40,7 +40,7 @@ export const flightMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'stops', title: 'Замын буудлууд',
+      id: 'stops', title: 'Замын буудлууд', previewPage: 'fly',
       description: 'Та хоёрын түүхийн 6 хүртэл газар. Нэрийг нь хоосон орхивол тэр буудлыг алгасна.',
       fields: [
         { type: 'list', key: 'stopNames', label: 'Газрын нэр', count: 6, max: 26, itemLabel: 'Газар' },
@@ -51,7 +51,7 @@ export const flightMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'landing', title: 'Газардалт',
+      id: 'landing', title: 'Газардалт', previewPage: 'land',
       fields: [
         { type: 'text', key: 'finalTitle', label: 'Газардах үеийн гарчиг', max: 36 },
         { type: 'textarea', key: 'finalMessage', label: 'Таны захидал', max: 500, rows: 5 },
