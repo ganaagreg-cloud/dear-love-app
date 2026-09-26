@@ -187,7 +187,7 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
 
       <section className="ed-stage" ref={stage}>
         <div className="ed-device" data-device={device} style={{ width: d.w * scale, height: d.h * scale }}>
-          <iframe ref={frame} title="Шууд харагдац" src={`/render/${meta.id}`} onLoad={post} allow="autoplay; encrypted-media"
+          <iframe key={previewingFull ? 'full' : 'pinned'} ref={frame} title="Шууд харагдац" src={`/render/${meta.id}`} onLoad={post} allow="autoplay; encrypted-media"
             style={{ width: d.w, height: d.h, transform: `scale(${scale})` }} />
         </div>
       </section>

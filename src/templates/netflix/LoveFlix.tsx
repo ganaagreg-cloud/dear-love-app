@@ -67,7 +67,7 @@ export default function LoveFlix({ data, pin }: { data: LoveData; pin?: string |
       {screen === 'profiles' && <Profiles {...props} onSelect={selectProfile} />}
       {screen === 'intro' && <Intro {...props} />}
       {screen === 'browse' && <Browse {...props} onPlay={play} />}
-      {screen === 'episode' && <Episode {...props} step={sceneStep} onNext={nextScene} onCredits={toCredits} />}
+      {screen === 'episode' && <Episode {...props} step={sceneStep} onNext={nextScene} onCredits={toCredits} pinned={!!pin} />}
       {screen === 'credits' && <Credits {...props} onRestart={restart} />}
     </div>
   );

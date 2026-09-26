@@ -118,6 +118,11 @@ export const bookMeta: TemplateMeta = {
         { type: 'text', key: 'texts.noteTwoLabel', label: '2-р тэмдэглэлийн шошго', max: 30 },
         { type: 'text', key: 'texts.noteTwo', label: '2-р тэмдэглэл', max: 60 },
         { type: 'textarea', key: 'texts.noteThree', label: '3-р тэмдэглэл', max: 100, rows: 2 },
+      ],
+    },
+    {
+      id: 'keepsakes', title: 'Эцсийн жагсаалт', previewPage: 9,
+      fields: [
         { type: 'textarea', key: 'texts.finalList', label: 'Жижигхэн зүйлсийн жагсаалт', max: 200, rows: 5 },
       ],
     },

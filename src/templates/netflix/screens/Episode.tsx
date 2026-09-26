@@ -7,15 +7,15 @@ import { FINALE, NO_LINES, YES_LABEL } from '../copy';
 import { playFinaleTaDum } from '../sound';
 import type { ScreenProps } from './types';
 
-type Props = ScreenProps & { step: number; onNext: () => void; onCredits: () => void };
+type Props = ScreenProps & { step: number; onNext: () => void; onCredits: () => void; pinned?: boolean };
 
 export default function Episode(props: Props) {
-  const { data, copy, step, onNext } = props;
+  const { data, copy, step, onNext, pinned } = props;
   if (step >= 2) return <Climax key="climax" {...props} />;
   const s = step === 0
     ? { narration: copy.ep1Narration, a: copy.ep1a, b: copy.ep1b, bg: data.ep1Bg }
     : { narration: copy.ep2Narration, a: copy.ep2a, b: copy.ep2b, bg: data.ep2Bg };
-  return <Scene key={step} {...s} label={copy.epTitle} accent={data.accent} onChoose={onNext} />;
+  return <Scene key={step} {...s} label={copy.epTitle} accent={data.accent} onChoose={onNext} pinned={!!pinned} />;
 }
 
 function Backdrop({ accent, bg, glow, at, base, alt }: { accent: string; bg?: string; glow: string; at: string; base: string; alt?: string }) {
@@ -28,19 +28,19 @@ function Backdrop({ accent, bg, glow, at, base, alt }: { accent: string; bg?: st
   );
 }
 
-function Scene({ narration, a, b, bg, label, accent, onChoose }: {
-  narration: string; a: string; b: string; bg: string; label: string; accent: string; onChoose: () => void;
+function Scene({ narration, a, b, bg, label, accent, onChoose, pinned }: {
+  narration: string; a: string; b: string; bg: string; label: string; accent: string; onChoose: () => void; pinned: boolean;
 }) {
   const [time, setTime] = useState(10);
   const [picked, setPicked] = useState<string | null>(null);
   const choose = (opt: string) => { if (picked) return; setPicked(opt); setTimeout(onChoose, 650); };
   useEffect(() => {
-    if (picked) return;
+    if (picked || pinned) return;
     if (time <= 0) { choose(a); return; }
     const t = setTimeout(() => setTime((v) => +(v - 0.1).toFixed(1)), 100);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [time, picked]);
+  }, [time, picked, pinned]);
   const pct = Math.max(0, (time / 10) * 100);
 
   return (

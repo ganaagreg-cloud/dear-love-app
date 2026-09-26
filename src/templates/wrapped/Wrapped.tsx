@@ -206,7 +206,7 @@ export default function Wrapped({ data, pin }: { data: WrappedData; pin?: string
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [i, paused]);
+  }, [i, paused, pin]);
 
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
