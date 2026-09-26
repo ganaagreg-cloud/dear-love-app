@@ -139,6 +139,22 @@ advance the way they will for the real recipient. Turning it off returns to pinn
 mode. Editing remains possible in both states; this only affects what the preview
 shows, not whether the sidebar is usable.
 
+### Next-section button
+
+Pinning solves "what am I looking at" but not "how do I move through this story" —
+the sidebar is still a free-form accordion where a buyer has to know to click the
+next section themselves. Since every schema section in the four in-scope templates
+is, per this whole design, one piece of one story, the open section's body gets a
+small "Дараах: <next section's title> →" button below its fields that advances
+`open` straight to the next section in `meta.schema` order (which, through the pin
+mechanism already described, immediately shows that section's page in the preview
+too). This sits alongside the existing accordion, not in place of it — a buyer who
+wants to jump straight to "Топ 5 дуу" can still click it directly; the button is a
+convenience for moving through sequentially, not the only way to navigate. The last
+section in a template's schema has no next section, so it gets no button — the
+"Нийтлэх" (publish) button already sits persistently in the top toolbar as the
+natural next step once every section's been visited.
+
 ### Each in-scope template: honoring `pin`
 
 The two remount-per-keystroke templates (Wrapped, Flight) and the one that remounts
@@ -291,3 +307,7 @@ No test suite exists in this repo (`CLAUDE.md`); verification is manual, via
    before the split (edit a field, reload the editor, confirm the value persisted) —
    this is the one change touching an existing schema's shape, worth explicit
    before/after verification.
+5. Click the "Дараах →" button through every section of a template in order, ending
+   at the last section (no button shown there). Confirm each click both switches
+   which section is open in the sidebar and updates the preview to match, and that
+   clicking a section directly (out of order) still works exactly as before.
