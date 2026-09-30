@@ -4,7 +4,7 @@
 .tour { position: relative; width: min(300px, 76vw); aspect-ratio: 390 / 844; margin: 10px 0 12px; }
 .tour-frame { position: absolute; inset: 0; display: grid; place-items: center; }
 .tour-dots { position: absolute; left: 0; right: 0; bottom: -18px; display: flex; justify-content: center; gap: 5px; }
-.tour-dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--line); transition: width .3s, background .3s; }
+.tour-dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--line); transition: background-color .3s; }
 .tour-dots i.on { width: 16px; background: var(--rose); }
 .gift-demo-cap { margin: 14px 0 0; font-size: .85rem; color: var(--ink-3); text-align: center; }
 .gift-demo-cap a { color: var(--rose); font-weight: 700; }
