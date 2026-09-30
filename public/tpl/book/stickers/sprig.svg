@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 120">
+  <!-- Dear Love scrapbook sticker: sprig of small white flowers. -->
+  <defs>
+    <filter id="cut" x="-10%" y="-10%" width="120%" height="120%">
+      <feMorphology in="SourceAlpha" operator="dilate" radius="3" result="d"/>
+      <feFlood flood-color="#fbf5ea"/>
+      <feComposite in2="d" operator="in" result="o"/>
+      <feMerge><feMergeNode in="o"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <g id="f">
+      <circle cx="0" cy="-5" r="4.4"/><circle cx="4.8" cy="-1.5" r="4.4"/><circle cx="3" cy="4.2" r="4.4"/>
+      <circle cx="-3" cy="4.2" r="4.4"/><circle cx="-4.8" cy="-1.5" r="4.4"/>
+    </g>
+  </defs>
+  <g filter="url(#cut)">
+    <g fill="none" stroke="#7a8f5c" stroke-width="2.6" stroke-linecap="round">
+      <path d="M56 116 C54 90 52 66 50 30"/>
+      <path d="M53 78 C42 66 34 56 26 40"/>
+      <path d="M52 62 C62 52 72 42 82 30"/>
+      <path d="M55 94 C68 86 80 78 90 64"/>
+      <path d="M51 46 C44 38 40 30 38 20"/>
+    </g>
+    <path fill="#8ea56f" d="M54 100 C44 96 36 98 32 104 C40 108 48 106 54 102 Z"/>
+    <path fill="#8ea56f" d="M53 70 C60 66 68 68 72 72 C66 76 58 76 53 72 Z"/>
+    <g fill="#f7f0e3" stroke="#d9cbb3" stroke-width=".8">
+      <use href="#f" transform="translate(50 26)"/>
+      <use href="#f" transform="translate(26 38) scale(.9)"/>
+      <use href="#f" transform="translate(84 28) scale(.95)"/>
+      <use href="#f" transform="translate(38 18) scale(.75)"/>
+      <use href="#f" transform="translate(91 62) scale(.9)"/>
+      <use href="#f" transform="translate(70 42) scale(.7)"/>
+    </g>
+    <g fill="#e2b85c">
+      <circle cx="50" cy="26" r="2.6"/><circle cx="26" cy="38" r="2.3"/><circle cx="84" cy="28" r="2.4"/>
+      <circle cx="38" cy="18" r="2"/><circle cx="91" cy="62" r="2.3"/><circle cx="70" cy="42" r="1.9"/>
+    </g>
+  </g>
+</svg>

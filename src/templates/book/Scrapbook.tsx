@@ -5,6 +5,7 @@ import x from './Extras.module.css';
 import { cx } from './parts';
 import { renderPages } from './pages';
 import { scrapbookData as defaults, type ScrapbookData } from './scrapbookData';
+import { auditVisiblePages } from './layoutAudit';
 
 const HTMLFlipBook = lazy(() => import('react-pageflip'));
 
@@ -41,7 +42,7 @@ function RadiatingHearts({ intro = false, stage = false }: { intro?: boolean; st
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FlipApi = { pageFlip: () => any };
 
-type Pos = { current: { page: number; introDismissed: boolean } };
+type Pos = { current: { page: number; introDismissed: boolean; pin?: string | number | null; selected?: number | null } };
 
 export default function Scrapbook({ data = defaults, pin = null, editable = false, pos }: {
   data?: ScrapbookData; pin?: string | number | null; editable?: boolean; pos?: Pos;
@@ -67,17 +68,26 @@ export default function Scrapbook({ data = defaults, pin = null, editable = fals
   };
   useEffect(() => () => window.clearTimeout(t.current), []);
 
+  // The tile the buyer last picked keeps its pencil/outline, across the remount the
+  // resulting upload triggers (hence mirrored into the parent-owned `pos`).
+  const [selected, setSelected] = useState<number | null>(pos?.current.selected ?? null);
   const onPick = useCallback((slot: number) => {
+    setSelected(slot);
+    if (pos) pos.current.selected = slot;
     window.parent?.postMessage({ type: 'dear:pick-photo', slot }, window.location.origin);
-  }, []);
+  }, [pos]);
 
   useEffect(() => {
     if (!apiReady) return;
-    // A pin always wins (it names the exact page this section's fields affect). With no
-    // pin, resume `pos.current.page` instead — FLIP_CONFIG.startPage is hardcoded to 0,
-    // so without this the book would visually reopen on the cover on every remount even
-    // though `page` state itself already reads the right number for the counter/buttons.
-    const target = typeof pin === 'number' ? pin : pos?.current.page;
+    // A pin only wins when it *changed* (the buyer switched editor section) — this effect
+    // also re-runs on every remount (i.e. every content edit), and re-applying an unchanged
+    // pin there snapped the book back to the section's page (the cover, for section 1)
+    // after e.g. picking a photo on page 5. Otherwise resume `pos.current.page` —
+    // FLIP_CONFIG.startPage is hardcoded to 0, so without this the book would visually
+    // reopen on the cover on every remount.
+    const pinChanged = typeof pin === 'number' && (!pos || pin !== pos.current.pin);
+    const target = pinChanged ? pin : pos?.current.page;
+    if (pos) pos.current.pin = pin;
     if (typeof target !== 'number') return;
     setIntroVisible(false);
     if (pos) { pos.current.introDismissed = true; pos.current.page = target; }
@@ -93,6 +103,7 @@ export default function Scrapbook({ data = defaults, pin = null, editable = fals
   }, [pin, apiReady, pos]);
 
   const prev = useCallback(() => book.current?.pageFlip()?.flipPrev('top'), []);
+  const readAgain = useCallback(() => book.current?.pageFlip()?.turnToPage(0), []);
   const next = useCallback(() => book.current?.pageFlip()?.flipNext('top'), []);
 
   const onKeyDown = (e: KeyboardEvent<HTMLElement>) => {
@@ -103,11 +114,25 @@ export default function Scrapbook({ data = defaults, pin = null, editable = fals
     else if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
   };
 
-  const pages = useMemo(() => renderPages(data, editable ? onPick : undefined), [data, editable, onPick]);
-  const shown = Math.min(page + 1, TOTAL);
+  const pages = useMemo(() => renderPages(data, editable ? onPick : undefined, selected), [data, editable, onPick, selected]);
+  // Same numbering as the editor's step tabs (a section's previewPage + 1). In landscape an
+  // inner spread shows two pages, so name both instead of only the left one.
+  const spread = orientation === 'landscape' && page > 0 && page < TOTAL - 1;
+  const first = spread && page % 2 === 0 ? page - 1 : page;
+  const shown = spread ? `${pad2(first + 1)}–${pad2(first + 2)}` : pad2(Math.min(page + 1, TOTAL));
+  const atEnd = page >= TOTAL - 1;
+  const edge = orientation === 'landscape' ? (page === 0 ? 'front' : page >= TOTAL - 1 ? 'back' : undefined) : undefined;
+
+  const shell = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!apiReady) return;
+    const id = window.setTimeout(() => auditVisiblePages(shell.current), 400);
+    return () => window.clearTimeout(id);
+  }, [apiReady, page, orientation, pages]);
 
   return (
     <section
+      ref={shell}
       className={s.scrapbookShell}
       data-entering={entering}
       tabIndex={0}
@@ -128,11 +153,11 @@ export default function Scrapbook({ data = defaults, pin = null, editable = fals
 
       <header className={s.readerBar}>
         <div><strong>Дурсамжийн ном</strong><span>{editable ? 'Доод сумаар хуудас эргүүлнэ' : 'Хуудасны булангаас чирж эргүүлнэ'}</span></div>
-        <span className={s.readerCount}>{pad2(shown)} / {TOTAL}</span>
+        <span className={s.readerCount}>{shown} / {TOTAL}</span>
       </header>
 
       <div className={cx(s.bookStage, orientation === 'portrait' && s.bookStagePortrait)}>
-        <div className={x.flipHost}>
+        <div className={x.flipHost} data-edge={edge}>
           <Suspense fallback={<div className={s.bookSkeleton} />}>
             <HTMLFlipBook
               ref={book}
@@ -151,9 +176,13 @@ export default function Scrapbook({ data = defaults, pin = null, editable = fals
 
       <nav className={s.readerControls} aria-label="Хуудаснууд">
         <button type="button" onClick={prev} disabled={page === 0} aria-label="Өмнөх хуудас">←</button>
-        <div className={s.progressTrack}>
-          <span style={{ transform: `scaleX(${Math.max(0.08, (page + 1) / TOTAL)})` }} />
-        </div>
+        {atEnd ? (
+          <button type="button" className={s.readerAgain} onClick={readAgain}>↺ Дахин унших</button>
+        ) : (
+          <div className={s.progressTrack}>
+            <span style={{ transform: `scaleX(${Math.max(0.08, (page + 1) / TOTAL)})` }} />
+          </div>
+        )}
         <button type="button" onClick={next} disabled={page >= TOTAL - 1} aria-label="Дараагийн хуудас">→</button>
       </nav>
     </section>

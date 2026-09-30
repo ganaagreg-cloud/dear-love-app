@@ -1,26 +1,24 @@
 'use client';
-import { forwardRef, useState, type ReactNode } from 'react';
+import { forwardRef, useState, type CSSProperties, type ReactNode } from 'react';
 import s from './Scrapbook.module.css';
 import x from './Extras.module.css';
 
 export const cx = (...c: (string | false | undefined)[]) => c.filter(Boolean).join(' ');
 
-export function Photo({ src, className, onClick }: { src?: string; className?: string; onClick?: () => void }) {
+export function Photo({ src, className, onClick, selected }: { src?: string; className?: string; onClick?: () => void; selected?: boolean }) {
   const [failed, setFailed] = useState(false);
-  const body = (
-    <>
-      {src && !failed ? (
-        <img src={src} alt="хайрын зураг" loading="lazy" decoding="async" draggable={false} onError={() => setFailed(true)} />
-      ) : (
-        <div className={x.photoEmpty} aria-hidden>
-          <i><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="9" cy="10" r="1.6" /><path d="M21 16l-5-5-8 8" /></svg></i>
-        </div>
-      )}
-    </>
+  const empty = !src || failed;
+  const body = empty ? (
+    // Paper scrap + washi-tape corners; the call-to-action only makes sense for the buyer.
+    <div className={x.photoEmpty} aria-hidden>{onClick && <span>+ Зураг нэмэх</span>}</div>
+  ) : (
+    <img src={src} alt="хайрын зураг" loading="lazy" decoding="async" draggable={false} onError={() => setFailed(true)} />
   );
   if (onClick) {
     return (
-      <button type="button" className={cx(s.photo, x.photoClickable, className)} onClick={onClick} aria-label="Энэ зургийг солих">
+      <button type="button" className={cx(s.photo, x.photoClickable, className)} onClick={onClick}
+              data-empty={empty || undefined} data-selected={selected || undefined}
+              aria-label={empty ? 'Зураг нэмэх' : 'Энэ зургийг солих'}>
         {body}
       </button>
     );
@@ -30,10 +28,13 @@ export function Photo({ src, className, onClick }: { src?: string; className?: s
 
 export const Tape = ({ className }: { className?: string }) => <span className={cx(s.tape, className)} aria-hidden />;
 
+/** Letter-tile title on one line: `--n` lets the CSS shrink every tile so the whole
+ *  title fits its box, instead of wrapping mid-word (see .ransomTitle). */
 export function Ransom({ className, children }: { className?: string; children: string }) {
+  const chars = [...children];
   return (
-    <div className={cx(s.ransomTitle, className)} aria-label={children}>
-      {[...children].map((ch, i) =>
+    <div className={cx(s.ransomTitle, className)} aria-label={children} style={{ '--n': Math.max(chars.length, 6) } as CSSProperties}>
+      {chars.map((ch, i) =>
         ch === ' ' ? <span key={i} className={s.ransomSpace} /> : <span key={i} aria-hidden>{ch}</span>,
       )}
     </div>
@@ -41,7 +42,7 @@ export function Ransom({ className, children }: { className?: string; children: 
 }
 
 export const Clutter = ({ src, className }: { src: string; className?: string }) => (
-  <img className={cx(s.pageClutter, className)} src={src} alt="" aria-hidden draggable={false} loading="lazy"
+  <img className={cx(s.pageClutter, className)} src={src} alt="" aria-hidden data-bleed draggable={false} loading="lazy"
        onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />
 );
 

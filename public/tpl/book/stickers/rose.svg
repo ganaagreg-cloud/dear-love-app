@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 120">
+  <!-- Dear Love scrapbook sticker: single pressed rose. -->
+  <defs>
+    <filter id="cut" x="-12%" y="-10%" width="124%" height="120%">
+      <feMorphology in="SourceAlpha" operator="dilate" radius="3.2" result="d"/>
+      <feFlood flood-color="#fbf5ea"/>
+      <feComposite in2="d" operator="in" result="o"/>
+      <feMerge><feMergeNode in="o"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <g filter="url(#cut)">
+    <path fill="none" stroke="#6f8a57" stroke-width="3.4" stroke-linecap="round" d="M46 42 C42 66 50 88 44 114"/>
+    <path fill="#86a46a" d="M46 74 C58 64 72 64 78 70 C70 78 58 80 46 76 Z"/>
+    <path fill="#7d9a60" d="M45 92 C34 84 20 84 14 90 C22 98 34 98 45 94 Z"/>
+    <path fill="none" stroke="#5e7849" stroke-width="1.2" d="M48 75 L72 70 M43 93 L20 90"/>
+    <!-- bloom -->
+    <path fill="#a9434f" d="M22 30 C20 14 34 6 46 8 C60 10 70 20 66 34 C62 46 50 48 44 48 C34 48 24 42 22 30 Z"/>
+    <path fill="#c65a67" d="M28 30 C27 18 38 12 47 14 C57 16 62 24 59 33 C56 41 48 43 43 42 C35 41 29 37 28 30 Z"/>
+    <path fill="none" stroke="#8d3440" stroke-width="2" stroke-linecap="round" d="M36 28 C38 20 50 20 52 28 C53 34 46 36 42 33 C39 30 42 26 46 27"/>
+    <path fill="#86a46a" d="M34 46 L28 54 L40 49 L46 56 L48 47 L58 50 L52 44 Z"/>
+  </g>
+</svg>

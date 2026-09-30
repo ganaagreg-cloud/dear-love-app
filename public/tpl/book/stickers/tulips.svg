@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <!-- Dear Love scrapbook sticker: tulip bouquet in kraft paper. Die-cut cream outline via filter. -->
+  <defs>
+    <filter id="cut" x="-10%" y="-10%" width="120%" height="120%">
+      <feMorphology in="SourceAlpha" operator="dilate" radius="3.2" result="d"/>
+      <feFlood flood-color="#fbf5ea"/>
+      <feComposite in2="d" operator="in" result="o"/>
+      <feMerge><feMergeNode in="o"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <g filter="url(#cut)">
+    <g fill="none" stroke="#6f8a57" stroke-width="3.4" stroke-linecap="round">
+      <path d="M36 44 C42 62 52 74 58 92"/>
+      <path d="M60 34 C60 56 60 74 60 92"/>
+      <path d="M85 46 C78 62 68 76 62 92"/>
+    </g>
+    <path fill="#86a46a" d="M44 78 C30 70 24 56 26 46 C36 54 44 64 50 80 Z"/>
+    <path fill="#7d9a60" d="M76 80 C90 72 96 60 95 50 C84 56 76 66 70 82 Z"/>
+    <!-- tulip heads -->
+    <g transform="translate(35 36) rotate(-16)">
+      <path fill="#cf6674" d="M-12 -6 C-13 8 -6 15 0 15 C6 15 13 8 12 -6 L6 0 L0 -11 L-6 0 Z"/>
+      <path fill="#e59aa2" d="M-6 0 L0 -11 L6 0 C4 8 2 12 0 13 C-2 12 -4 8 -6 0 Z"/>
+    </g>
+    <g transform="translate(60 26)">
+      <path fill="#e9b85e" d="M-13 -6 C-14 9 -6 16 0 16 C6 16 14 9 13 -6 L6.5 0 L0 -12 L-6.5 0 Z"/>
+      <path fill="#f4d58f" d="M-6.5 0 L0 -12 L6.5 0 C4.5 8 2 13 0 14 C-2 13 -4.5 8 -6.5 0 Z"/>
+    </g>
+    <g transform="translate(86 38) rotate(14)">
+      <path fill="#b9505e" d="M-12 -6 C-13 8 -6 15 0 15 C6 15 13 8 12 -6 L6 0 L0 -11 L-6 0 Z"/>
+      <path fill="#d77b86" d="M-6 0 L0 -11 L6 0 C4 8 2 12 0 13 C-2 12 -4 8 -6 0 Z"/>
+    </g>
+    <!-- kraft wrap -->
+    <path fill="#c49a70" d="M38 70 L82 70 L68 114 L52 114 Z"/>
+    <path fill="#d8b48b" d="M38 70 L60 76 L82 70 L74 96 L60 92 L46 96 Z"/>
+    <path fill="none" stroke="#a87c55" stroke-width="1.2" d="M60 76 L60 112"/>
+    <!-- twine bow -->
+    <g fill="none" stroke="#8b5d3b" stroke-width="2.2" stroke-linecap="round">
+      <path d="M48 94 L72 94"/>
+      <path d="M60 94 C52 86 46 90 50 96 C53 99 58 96 60 94 Z"/>
+      <path d="M60 94 C68 86 74 90 70 96 C67 99 62 96 60 94 Z"/>
+      <path d="M60 94 L55 106 M60 94 L66 105"/>
+    </g>
+  </g>
+</svg>

@@ -32,7 +32,7 @@ export default function BookView({ content, pin, editable }: { content: Content;
   // Scrapbook remounts on every content edit (see above) — this ref lives here, in the
   // parent that doesn't remount, so "which page was open" and "was the intro dismissed"
   // survive the remount instead of resetting to the cover on every keystroke/upload.
-  const pos = useRef({ page: 0, introDismissed: false });
+  const pos = useRef<{ page: number; introDismissed: boolean; pin?: string | number | null }>({ page: 0, introDismissed: false });
   return (
     <div className="dl-book-root">
       <Scrapbook key={key} data={data} pin={pin} editable={editable} pos={pos} />
