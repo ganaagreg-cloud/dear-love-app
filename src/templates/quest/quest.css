@@ -96,6 +96,23 @@
 .qs-ending { margin: 0; color: #fff; font-size: 3.6cqh; line-height: 1.8; max-width: 88cqw; text-shadow: .4cqh .4cqh 0 var(--ink); white-space: pre-wrap; }
 .qs-stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5cqh 4cqw; color: #ffd84d; font-size: 3cqh; }
 
+/* ── editor preview helpers ── */
+.qs-playall { position: fixed; top: 12px; right: 12px; z-index: 10; border: 0; border-radius: 999px; padding: 10px 14px;
+  background: rgba(43, 36, 56, .86); color: #fff; font-size: 10px; letter-spacing: .04em; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+.qs-playall:hover { background: var(--ink); }
+.qs-music { margin-top: 1cqh; border: .5cqh solid var(--ink); border-radius: 1cqh; background: #ffd84d; color: var(--ink); font-size: 2.8cqh; padding: 1.4cqh 2.4cqw; cursor: pointer; }
+.qs-cast { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 6cqw;
+  background: radial-gradient(circle at 50% 55%, rgba(255,255,255,.35), rgba(20,10,40,.45)); }
+.qs-cast figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 2.4cqh; }
+.qs-cast img { height: 46cqh; width: auto; image-rendering: pixelated; filter: drop-shadow(1cqh 1cqh 0 rgba(20,10,40,.45)); animation: qsBounce 1.6s ease-in-out infinite; }
+.qs-cast figure:last-child img { animation-delay: -.8s; }
+.qs-cast img.flip { transform: scaleX(-1); animation-name: qsBounceFlip; }
+@keyframes qsBounceFlip { 0%, 100% { transform: scaleX(-1) translateY(0) } 50% { transform: scaleX(-1) translateY(-2.5cqh) } }
+.qs-cast figcaption { background: var(--console-dark); color: #fff; border: .7cqh solid var(--ink); border-radius: 1cqh; padding: 1.6cqh 2.4cqw; font-size: 3.8cqh; max-width: 38cqw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qs-cast small { color: #fff; font-size: 2.4cqh; text-shadow: .4cqh .4cqh 0 var(--ink); }
+.qs-cast-heart { color: #ff4d6d; font-size: 9cqh; text-shadow: .6cqh .6cqh 0 var(--ink); animation: qsBounce 1s ease-in-out infinite; margin-bottom: 12cqh; }
+.qs-choice .qs-q { font-size: 3.8cqh; line-height: 1.7; margin-bottom: 2cqh; }
+
 /* ── phones / portrait: classic vertical handheld ── */
 @media (orientation: portrait), (max-width: 700px) {
   .qs-root { place-items: stretch; }
@@ -115,5 +132,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .qs-floaties { display: none; }
-  .qs-logo, .qs-press, .qs-next, .qs-photo, .qs-win { animation: none; }
+  .qs-logo, .qs-press, .qs-next, .qs-photo, .qs-win, .qs-cast img, .qs-cast-heart { animation: none; }
 }

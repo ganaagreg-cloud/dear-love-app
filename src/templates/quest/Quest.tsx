@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Chip } from './audio';
 import {
   CHEST_BODY, CHEST_LID, CHEST_PAL, HEART, characterPalette, characterRows, makeSprite, shade,
@@ -33,7 +33,14 @@ type Game = {
 };
 
 type Dlg = { name: string; text: string; photo?: string; badge?: string };
-type Mode = 'title' | 'play' | 'dialog' | 'choice' | 'win';
+type Mode = 'title' | 'cast' | 'play' | 'dialog' | 'choice' | 'win';
+
+/**
+ * Editor-only: freeze the game on the moment a step edits instead of making the buyer
+ * play to it. `chest:<i>` opens that chest; `dialog:*` shows that line fully typed.
+ */
+export type PreviewScene =
+  | 'title' | 'characters' | `chest:${number}` | 'dialog:intro' | 'dialog:greeting' | 'dialog:question' | 'ending' | 'music';
 
 const FONT = '"Press Start 2P", monospace';
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
@@ -59,7 +66,7 @@ function newGame(): Game {
   };
 }
 
-export default function Quest({ data }: { data: QuestData }) {
+export default function Quest({ data, previewScene = null }: { data: QuestData; previewScene?: PreviewScene | null }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const game = useRef<Game>(newGame());
   const chip = useRef<Chip | null>(null);
@@ -78,6 +85,12 @@ export default function Quest({ data }: { data: QuestData }) {
   const setChoice = (c: number) => { choiceRef.current = c; _setChoice(c); };
   const [muted, setMuted] = useState(false);
   const [winCard, setWinCard] = useState(false);
+  // «▶ Бүтэн тоглох» (or any button press) leaves the pinned scene and plays for real,
+  // until the editor moves to another scene.
+  const [playing, setPlaying] = useState(false);
+  useEffect(() => { setPlaying(false); }, [previewScene]);
+  const scene = playing ? null : previewScene;
+  const sceneRef = useRef(scene); sceneRef.current = scene;
 
   const total = data.memories.length;
   const days = (() => {
@@ -121,11 +134,14 @@ export default function Quest({ data }: { data: QuestData }) {
     chip.current.init();
     chip.current.sfx('start');
     if (data.music) {
+      if (song.current && song.current.src !== new URL(data.music, location.href).href) { song.current.pause(); song.current = null; }
       song.current ??= Object.assign(new Audio(data.music), { loop: true, volume: 0.6 });
       song.current.muted = muted;
+      chip.current.stopMusic();
       song.current.play().catch(() => chip.current?.startMusic());
-    } else chip.current.startMusic();
+    } else { song.current?.pause(); chip.current.startMusic(); }
   };
+  const stopAudio = () => { chip.current?.stopMusic(); song.current?.pause(); };
   const toggleMute = () => {
     const m = !muted; setMuted(m);
     chip.current?.setMuted(m);
@@ -135,6 +151,7 @@ export default function Quest({ data }: { data: QuestData }) {
 
   /* ── game actions ── */
   const start = () => {
+    setPlaying(true);
     startAudio();
     game.current = newGame();
     setWinCard(false);
@@ -157,6 +174,7 @@ export default function Quest({ data }: { data: QuestData }) {
     void i;
   };
   const pressA = () => {
+    if (sceneRef.current) setPlaying(true);
     const m = modeRef.current;
     if (m === 'title') start();
     else if (m === 'dialog') advance();
@@ -164,6 +182,7 @@ export default function Quest({ data }: { data: QuestData }) {
     else if (m === 'play') jump();
   };
   const pressStart = () => {
+    if (sceneRef.current) setPlaying(true);
     const m = modeRef.current;
     if (m === 'title') start();
     else if (m === 'win' && winCard) { game.current = newGame(); setWinCard(false); setMode('title'); }
@@ -173,9 +192,54 @@ export default function Quest({ data }: { data: QuestData }) {
     if (modeRef.current === 'choice') { setChoice(d < 0 ? 0 : 1); chip.current?.sfx('blip'); }
   };
 
+  const memoryDialog = (i: number): Dlg => {
+    const mem = data.memories[i];
+    return { name: fill(mem.title) || `Дурсамж ${i + 1}`, text: fill(mem.text), photo: mem.src, badge: `ДУРСАМЖ ${i + 1}/${total}` };
+  };
+
   // latest handlers for listeners / game loop
-  const h = useRef({ pressA, pressStart, dir, openDialog, fill });
-  h.current = { pressA, pressStart, dir, openDialog, fill };
+  const h = useRef({ pressA, pressStart, dir, openDialog, fill, memoryDialog });
+  h.current = { pressA, pressStart, dir, openDialog, fill, memoryDialog };
+
+  /* ── editor preview: stage the requested scene. Runs only when the scene itself
+     changes, so typing doesn't restart the fireworks or re-walk the player. ── */
+  useEffect(() => {
+    if (!scene) return;
+    const g = newGame();
+    const walkTo = (px: number, opened: number) => {
+      g.px = px; g.frozen = true;
+      g.chests.forEach((c, i) => { c.open = i < opened; });
+      g.found = opened;
+      g.hearts.forEach((hh) => { if (hh.x < px) { hh.got = true; g.score++; } });
+      g.cam = clamp(px - 100, 0, WORLD - W);
+    };
+    queue.current = { list: [], i: 0 };
+    setDlg(null); setWinCard(false);
+    const chest = /^chest:(\d+)$/.exec(scene);
+    if (chest) { const i = clamp(+chest[1], 0, total - 1); walkTo(CHEST_X[i], i + 1); setMode('dialog'); }
+    else if (scene === 'dialog:intro') { walkTo(36, 0); setMode('dialog'); }
+    else if (scene === 'dialog:greeting' || scene === 'dialog:question' || scene === 'ending') {
+      walkTo(NPC_X - 16, total); g.final = true;
+      if (scene === 'dialog:greeting') setMode('dialog');
+      else if (scene === 'dialog:question') { setChoice(0); setMode('choice'); }
+      else { g.won = true; g.wonT = 3; setMode('win'); setWinCard(true); }
+    }
+    else if (scene === 'characters') setMode('cast');
+    else setMode('title');
+    game.current = g;
+    if (scene === 'music') startAudio(); else stopAudio();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scene]);
+  // …while the text of a staged dialog follows every keystroke, already fully typed.
+  useEffect(() => {
+    if (!scene) return;
+    const chest = /^chest:(\d+)$/.exec(scene);
+    const d: Dlg | null = chest ? h.current.memoryDialog(clamp(+chest[1], 0, total - 1))
+      : scene === 'dialog:intro' ? { name: '♥ АЯЛАЛ', text: fill(data.intro) }
+      : scene === 'dialog:greeting' ? { name: data.npcName || '???', text: fill(data.npcGreeting) }
+      : null;
+    setDlg(d); setTyped(d ? d.text.length : 0);
+  }, [scene, data, fill, total]);
 
   /* ── keyboard ── */
   useEffect(() => {
@@ -254,8 +318,7 @@ export default function Quest({ data }: { data: QuestData }) {
           if (!c.open && Math.abs(c.x - g.px) < 10 && g.py < 10) {
             c.open = true; g.found++; chip.current?.sfx('chest');
             burst(c.x, GROUND - 10, 36, ['#ffe27a', '#ffffff', '#ff8fb8']);
-            const mem = data.memories[i];
-            h.current.openDialog([{ name: mem.title || `Дурсамж ${i + 1}`, text: h.current.fill(mem.text), photo: mem.src, badge: `ДУРСАМЖ ${i + 1}/${total}` }]);
+            h.current.openDialog([h.current.memoryDialog(i)]);
           }
         });
         if (!g.final && g.px >= NPC_X - 16) {
@@ -287,12 +350,13 @@ export default function Quest({ data }: { data: QuestData }) {
       });
       g.parts = g.parts.filter((p) => { p.life += dt; p.vy += (p.grav ?? 60) * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.98; return p.life < p.max; });
 
-      const target = m === 'title' ? (Math.sin(g.t * 0.08) * 0.5 + 0.5) * (WORLD - W) : g.px - 100;
-      g.cam += (clamp(target, 0, WORLD - W) - g.cam) * (m === 'title' ? 1 : Math.min(1, dt * 6));
+      const idle = m === 'title' || m === 'cast';
+      const target = idle ? (Math.sin(g.t * 0.08) * 0.5 + 0.5) * (WORLD - W) : g.px - 100;
+      g.cam += (clamp(target, 0, WORLD - W) - g.cam) * (idle ? 1 : Math.min(1, dt * 6));
       const cam = Math.round(g.cam);
 
       /* progress drives time of day */
-      const p = g.won ? 1 : m === 'title' ? cam / (WORLD - W) : clamp(g.px / NPC_X, 0, 1);
+      const p = g.won ? 1 : idle ? cam / (WORLD - W) : clamp(g.px / NPC_X, 0, 1);
       const night = clamp((p - 0.55) / 0.45, 0, 1);
 
       /* sky */
@@ -382,7 +446,7 @@ export default function Quest({ data }: { data: QuestData }) {
       });
 
       // player
-      if (m !== 'title') {
+      if (!idle) {
         const frame = g.moving && g.py === 0 ? (Math.floor(g.walkT * 8) % 2) : 0;
         const bob = g.moving && g.py === 0 && frame ? 1 : 0;
         ctx.save();
@@ -408,7 +472,7 @@ export default function Quest({ data }: { data: QuestData }) {
       g.rockets.forEach((r) => { ctx.fillStyle = r.color; ctx.fillRect(Math.round(r.x - cam), Math.round(r.y), 1, 3); });
 
       // HUD
-      if (m !== 'title') {
+      if (!idle) {
         ctx.fillStyle = 'rgba(20,10,30,0.45)'; ctx.fillRect(0, 0, W, 13);
         ctx.drawImage(sp.heart, 4, 3);
         ctx.font = `8px ${FONT}`; ctx.textBaseline = 'top'; ctx.fillStyle = '#fff';
@@ -435,8 +499,18 @@ export default function Quest({ data }: { data: QuestData }) {
   const g = game.current;
   const heartsTotal = g.hearts.length;
 
+  // the two characters side by side (Дүрүүд step), rebuilt as looks/colours change
+  const cast = useMemo(() => mode !== 'cast' ? null : {
+    p: makeSprite(characterRows(data.playerLook, 0), characterPalette(data.playerLook, data.playerColor)).toDataURL(),
+    n: makeSprite(characterRows(data.npcLook, 0), characterPalette(data.npcLook, data.npcColor)).toDataURL(),
+  }, [mode, data.playerLook, data.playerColor, data.npcLook, data.npcColor]);
+  const playFromStart = () => { game.current = newGame(); start(); };
+
   return (
     <div className="qs-root" style={{ '--console': data.consoleColor, '--console-dark': shade(data.consoleColor, -0.28), '--console-light': shade(data.consoleColor, 0.35) } as CSSProperties}>
+      {previewScene && !playing && (
+        <button className="qs-playall" onClick={playFromStart}>▶ Бүтэн тоглох</button>
+      )}
       <div className="qs-floaties" aria-hidden>{Array.from({ length: 14 }, (_, i) => <i key={i} style={{ '--i': i } as CSSProperties}>♥</i>)}</div>
       <div className="qs-console">
         <div className="qs-left">
@@ -460,6 +534,27 @@ export default function Quest({ data }: { data: QuestData }) {
                 <div className="qs-sub">{data.subtitle}</div>
                 <div className="qs-for">гол дүрд: {data.playerName || 'чи'}</div>
                 <div className="qs-press">START ДАРНА УУ</div>
+                {scene === 'music' && (
+                  <button className="qs-music" onPointerDown={(e) => e.stopPropagation()} onClick={startAudio}>
+                    ♫ {data.music ? 'ТАНЫ ДУУ' : 'ЧИПТЮН'} ТОГЛОЖ БАЙНА
+                  </button>
+                )}
+              </div>
+            )}
+
+            {mode === 'cast' && cast && (
+              <div className="qs-cast">
+                <figure>
+                  <img src={cast.p} alt="" />
+                  <figcaption>{data.playerName || 'Чи'}</figcaption>
+                  <small>ТОГЛОГЧ</small>
+                </figure>
+                <b className="qs-cast-heart" aria-hidden>♥</b>
+                <figure>
+                  <img src={cast.n} alt="" className="flip" />
+                  <figcaption>{data.npcName || 'Би'}</figcaption>
+                  <small>ТЭР ХҮЛЭЭНЭ</small>
+                </figure>
               </div>
             )}
 
@@ -476,7 +571,8 @@ export default function Quest({ data }: { data: QuestData }) {
 
             {mode === 'choice' && (
               <div className="qs-dialog qs-choice">
-                <span className="qs-name">{data.playerName || 'Чи'}</span>
+                <span className="qs-name">{data.npcName || '???'}</span>
+                <p className="qs-q">{fill(data.question)}</p>
                 <div className="qs-options">
                   {[data.yesA, data.yesB].map((o, i) => (
                     <button key={i} className={choice === i ? 'on' : ''} onPointerEnter={() => setChoice(i)} onClick={() => { setChoice(i); pick(i); }}>

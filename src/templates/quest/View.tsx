@@ -2,7 +2,7 @@
 import { useMemo } from 'react';
 import '@fontsource/press-start-2p/400.css';
 import './quest.css';
-import Quest, { type Look, type QuestData } from './Quest';
+import Quest, { type Look, type PreviewScene, type QuestData } from './Quest';
 import type { Content } from '../types';
 
 const str = (v: unknown, d = '') => (typeof v === 'string' && v ? v : d);
@@ -24,9 +24,11 @@ export function toQuest(c: Content): QuestData {
   };
 }
 
-export default function QuestView({ content }: { content: Content; pin?: string | number | null; editable?: boolean }) {
+const SCENE = /^(title|characters|chest:\d+|dialog:(intro|greeting|question)|ending|music)$/;
+
+export default function QuestView({ content, pin }: { content: Content; pin?: string | number | null; editable?: boolean }) {
   const data = useMemo(() => toQuest(content), [content]);
-  // remount the game when the content changes (editor live preview)
-  const key = useMemo(() => JSON.stringify(data).length + ':' + data.title + data.playerName + data.consoleColor, [data]);
-  return <Quest key={key} data={data} />;
+  // The editor pins a scene per step; content edits update that scene in place (no remount).
+  const scene = typeof pin === 'string' && SCENE.test(pin) ? (pin as PreviewScene) : null;
+  return <Quest data={data} previewScene={scene} />;
 }

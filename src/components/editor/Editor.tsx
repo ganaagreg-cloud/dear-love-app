@@ -2,8 +2,9 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import './editor.css';
-import type { Content, ContentValue, TemplateMeta } from '@/templates/types';
-import { FieldControl } from './Fields';
+import type { Content, ContentValue, Field, Section, TemplateMeta } from '@/templates/types';
+import { FieldControl, asArr } from './Fields';
+import { Cards } from './Cards';
 import { uploadMedia } from '@/lib/upload';
 
 type Props = {
@@ -23,6 +24,13 @@ type SaveState = 'saved' | 'dirty' | 'saving' | 'error';
 const DEVICES = { desktop: { w: 1366, h: 820 }, mobile: { w: 390, h: 844 } } as const;
 const cleanSlug = (v: string) => v.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').slice(0, 40);
 
+/** A `required` field counts as filled when every slot/item has something in it. */
+const filled = (f: Field, v: ContentValue | undefined) =>
+  f.type === 'images' ? Array.from({ length: f.max }, (_, i) => asArr(v)[i]).every(Boolean)
+  : f.type === 'list' ? Array.from({ length: f.count }, (_, i) => asArr(v)[i]?.trim()).every(Boolean)
+  : typeof v === 'string' ? v.trim() !== '' : v != null;
+const missing = (s: Section, c: Content) => s.fields.some((f) => f.required && !filled(f, c[f.key]));
+
 export default function Editor({ meta, pageId, userId, initialContent, initialStatus, initialSlug, initialUrl, linkBase, subdomain }: Props) {
   const [content, setContent] = useState<Content>(initialContent);
   const [save, setSave] = useState<SaveState>('saved');
@@ -33,6 +41,9 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   const [slugErr, setSlugErr] = useState('');
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState<string>(meta.schema[0]?.id ?? '');
+  // the preview scene of whatever field/card has focus; falls back to the step's own scene
+  const [focusPin, setFocusPin] = useState<string | number | null>(null);
+  useEffect(() => { setFocusPin(null); }, [open]);
   const [device, setDevice] = useState<keyof typeof DEVICES>('desktop');
   const [tab, setTab] = useState<'edit' | 'preview'>('edit');
   const [share, setShare] = useState(false);
@@ -48,7 +59,7 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   const currentSection = meta.schema[openIndex] ?? meta.schema[0];
   const prevSection = openIndex > 0 ? meta.schema[openIndex - 1] : undefined;
   const nextSection = openIndex >= 0 && openIndex < meta.schema.length - 1 ? meta.schema[openIndex + 1] : undefined;
-  const pin = previewingFull ? null : (currentSection?.previewPage ?? null);
+  const pin = previewingFull ? null : (focusPin ?? currentSection?.previewPage ?? null);
   const post = useCallback(
     () => frame.current?.contentWindow?.postMessage({ type: 'dear:content', content: latest.current, pin }, window.location.origin),
     [pin],
@@ -58,7 +69,8 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
     window.addEventListener('message', onMsg);
     return () => window.removeEventListener('message', onMsg);
   }, [post]);
-  useEffect(() => { const t = setTimeout(post, 700); return () => clearTimeout(t); }, [content, post]);
+  const debounce = meta.previewDebounceMs ?? 700;
+  useEffect(() => { const t = setTimeout(post, debounce); return () => clearTimeout(t); }, [content, post, debounce]);
 
   /* ── autosave ── */
   const persist = useCallback(async () => {
@@ -80,6 +92,8 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   }, [save]);
 
   const set = (key: string, v: ContentValue) => setContent((c) => ({ ...c, [key]: v }));
+  const patch = (p: Content) => setContent((c) => ({ ...c, ...p }));
+  const tracksRequired = meta.schema.some((s) => s.fields.some((f) => f.required));
   const upload = useCallback((file: File, kind: 'image' | 'audio', maxMB?: number) => uploadMedia(file, userId, pageId, kind, maxMB), [userId, pageId]);
 
   /* ── click a photo tile in the live preview (currently only Book does this) to
@@ -191,35 +205,68 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
       <aside className="ed-side">
         <div className="ed-lock">🔒 Энэ хуудсыг зөвхөн та засах эрхтэй</div>
         <nav className="ed-steps" aria-label="Хэсгүүд">
-          {meta.schema.map((s, i) => (
-            <button
-              key={s.id}
-              type="button"
-              className={`ed-step ${open === s.id ? 'on' : ''}`}
-              aria-current={open === s.id ? 'step' : undefined}
-              aria-label={s.title}
-              title={s.title}
-              onClick={() => setOpen(s.id)}
-            >
-              {i + 1}
-            </button>
-          ))}
+          {meta.schema.map((s, i) => {
+            // Page-based templates (Book: numeric previewPage) label each step with the page
+            // number the preview's counter shows for it; sections that aren't tied to one
+            // page (Book's bulk photo upload) get an icon. Scene-based templates keep 1..n.
+            const pageNo = typeof s.previewPage === 'number' ? s.previewPage + 1 : null;
+            const paged = meta.schema.some((x) => typeof x.previewPage === 'number');
+            const label = s.short ?? (paged ? (pageNo ?? '▦') : i + 1);
+            // ⚠ = something required is still empty; ✓ = nothing required is missing
+            const state = !tracksRequired ? null : missing(s, content) ? 'todo' : 'done';
+            const stateLabel = state === 'todo' ? ' · дутуу' : state === 'done' ? ' · бэлэн' : '';
+            return (
+              <button
+                key={s.id}
+                type="button"
+                className={`ed-step ${s.short ? 'wide' : ''} ${open === s.id ? 'on' : ''} ${state ?? ''}`}
+                aria-current={open === s.id ? 'step' : undefined}
+                aria-label={(pageNo ? `${pageNo}-р хуудас · ${s.title}` : s.title) + stateLabel}
+                title={(pageNo ? `${pageNo}-р хуудас · ${s.title}` : s.title) + stateLabel}
+                onClick={() => setOpen(s.id)}
+              >
+                {label}
+                {state && <i aria-hidden>{state === 'todo' ? '⚠' : '✓'}</i>}
+              </button>
+            );
+          })}
         </nav>
         {currentSection && (
           <section className="ed-sec open">
             <h2 className="ed-sec-title">{currentSection.title}</h2>
             <div className="ed-sec-body">
               {currentSection.description && <p className="ed-help" style={{ marginTop: 0 }}>{currentSection.description}</p>}
-              {currentSection.fields.map((f) => (
-                <FieldControl key={f.key} field={f} value={content[f.key]} onChange={(v) => set(f.key, v)} upload={upload} />
-              ))}
+              {(() => {
+                const cards = currentSection.cards;
+                const inCards = (k: string) => !!cards && (k === cards.image || k === cards.title || k === cards.text);
+                const maxOf = (k: string) => { const f = currentSection.fields.find((x) => x.key === k); return f && 'max' in f ? f.max : undefined; };
+                const tokensFor = (k: string) => (currentSection.fields.find((x) => x.key === k)?.tokens ? meta.tokens : undefined);
+                return (
+                  <>
+                    {cards && (
+                      <Cards
+                        key={currentSection.id} cfg={cards} content={content} onPatch={patch} upload={upload}
+                        tokens={tokensFor(cards.text)} titleMax={maxOf(cards.title)} textMax={maxOf(cards.text)}
+                        onFocusCard={(i) => cards.previewPrefix && setFocusPin(`${cards.previewPrefix}${i}`)}
+                      />
+                    )}
+                    {currentSection.fields.filter((f) => !inCards(f.key)).map((f) => (
+                      <FieldControl
+                        key={f.key} field={f} value={content[f.key]} onChange={(v) => set(f.key, v)} upload={upload}
+                        tokens={f.tokens ? meta.tokens : undefined}
+                        onFocus={f.previewPage != null ? () => setFocusPin(f.previewPage!) : undefined}
+                      />
+                    ))}
+                  </>
+                );
+              })()}
               <div className="ed-step-nav">
                 {prevSection
                   ? <button className="btn btn-sm" onClick={() => setOpen(prevSection.id)}>← Өмнөх</button>
                   : <span />}
                 {nextSection && (
-                  <button className="btn btn-sm btn-primary" onClick={() => setOpen(nextSection.id)}>
-                    Дараах: {nextSection.title} →
+                  <button className="btn btn-sm btn-primary" onClick={() => setOpen(nextSection.id)} title={nextSection.title}>
+                    Дараах →
                   </button>
                 )}
               </div>
