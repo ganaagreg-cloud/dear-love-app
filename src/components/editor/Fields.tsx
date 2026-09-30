@@ -12,6 +12,8 @@ type Props = {
   /** Insert chips for this field's text boxes (only passed when the field opts in). */
   tokens?: Tokens;
   onFocus?: () => void;
+  /** «Хаана юу байна» number, matching the badge on the preview element. */
+  badge?: number;
 };
 
 export const asStr = (v: unknown) => (typeof v === 'string' ? v : '');
@@ -20,16 +22,17 @@ export const asArr = (v: unknown) => (Array.isArray(v) ? (v as string[]) : []);
 /** Anything a buyer might write more than a line of gets a growing box, never a one-line input. */
 const LONG = 40;
 
-export function FieldControl({ field: f, value, onChange, upload, tokens, onFocus }: Props) {
+export function FieldControl({ field: f, value, onChange, upload, tokens, onFocus, badge }: Props) {
+  // data-edit-field: how the editor maps focus/hover here ↔ the element in the preview
   return (
-    <div className="ed-field" onFocusCapture={onFocus}>
+    <div className="ed-field" data-edit-field={f.key} onFocusCapture={onFocus}>
       {f.type !== 'toggle' && (
         <label className="ed-label">
-          <span>{f.label}</span>
+          <span>{badge != null && <i className="ed-badge">{badge}</i>}{f.label}</span>
           {(f.type === 'text' || f.type === 'textarea') && f.max && (
             <small className={asStr(value).length > f.max * 0.9 ? 'warn' : ''}>{asStr(value).length}/{f.max}</small>
           )}
-          {f.type === 'images' && <small>{asArr(value).length}/{f.max}</small>}
+          {f.type === 'images' && <small>{asArr(value).filter(Boolean).length}/{f.max}</small>}
         </label>
       )}
       <Control field={f} value={value} onChange={onChange} upload={upload} tokens={tokens} />
@@ -75,8 +78,10 @@ function Control({ field: f, value, onChange, upload, tokens }: Props) {
       return (
         <div className="ed-list">
           {arr.map((v, i) => (
-            <TextBox key={i} multiline={(f.max ?? 200) > LONG} value={v} max={f.max} rows={2} placeholder={`${f.itemLabel ?? 'Мөр'} ${i + 1}`} tokens={tokens}
-              onChange={(t) => { const next = [...arr]; next[i] = t; onChange(next); }} />
+            <div key={i} data-edit-field={`${f.key}.${i}`}>
+              <TextBox multiline={(f.max ?? 200) > LONG} value={v} max={f.max} rows={2} placeholder={`${f.itemLabel ?? 'Мөр'} ${i + 1}`} tokens={tokens}
+                onChange={(t) => { const next = [...arr]; next[i] = t; onChange(next); }} />
+            </div>
           ))}
         </div>
       );
@@ -96,7 +101,7 @@ function Control({ field: f, value, onChange, upload, tokens }: Props) {
     case 'image':
       return <ImageSlot url={asStr(value)} onChange={(u) => onChange(u)} upload={upload} />;
     case 'images':
-      return <ImageGrid urls={asArr(value)} max={f.max} onChange={(u) => onChange(u)} upload={upload} />;
+      return <ImageGrid fkey={f.key} urls={asArr(value)} max={f.max} onChange={(u) => onChange(u)} upload={upload} />;
     case 'audio':
       return <AudioSlot url={asStr(value)} maxMB={f.maxMB ?? 10} onChange={(u) => onChange(u)} upload={upload} />;
   }
@@ -250,7 +255,7 @@ export function useUpload(upload: Uploader) {
   return { busy, err, run };
 }
 
-function ImageSlot({ url, onChange, upload }: { url: string; onChange: (u: string) => void; upload: Uploader }) {
+export function ImageSlot({ url, onChange, upload }: { url: string; onChange: (u: string) => void; upload: Uploader }) {
   const input = useRef<HTMLInputElement>(null);
   const { busy, err, run } = useUpload(upload);
   const pick = async (files: FileList | null) => { if (!files?.length) return; const [u] = await run([files[0]], 'image'); if (u) onChange(u); };
@@ -277,15 +282,25 @@ function ImageSlot({ url, onChange, upload }: { url: string; onChange: (u: strin
   );
 }
 
-function ImageGrid({ urls, max, onChange, upload }: { urls: string[]; max: number; onChange: (u: string[]) => void; upload: Uploader }) {
+function ImageGrid({ fkey, urls, max, onChange, upload }: { fkey: string; urls: string[]; max: number; onChange: (u: string[]) => void; upload: Uploader }) {
   const input = useRef<HTMLInputElement>(null);
   const { busy, err, run } = useUpload(upload);
   const latest = useRef(urls); latest.current = urls;
+  // Some templates (Book) index this array by fixed slot and keep '' for empty ones —
+  // then empty slots show as numbered «＋» tiles and removing a photo leaves its slot empty.
+  const slotted = urls.some((u) => !u);
+  const holes = urls.map((u, i) => (u ? -1 : i)).filter((i) => i >= 0);
+  const room = max - urls.length + holes.length;
+  const target = useRef<number | null>(null);
   const add = async (files: FileList | null) => {
     if (!files?.length) return;
-    const room = max - urls.length;
-    const got = await run([...files].slice(0, room), 'image');
-    if (got.length) onChange([...latest.current, ...got].slice(0, max));
+    const slot = target.current; target.current = null;
+    const got = await run([...files].slice(0, slot != null ? 1 : room), 'image');
+    if (!got.length) return;
+    const next = [...latest.current];
+    if (slot != null) { next[slot] = got[0]; onChange(next); return; }
+    for (const u of got) { const h = next.indexOf(''); if (h >= 0) next[h] = u; else next.push(u); }
+    onChange(next.slice(0, max));
   };
   const move = (i: number, d: number) => {
     const j = i + d; if (j < 0 || j >= urls.length) return;
@@ -294,19 +309,23 @@ function ImageGrid({ urls, max, onChange, upload }: { urls: string[]; max: numbe
   return (
     <>
       <div className="ed-images">
-        {urls.map((u, i) => (
-          <div className="ed-thumb" key={u + i}>
+        {urls.map((u, i) => !u ? (
+          <button type="button" className="ed-add slot" key={'e' + i} data-edit-field={`${fkey}.${i}`} onClick={() => { target.current = i; input.current?.click(); }} aria-label={`${i + 1}-р байрлалд зураг нэмэх`}>
+            <b>＋</b><span>{i + 1}</span>
+          </button>
+        ) : (
+          <div className="ed-thumb" key={u + i} data-edit-field={`${fkey}.${i}`}>
             <img src={u} alt="" />
             <span className="ed-num">{i + 1}</span>
             <div className="ed-thumb-actions">
               <button type="button" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Зүүн тийш">←</button>
-              <button type="button" onClick={() => onChange(urls.filter((_, k) => k !== i))} aria-label="Устгах">✕</button>
+              <button type="button" onClick={() => onChange(slotted ? urls.map((x, k) => (k === i ? '' : x)) : urls.filter((_, k) => k !== i))} aria-label="Устгах">✕</button>
               <button type="button" onClick={() => move(i, 1)} disabled={i === urls.length - 1} aria-label="Баруун тийш">→</button>
             </div>
           </div>
         ))}
         {Array.from({ length: busy }, (_, i) => <div className="ed-thumb loading" key={'b' + i}><span className="ed-spin" /></div>)}
-        {urls.length + busy < max && (
+        {urls.length + busy < max && !slotted && (
           <button type="button" className="ed-add" onClick={() => input.current?.click()}><b>＋</b><span>Нэмэх</span></button>
         )}
       </div>

@@ -43,11 +43,11 @@ export const flightMeta: TemplateMeta = {
       id: 'stops', title: 'Замын буудлууд', previewPage: 'fly',
       description: 'Та хоёрын түүхийн 6 хүртэл газар. Нэрийг нь хоосон орхивол тэр буудлыг алгасна.',
       fields: [
-        { type: 'list', key: 'stopNames', label: 'Газрын нэр', count: 6, max: 26, itemLabel: 'Газар' },
-        { type: 'list', key: 'stopCodes', label: '3 үсэгт код (заавал биш)', count: 6, max: 4, itemLabel: 'Код' },
-        { type: 'list', key: 'stopDates', label: 'Огноо', count: 6, max: 18, itemLabel: 'Огноо' },
-        { type: 'images', key: 'stopPhotos', label: 'Зургууд (ижил дарааллаар)', max: 6 },
-        { type: 'list', key: 'stopNotes', label: 'Ил захидлын бичвэр', count: 6, max: 180, itemLabel: 'Бичвэр' },
+        { type: 'list', key: 'stopNames', label: 'Газрын нэр', count: 6, max: 26, itemLabel: 'Газар', itemPreview: 'stop:' },
+        { type: 'list', key: 'stopCodes', label: '3 үсэгт код (заавал биш)', count: 6, max: 4, itemLabel: 'Код', itemPreview: 'stop:' },
+        { type: 'list', key: 'stopDates', label: 'Огноо', count: 6, max: 18, itemLabel: 'Огноо', itemPreview: 'stop:' },
+        { type: 'images', key: 'stopPhotos', label: 'Зургууд (ижил дарааллаар)', max: 6, itemPreview: 'stop:' },
+        { type: 'list', key: 'stopNotes', label: 'Ил захидлын бичвэр', count: 6, max: 180, itemLabel: 'Бичвэр', itemPreview: 'stop:' },
       ],
     },
     {

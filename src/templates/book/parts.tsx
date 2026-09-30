@@ -5,7 +5,7 @@ import x from './Extras.module.css';
 
 export const cx = (...c: (string | false | undefined)[]) => c.filter(Boolean).join(' ');
 
-export function Photo({ src, className, onClick, selected }: { src?: string; className?: string; onClick?: () => void; selected?: boolean }) {
+export function Photo({ src, className, onClick, selected, field }: { src?: string; className?: string; onClick?: () => void; selected?: boolean; field?: string }) {
   const [failed, setFailed] = useState(false);
   const empty = !src || failed;
   // The recipient never sees an empty frame — only the buyer (editable preview) gets the «+» tile.
@@ -18,24 +18,25 @@ export function Photo({ src, className, onClick, selected }: { src?: string; cla
   );
   if (onClick) {
     return (
-      <button type="button" className={cx(s.photo, x.photoClickable, className)} onClick={onClick}
+      // data-pick: the editor's click-to-edit leaves this alone — the tile opens the file picker itself
+      <button type="button" className={cx(s.photo, x.photoClickable, className)} onClick={onClick} data-field={field} data-pick
               data-empty={empty || undefined} data-selected={selected || undefined}
               aria-label={empty ? 'Зураг нэмэх' : 'Энэ зургийг солих'}>
         {body}
       </button>
     );
   }
-  return <div className={cx(s.photo, className)}>{body}</div>;
+  return <div className={cx(s.photo, className)} data-field={field}>{body}</div>;
 }
 
 export const Tape = ({ className }: { className?: string }) => <span className={cx(s.tape, className)} aria-hidden />;
 
 /** Letter-tile title on one line: `--n` lets the CSS shrink every tile so the whole
  *  title fits its box, instead of wrapping mid-word (see .ransomTitle). */
-export function Ransom({ className, children }: { className?: string; children: string }) {
+export function Ransom({ className, children, field }: { className?: string; children: string; field?: string }) {
   const chars = [...children];
   return (
-    <div className={cx(s.ransomTitle, className)} aria-label={children} style={{ '--n': Math.max(chars.length, 6) } as CSSProperties}>
+    <div className={cx(s.ransomTitle, className)} aria-label={children} data-field={field} style={{ '--n': Math.max(chars.length, 6) } as CSSProperties}>
       {chars.map((ch, i) =>
         ch === ' ' ? <span key={i} className={s.ransomSpace} /> : <span key={i} aria-hidden>{ch}</span>,
       )}

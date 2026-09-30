@@ -26,7 +26,7 @@ export function renderPages(d: ScrapbookData, onPick?: (slot: number) => void, s
   // it directly in the preview to assign it its own photo.
   const p = (slot: number) => d.photos[slot] || '';
   const photo = (slot: number, className?: string) => (
-    <Photo src={p(slot)} className={className} onClick={onPick ? () => onPick(slot) : undefined} selected={selected === slot} />
+    <Photo src={p(slot)} className={className} onClick={onPick ? () => onPick(slot) : undefined} selected={selected === slot} field={`photos.${slot}`} />
   );
 
   // A strip/row of small photos: dropped entirely for the recipient when none are filled.
@@ -39,9 +39,9 @@ export function renderPages(d: ScrapbookData, onPick?: (slot: number) => void, s
       <span className={s.coverStar} aria-hidden>✦</span>
       <span className={s.coverStarTwo} aria-hidden>✧</span>
       <div className={s.coverNote}>
-        <span>{t.coverEyebrow}</span>
-        <strong>{d.partnerName || 'хайрт минь'}</strong>
-        <small>{t.coverSub}</small>
+        <span data-field="texts.coverEyebrow">{t.coverEyebrow}</span>
+        <strong data-field="partnerName">{d.partnerName || 'хайрт минь'}</strong>
+        <small data-field="texts.coverSub">{t.coverSub}</small>
       </div>
       {photo(0, s.coverFlowerPhoto)}
       {photo(1, s.coverSmallPhoto)}
@@ -52,23 +52,23 @@ export function renderPages(d: ScrapbookData, onPick?: (slot: number) => void, s
 
     <Page key={1} n={1} className={s.recordPage}>
       <Clutter src={C_FLOWER} className={s.recordClutter} />
-      <div className={s.vinyl} data-bleed><span /><i>{t.recordLabel}</i></div>
+      <div className={s.vinyl} data-bleed><span /><i data-field="texts.recordLabel">{t.recordLabel}</i></div>
       {photo(3, s.recordPhotoOne)}
       {photo(4, s.recordPhotoTwo)}
       <Tape className={s.recordTape} />
-      <p className={cap(s.recordWords, s.onKraft)}>{t.recordWords}</p>
+      <p className={cap(s.recordWords, s.onKraft)} data-field="texts.recordWords">{t.recordWords}</p>
       <Sticker src={SPRIG} className={s.whiteFlowers} />
       {strip(s.recordMiniStrip, 5, 6, 7)}
     </Page>,
 
     <Page key={2} n={2} className={s.luckyPage}>
       <Clutter src={C_LOVE} className={s.luckyClutter} />
-      <div className={s.luckyPaper}><Lines text={t.lucky} /></div>
+      <div className={s.luckyPaper} data-field="texts.lucky"><Lines text={t.lucky} /></div>
       {photo(8, s.luckyMainPhoto)}
       {photo(9, s.luckyTopPhoto)}
       {photo(10, s.cameraPhoto)}
       <div className={s.cameraFrame}><span /></div>
-      <p className={cap(s.luckyNote)}>{t.luckyNote}</p>
+      <p className={cap(s.luckyNote)} data-field="texts.luckyNote">{t.luckyNote}</p>
       <span className={s.metalStar} aria-hidden>★</span>
     </Page>,
 
@@ -77,46 +77,46 @@ export function renderPages(d: ScrapbookData, onPick?: (slot: number) => void, s
       <div className={s.tornLayer} data-bleed />
       <div className={s.envelope} />
       <div className={s.letterCard}>
-        <span>{t.letterEyebrow}</span>
-        <strong>{t.letterTitle}</strong>
-        <p className={s.caption}>{t.letterBody}</p>
+        <span data-field="texts.letterEyebrow">{t.letterEyebrow}</span>
+        <strong data-field="texts.letterTitle">{t.letterTitle}</strong>
+        <p className={s.caption} data-field="texts.letterBody">{t.letterBody}</p>
       </div>
       {photo(11, s.letterPhoto)}
       {photo(12, s.letterTinyPhoto)}
-      <div className={s.ticket}>НЭГ ХҮН<br /><b>{t.ticket}</b></div>
+      <div className={s.ticket} data-field="texts.ticket">НЭГ ХҮН<br /><b>{t.ticket}</b></div>
       <Sticker src={ROSE} className={s.letterFlower} />
       <Tape className={s.letterTape} />
     </Page>,
 
     <Page key={4} n={4} className={s.littleThingsPage}>
       <Clutter src={C_RED} className={s.littleClutter} />
-      <h2>{t.littleTitle}</h2>
+      <h2 data-field="texts.littleTitle">{t.littleTitle}</h2>
       {photo(13, s.littleMainPhoto)}
       {strip(s.contactStrip, 14, 15, 16)}
-      <p className={cap(s.littleNote)}>{t.littleNote}</p>
+      <p className={cap(s.littleNote)} data-field="texts.littleNote">{t.littleNote}</p>
       <Sticker src={TULIPS} className={s.littleFlower} />
       <div className={s.mapScrap} data-bleed />
     </Page>,
 
     <Page key={5} n={5} className={s.placesPage}>
       <Clutter src={C_LOVE} className={s.placesClutter} />
-      <div className={s.placesLabel}>{t.placesLabel}</div>
+      <div className={s.placesLabel} data-field="texts.placesLabel">{t.placesLabel}</div>
       <div className={s.mapLarge} data-bleed />
       {photo(17, s.placesPhotoOne)}
       {photo(18, s.placesPhotoTwo)}
       {photo(19, s.placesPhotoThree)}
-      <p className={cap(s.placesNote)}>{t.placesNote}</p>
-      <div className={s.postmark}><span><Lines text={t.postmark} /></span></div>
+      <p className={cap(s.placesNote)} data-field="texts.placesNote">{t.placesNote}</p>
+      <div className={s.postmark} data-field="texts.postmark"><span><Lines text={t.postmark} /></span></div>
       <Tape className={s.placesTape} />
     </Page>,
 
     <Page key={6} n={6} className={s.notesPage}>
       <Clutter src={C_FLOWER} className={s.notesClutter} />
-      <div className={s.notesTitle}>{t.notesTitle}</div>
+      <div className={s.notesTitle} data-field="texts.notesTitle">{t.notesTitle}</div>
       {photo(20, s.notesPhoto)}
-      <div className={s.paperNoteOne}><small>{t.noteOneLabel}</small><p>{t.noteOne}</p></div>
-      <div className={s.paperNoteTwo}><small>{t.noteTwoLabel}</small><p>{t.noteTwo}</p></div>
-      <div className={s.paperNoteThree}><p>{t.noteThree}</p></div>
+      <div className={s.paperNoteOne}><small data-field="texts.noteOneLabel">{t.noteOneLabel}</small><p data-field="texts.noteOne">{t.noteOne}</p></div>
+      <div className={s.paperNoteTwo}><small data-field="texts.noteTwoLabel">{t.noteTwoLabel}</small><p data-field="texts.noteTwo">{t.noteTwo}</p></div>
+      <div className={s.paperNoteThree}><p data-field="texts.noteThree">{t.noteThree}</p></div>
       {strip(s.notesFilmStrip, 21, 22, 23)}
       <span className={s.threadHeart} aria-hidden>♡</span>
     </Page>,
@@ -124,18 +124,18 @@ export function renderPages(d: ScrapbookData, onPick?: (slot: number) => void, s
     <Page key={7} n={7} className={s.soundtrackLeftPage}>
       <Clutter src={C_RED} className={s.soundtrackPaper} />
       <div className={s.soundtrackVinyl} data-bleed><span /></div>
-      <Ransom className={s.soundtrackLeftTitle}>{t.songsTitle}</Ransom>
+      <Ransom className={s.soundtrackLeftTitle} field="texts.songsTitle">{t.songsTitle}</Ransom>
       {strip(s.soundtrackFilmStrip, 24, 25, 26, 27)}
       {photo(28, s.soundtrackSnapshot)}
       <Sticker src={CAT_SIT} className={`${s.catSprite} ${s.catSpriteOne}`} />
-      <p className={cap(s.soundtrackHandNote)}>{t.soundtrackHandNote}</p>
-      <div className={s.soundtrackTicket}>НЭГ ХҮН<br /><b>{t.soundtrackTicket}</b></div>
+      <p className={cap(s.soundtrackHandNote)} data-field="texts.soundtrackHandNote">{t.soundtrackHandNote}</p>
+      <div className={s.soundtrackTicket} data-field="texts.soundtrackTicket">НЭГ ХҮН<br /><b>{t.soundtrackTicket}</b></div>
     </Page>,
 
     <Page key={8} n={8} className={s.soundtrackRightPage}>
       <Clutter src={C_FLOWER} className={s.soundtrackFlowers} />
-      <div className={s.spotifyCard}>
-        <span className={s.spotifyEyebrow}>{t.soundtrackEyebrow}</span>
+      <div className={s.spotifyCard} data-field="spotify">
+        <span className={s.spotifyEyebrow} data-field="texts.soundtrackEyebrow">{t.soundtrackEyebrow}</span>
         {d.spotifyTrackId ? (
           <iframe
             title="Бидний дуу Spotify дээр"
@@ -147,13 +147,13 @@ export function renderPages(d: ScrapbookData, onPick?: (slot: number) => void, s
         ) : (
           <div className={s.spotifyPlaceholder}>
             <span className={s.spotifyDisc} aria-hidden>♫</span>
-            <strong>{d.songName}</strong>
-            <small>{d.songNote}</small>
+            <strong data-field="songName">{d.songName}</strong>
+            <small data-field="songNote">{d.songNote}</small>
             <div className={s.fakePlayer}><i /><button type="button" tabIndex={-1} aria-hidden>▶</button><i /></div>
           </div>
         )}
       </div>
-      <div className={s.cassette}><span>{t.cassette}</span><i /><b /></div>
+      <div className={s.cassette}><span data-field="texts.cassette">{t.cassette}</span><i /><b /></div>
       {photo(29, s.spotifyPhotoOne)}
       {photo(30, s.spotifyPhotoTwo)}
       <Sticker src={CAT_SLEEP} className={`${s.catSprite} ${s.catSpriteTwo}`} />
@@ -164,26 +164,26 @@ export function renderPages(d: ScrapbookData, onPick?: (slot: number) => void, s
       {photo(31, s.finalHeroPhoto)}
       {photo(32, s.finalTinyPhoto)}
       <Sticker src={SPRIG} className={s.finalFern} />
-      <p className={cap(s.finalList, s.onKraft)}>{t.finalList}</p>
+      <p className={cap(s.finalList, s.onKraft)} data-field="texts.finalList">{t.finalList}</p>
     </Page>,
 
     <Page key={10} n={10} className={s.pocketPage}>
-      <h2>{t.pocketTitle}</h2>
+      <h2 data-field="texts.pocketTitle">{t.pocketTitle}</h2>
       {strip(s.pocketPhotos, 33, 34, 35)}
-      <div className={s.keepsakePocket}><span>{d.keepsakeDate}</span><i aria-hidden>✿</i></div>
-      <p className={cap(s.tomorrow)}>{t.tomorrow}</p>
+      <div className={s.keepsakePocket}><span data-field="keepsakeDate">{d.keepsakeDate}</span><i aria-hidden>✿</i></div>
+      <p className={cap(s.tomorrow)} data-field="texts.tomorrow">{t.tomorrow}</p>
     </Page>,
 
     <Page key={11} n={11} hard className={s.backCover}>
       <div className={s.crumples} data-bleed />
       <Clutter src={C_RED} className={s.backClutter} />
-      <Ransom className={s.backTitle}>{t.backTitle}</Ransom>
+      <Ransom className={s.backTitle} field="texts.backTitle">{t.backTitle}</Ransom>
       {photo(36, s.backPhoto)}
       {photo(37, s.backMiniPhoto)}
       <Sticker src={CAT_SLEEP} className={s.backCat} />
       <Sticker src={TULIPS} className={s.backFlower} />
-      <div className={s.backTicket}>ХАДГАЛ<br /><b>{t.backTicket}</b></div>
-      <p className={s.caption}>{t.backLine}</p>
+      <div className={s.backTicket} data-field="texts.backTicket">ХАДГАЛ<br /><b>{t.backTicket}</b></div>
+      <p className={s.caption} data-field="texts.backLine">{t.backLine}</p>
     </Page>,
   ];
 }

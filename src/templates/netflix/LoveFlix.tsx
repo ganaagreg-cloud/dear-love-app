@@ -45,6 +45,9 @@ export default function LoveFlix({ data, pin }: { data: LoveData; pin?: string |
   }, [screen, pin]);
   const isScreen = (v: unknown): v is Screen => v === 'profiles' || v === 'intro' || v === 'browse' || v === 'episode' || v === 'credits';
   useEffect(() => {
+    // 'episode:1' / 'episode:2' (editor) = the episode's second choice scene / the finale
+    const m = typeof pin === 'string' ? /^episode:(\d)$/.exec(pin) : null;
+    if (m) { setScreen('episode'); setSceneStep(Math.min(2, Number(m[1]))); return; }
     if (!isScreen(pin)) return;
     setScreen(pin);
     if (pin === 'episode') setSceneStep(0);

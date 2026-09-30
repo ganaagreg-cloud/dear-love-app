@@ -476,8 +476,12 @@ function buildLines(el, text) {
     el.appendChild(ln);
   });
 }
-$$('[data-fill]').forEach(el => buildLines(el, CONFIG.text[el.dataset.fill] || ''));
-$$('[data-ch]').forEach(el => el.textContent = fill(CONFIG.chapters[+el.dataset.ch] || ''));
+$$('[data-fill]').forEach(el => { el.dataset.field = 'text.' + el.dataset.fill; buildLines(el, CONFIG.text[el.dataset.fill] || ''); });
+$$('[data-ch]').forEach(el => { el.dataset.field = 'chapters.' + el.dataset.ch; el.textContent = fill(CONFIG.chapters[+el.dataset.ch] || ''); });
+/* editor click-to-edit ids (data-field = the editor's field key) */
+[['#dearTitle', 'to'], ['#signed', 'from'], ['#locketCap', 'text.locketCap'], ['#answer', 'text.answer'], ['#grid', 'milestone'], ['#daysNum', 'startDate'], ['#sound', 'music'],
+ ['#lp1', 'locketPhotos.0'], ['#lp2', 'locketPhotos.1'], ['#envLetter', 'letterBody'], ['#letterTitle', 'letterTitle'], ['#letterBody', 'letterBody']]
+  .forEach(([sel, f]) => { const el = $(sel); if (el) el.setAttribute('data-field', f); });
 $('#dearTitle').textContent = CONFIG.to + ',';
 $('#signed').textContent = '— ' + CONFIG.from + ', ' + DAYS.toLocaleString('en-US') + ' дахь өдөр';
 
@@ -602,6 +606,7 @@ const memEls = CONFIG.memories.map((m, i) => {
   const d = document.createElement('div'); d.className = 'memory';
   d.innerHTML = `<div class="polaroid" style="transform:rotate(${[-5, 4, -2, 5, -3][i % 5]}deg)"><img alt=""><div class="cap"></div></div><div class="orb dot"></div>`;
   $('.cap', d).textContent = m.caption;
+  $('img', d).setAttribute('data-field', 'memoryPhotos.' + m.i); $('.cap', d).setAttribute('data-field', 'memoryCaptions.' + m.i);
   loadImg(m.src, placeholder(m.caption, [340, 15, 30, 280, 350][i % 5]), u => $('img', d).src = u);
   cons.appendChild(d); return d;
 });
@@ -708,7 +713,12 @@ function showLetter(type) {
   const _d = new Date(); $('#letterDate').textContent = DAYS.toLocaleString('en-US') + ' дахь өдөр бичив · ' + _d.getFullYear() + ' оны ' + (_d.getMonth() + 1) + '-р сарын ' + _d.getDate();
   body.innerHTML = '';
   const paras = CONFIG.letter.map(p => ({ sig: p.startsWith('@'), text: fill(p.replace(/^@/, '')) }));
-  const els = paras.map(p => { const el = document.createElement('p'); if (p.sig) el.className = 'sig'; return el; });
+  const els = paras.map((p, k) => {
+    const el = document.createElement('p'); if (p.sig) el.className = 'sig';
+    // letter = [greeting, ...body, @signoff, @{from}] — tag each paragraph with its editor field
+    el.setAttribute('data-field', k === 0 && !p.sig ? 'letterGreeting' : !p.sig ? 'letterBody' : k === paras.length - 1 ? 'from' : 'letterSignoff');
+    return el;
+  });
   gsap.set('#modal', { visibility: 'visible' });
   gsap.to('#modal', { opacity: 1, duration: .6 });
   gsap.fromTo('#paper', { y: 40, scale: .94, opacity: 0, rotation: -1.5 }, { y: 0, scale: 1, opacity: 1, rotation: 0, duration: 1, ease: 'power3.out' });
@@ -853,6 +863,13 @@ function setHint(text, on) {
   if (text) $('#hintText').textContent = text;
   gsap.to('#hint', { opacity: on ? 1 : 0, duration: .8 });
 }
+/* editor: jump straight to the scene holding a field (or open the letter) */
+window.dearReveal = el => {
+  if (!el) return;
+  if (el.closest('#modal')) { if ($('#modal').style.visibility !== 'visible') showLetter(false); return; }
+  const i = scenes.indexOf(el.closest('.scene'));
+  if (i >= 0 && i !== current) { busy = false; go(i); }
+};
 function go(i) {
   if (busy || i < 0 || i >= scenes.length || i === current) return;
   busy = true; canAdvance = false; setHint(null, false);

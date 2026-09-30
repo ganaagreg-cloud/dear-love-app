@@ -6,6 +6,7 @@ import { cx } from './parts';
 import { renderPages } from './pages';
 import { scrapbookData as defaults, type ScrapbookData } from './scrapbookData';
 import { auditVisiblePages } from './layoutAudit';
+import { useReveal } from '../fieldHighlight';
 
 const HTMLFlipBook = lazy(() => import('react-pageflip'));
 
@@ -28,7 +29,7 @@ const HEART_PATH =
 
 function RadiatingHearts({ intro = false, stage = false }: { intro?: boolean; stage?: boolean }) {
   return (
-    <div className={cx(s.radiatingHearts, intro && s.introHearts, stage && s.stageHearts)} aria-hidden>
+    <div className={cx(s.radiatingHearts, intro && s.introHearts, stage && s.stageHearts)} aria-hidden data-field={intro ? 'heartColor' : undefined}>
       {[0, 1, 2, 3, 4].map((i) => (
         <svg key={i} className={s.radiatingHeart} viewBox="0 0 101.7 87.6" focusable="false"
              style={{ '--heart-delay': `${-(i + 1)}s` } as CSSProperties}>
@@ -104,6 +105,13 @@ export default function Scrapbook({ data = defaults, pin = null, editable = fals
 
   const prev = useCallback(() => book.current?.pageFlip()?.flipPrev('top'), []);
   const readAgain = useCallback(() => book.current?.pageFlip()?.turnToPage(0), []);
+  // click-to-edit: a field on another page flips the book there (e.g. a photo slot of page 7)
+  useReveal(useCallback((el: Element | null) => {
+    const n = el?.closest('[data-page]')?.getAttribute('data-page');
+    if (n == null) return;
+    setIntroVisible(false);
+    book.current?.pageFlip()?.turnToPage(Number(n));
+  }, []));
   const next = useCallback(() => book.current?.pageFlip()?.flipNext('top'), []);
 
   const onKeyDown = (e: KeyboardEvent<HTMLElement>) => {

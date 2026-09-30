@@ -39,7 +39,8 @@ type Game = {
   score: number; found: number; frozen: boolean; final: boolean; won: boolean; wonT: number; cam: number;
 };
 
-type Dlg = { name: string; text: string; photo?: string; badge?: string };
+/** `f` = which editor fields the name / text / photo show (data-field, for click-to-edit). */
+type Dlg = { name: string; text: string; photo?: string; badge?: string; f?: { name?: string; text?: string; photo?: string } };
 type Mode = 'title' | 'cast' | 'play' | 'dialog' | 'choice' | 'win';
 
 /**
@@ -165,7 +166,7 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
     game.current = newGame(lay);
     setWinCard(false);
     openDialog([
-      { name: '♥ АЯЛАЛ', text: fill(data.intro) },
+      { name: '♥ АЯЛАЛ', text: fill(data.intro), f: { text: 'intro' } },
       { name: '♥ АЯЛАЛ', text: '◀ ▶ товчоор алхаж, A товчоор үсэрнэ. Эрдэнэсийн авдар бүрийг нээгээрэй!' },
     ]);
   };
@@ -203,7 +204,7 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
 
   const memoryDialog = (i: number): Dlg => {
     const mem = data.memories[i];
-    return { name: fill(mem.title) || `Дурсамж ${i + 1}`, text: fill(mem.text), photo: mem.src || undefined, badge: `ДУРСАМЖ ${i + 1}/${total}` };
+    return { name: fill(mem.title) || `Дурсамж ${i + 1}`, text: fill(mem.text), photo: mem.src || undefined, badge: `ДУРСАМЖ ${i + 1}/${total}`, f: { name: `memoryTitles.${i}`, text: `memoryTexts.${i}`, photo: `memoryPhotos.${i}` } };
   };
 
   // latest handlers for listeners / game loop
@@ -244,8 +245,8 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
     if (!scene) return;
     const chest = /^chest:(\d+)$/.exec(scene);
     const d: Dlg | null = chest ? h.current.memoryDialog(clamp(+chest[1], 0, total - 1))
-      : scene === 'dialog:intro' ? { name: '♥ АЯЛАЛ', text: fill(data.intro) }
-      : scene === 'dialog:greeting' ? { name: data.npcName || '???', text: fill(data.npcGreeting) }
+      : scene === 'dialog:intro' ? { name: '♥ АЯЛАЛ', text: fill(data.intro), f: { text: 'intro' } }
+      : scene === 'dialog:greeting' ? { name: data.npcName || '???', text: fill(data.npcGreeting), f: { name: 'npcName', text: 'npcGreeting' } }
       : null;
     setDlg(d); setTyped(d ? d.text.length : 0);
   }, [scene, data, fill, total]);
@@ -337,8 +338,8 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
           } else {
             g.final = true;
             h.current.openDialog([
-              { name: data.npcName || '???', text: h.current.fill(data.npcGreeting) },
-              { name: data.npcName || '???', text: h.current.fill(data.question) },
+              { name: data.npcName || '???', text: h.current.fill(data.npcGreeting), f: { name: 'npcName', text: 'npcGreeting' } },
+              { name: data.npcName || '???', text: h.current.fill(data.question), f: { name: 'npcName', text: 'question' } },
             ], () => { setChoice(0); setMode('choice'); });
           }
         }
@@ -521,7 +522,7 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
         <button className="qs-playall" onClick={playFromStart}>▶ Бүтэн тоглох</button>
       )}
       <div className="qs-floaties" aria-hidden>{Array.from({ length: 14 }, (_, i) => <i key={i} style={{ '--i': i } as CSSProperties}>♥</i>)}</div>
-      <div className="qs-console">
+      <div className="qs-console" data-field="consoleColor">
         <div className="qs-left">
           <div className="qs-dpad">
             <button className="up" aria-label="Үсрэх" {...tap(pressA)} />
@@ -539,12 +540,12 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
 
             {mode === 'title' && (
               <div className="qs-title">
-                <div className="qs-logo" data-text={data.title} style={{ fontSize: `min(13cqh, ${(86 / Math.max(6, [...data.title].length)).toFixed(2)}cqw)` }}>{data.title}</div>
-                <div className="qs-sub">{data.subtitle}</div>
-                <div className="qs-for">гол дүрд: {data.playerName || 'чи'}</div>
+                <div className="qs-logo" data-field="title" data-text={data.title} style={{ fontSize: `min(13cqh, ${(86 / Math.max(6, [...data.title].length)).toFixed(2)}cqw)` }}>{data.title}</div>
+                <div className="qs-sub" data-field="subtitle">{data.subtitle}</div>
+                <div className="qs-for" data-field="playerName">гол дүрд: {data.playerName || 'чи'}</div>
                 <div className="qs-press">START ДАРНА УУ</div>
                 {scene === 'music' && (
-                  <button className="qs-music" onPointerDown={(e) => e.stopPropagation()} onClick={startAudio}>
+                  <button className="qs-music" data-field="music" onPointerDown={(e) => e.stopPropagation()} onClick={startAudio}>
                     ♫ {data.music ? 'ТАНЫ ДУУ' : 'ЧИПТЮН'} ТОГЛОЖ БАЙНА
                   </button>
                 )}
@@ -553,15 +554,15 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
 
             {mode === 'cast' && cast && (
               <div className="qs-cast">
-                <figure>
-                  <img src={cast.p} alt="" />
-                  <figcaption>{data.playerName || 'Чи'}</figcaption>
+                <figure data-field="playerColor">
+                  <img src={cast.p} alt="" data-field="playerLook" />
+                  <figcaption data-field="playerName">{data.playerName || 'Чи'}</figcaption>
                   <small>ТОГЛОГЧ</small>
                 </figure>
                 <b className="qs-cast-heart" aria-hidden>♥</b>
-                <figure>
-                  <img src={cast.n} alt="" className="flip" />
-                  <figcaption>{data.npcName || 'Би'}</figcaption>
+                <figure data-field="npcColor">
+                  <img src={cast.n} alt="" className="flip" data-field="npcLook" />
+                  <figcaption data-field="npcName">{data.npcName || 'Би'}</figcaption>
                   <small>ТЭР ХҮЛЭЭНЭ</small>
                 </figure>
               </div>
@@ -569,22 +570,22 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
 
             {dlg && (
               <>
-                {dlg.photo !== undefined && <PixelPhoto key={dlg.photo || dlg.name} src={dlg.photo} alt={dlg.name} />}
+                {dlg.photo !== undefined && <PixelPhoto key={dlg.photo || dlg.name} src={dlg.photo} alt={dlg.name} field={dlg.f?.photo} />}
                 <div className="qs-dialog">
                   {dlg.badge && <span className="qs-badge">{dlg.badge}</span>}
-                  <span className="qs-name">{dlg.name}</span>
-                  <p>{dlg.text.slice(0, typed)}{typed >= dlg.text.length && <b className="qs-next">▼</b>}</p>
+                  <span className="qs-name" data-field={dlg.f?.name}>{dlg.name}</span>
+                  <p data-field={dlg.f?.text}>{dlg.text.slice(0, typed)}{typed >= dlg.text.length && <b className="qs-next">▼</b>}</p>
                 </div>
               </>
             )}
 
             {mode === 'choice' && (
               <div className="qs-dialog qs-choice">
-                <span className="qs-name">{data.npcName || '???'}</span>
-                <p className="qs-q">{fill(data.question)}</p>
+                <span className="qs-name" data-field="npcName">{data.npcName || '???'}</span>
+                <p className="qs-q" data-field="question">{fill(data.question)}</p>
                 <div className="qs-options">
                   {[data.yesA, data.yesB].map((o, i) => (
-                    <button key={i} className={choice === i ? 'on' : ''} onPointerEnter={() => setChoice(i)} onClick={() => { setChoice(i); pick(i); }}>
+                    <button key={i} data-field={i ? 'yesB' : 'yesA'} className={choice === i ? 'on' : ''} onPointerEnter={() => setChoice(i)} onClick={() => { setChoice(i); pick(i); }}>
                       {choice === i ? '▶ ' : '  '}{o}
                     </button>
                   ))}
@@ -595,11 +596,11 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
             {mode === 'win' && winCard && (
               <div className="qs-win">
                 <div className="qs-logo small" data-text="ЯЛЛАА!">ЯЛЛАА!</div>
-                <p className="qs-ending">{fill(data.ending)}</p>
+                <p className="qs-ending" data-field="ending">{fill(data.ending)}</p>
                 <div className="qs-stats">
                   <span>ДУРСАМЖ {g.found}/{total}</span>
                   <span>ЗҮРХ {g.score}/{heartsTotal}</span>
-                  {days > 0 && <span>ХАМТДАА {days} ӨДӨР</span>}
+                  {days > 0 && <span data-field="startDate">ХАМТДАА {days} ӨДӨР</span>}
                 </div>
                 <button className="qs-press" onClick={pressStart}>ДАХИН ТОГЛОХ — START</button>
               </div>
@@ -626,7 +627,7 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
 }
 
 /** Photo that "de-pixelates" in, like a game loading a memory. */
-function PixelPhoto({ src, alt }: { src: string; alt?: string }) {
+function PixelPhoto({ src, alt, field }: { src: string; alt?: string; field?: string }) {
   const cv = useRef<HTMLCanvasElement>(null);
   const [done, setDone] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -657,7 +658,7 @@ function PixelPhoto({ src, alt }: { src: string; alt?: string }) {
     return () => clearInterval(timer);
   }, [src]);
   return (
-    <div className="qs-photo">
+    <div className="qs-photo" data-field={field}>
       {src && !failed ? (
         <>
           <canvas ref={cv} style={{ display: done ? 'none' : 'block' }} />

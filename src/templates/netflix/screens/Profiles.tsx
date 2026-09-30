@@ -19,7 +19,7 @@ export default function Profiles({ data, onSelect }: ScreenProps & { onSelect: (
           className="lf-profile lf-profile-main" role="button" tabIndex={0} onClick={onSelect}
           onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onSelect())}
         >
-          <div className="lf-avatar lf-avatar-main">
+          <div className="lf-avatar lf-avatar-main" data-field="profilePhoto">
             {data.profilePhoto && !bad ? (
               <img src={data.profilePhoto} alt={name} onError={() => setBad(true)} />
             ) : (
@@ -28,7 +28,7 @@ export default function Profiles({ data, onSelect }: ScreenProps & { onSelect: (
               </div>
             )}
           </div>
-          <div className="lf-profile-name">{name}</div>
+          <div className="lf-profile-name" data-field="partnerName">{name}</div>
         </div>
         {DECOYS.map((d) => (
           <div key={d.name} className="lf-profile lf-profile-decoy" aria-disabled="true">

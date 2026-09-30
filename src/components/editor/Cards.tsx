@@ -9,9 +9,11 @@ type Cfg = NonNullable<Section['cards']>;
  * Parallel photo/title/note arrays edited as one card per item. Dragging a card by its
  * handle reorders all three arrays together, so the stored shape never changes.
  */
-export function Cards({ cfg, content, onPatch, upload, tokens, titleMax, textMax, onFocusCard }: {
+export function Cards({ cfg, content, onPatch, upload, tokens, titleMax, textMax, onFocusCard, badges }: {
   cfg: Cfg; content: Content; onPatch: (patch: Content) => void; upload: Uploader;
   tokens?: Tokens; titleMax?: number; textMax?: number; onFocusCard: (i: number) => void;
+  /** «Хаана юу байна» numbers by field key. */
+  badges?: Record<string, number>;
 }) {
   const col = (key: string) => Array.from({ length: cfg.count }, (_, i) => asArr(content[key])[i] ?? '');
   const photos = col(cfg.image), titles = col(cfg.title), texts = col(cfg.text);
@@ -85,18 +87,23 @@ export function Cards({ cfg, content, onPatch, upload, tokens, titleMax, textMax
               }}
             >⠿</button>
             <b>{cfg.itemLabel} {i + 1}</b>
+            {badges && (
+              <span className="ed-card-badges" title="Зураг · гарчиг · тэмдэглэл">
+                {[cfg.image, cfg.title, cfg.text].map((k) => <i key={k} className="ed-badge">{badges[k]}</i>)}
+              </span>
+            )}
             {!src && <span className="ed-card-warn">⚠ Зураггүй</span>}
             {shown > 1 && (
               <button type="button" className="ed-card-del" onClick={() => remove(i)} aria-label={`${cfg.itemLabel} ${i + 1}-г хасах`} title="Хасах">✕</button>
             )}
           </div>
           <div className="ed-card-body">
-            <CardPhoto src={src} upload={upload} onChange={(u) => setAt(cfg.image, photos, i, u)} />
+            <div data-edit-field={`${cfg.image}.${i}`}><CardPhoto src={src} upload={upload} onChange={(u) => setAt(cfg.image, photos, i, u)} /></div>
             <div className="ed-card-text">
-              <TextBox value={titles[i]} max={titleMax} placeholder="Гарчиг" label={`${cfg.itemLabel} ${i + 1} — гарчиг`}
-                onChange={(v) => setAt(cfg.title, titles, i, v)} />
-              <TextBox multiline value={texts[i]} max={textMax} rows={3} placeholder="Тэмдэглэл" tokens={tokens} label={`${cfg.itemLabel} ${i + 1} — тэмдэглэл`}
-                onChange={(v) => setAt(cfg.text, texts, i, v)} />
+              <div data-edit-field={`${cfg.title}.${i}`}><TextBox value={titles[i]} max={titleMax} placeholder="Гарчиг" label={`${cfg.itemLabel} ${i + 1} — гарчиг`}
+                onChange={(v) => setAt(cfg.title, titles, i, v)} /></div>
+              <div data-edit-field={`${cfg.text}.${i}`}><TextBox multiline value={texts[i]} max={textMax} rows={3} placeholder="Тэмдэглэл" tokens={tokens} label={`${cfg.itemLabel} ${i + 1} — тэмдэглэл`}
+                onChange={(v) => setAt(cfg.text, texts, i, v)} /></div>
               {textMax && <small className={`ed-card-count ${texts[i].length > textMax * 0.9 ? 'warn' : ''}`}>{texts[i].length}/{textMax}</small>}
             </div>
           </div>

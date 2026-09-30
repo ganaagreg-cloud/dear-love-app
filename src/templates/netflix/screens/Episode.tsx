@@ -13,14 +13,14 @@ export default function Episode(props: Props) {
   const { data, copy, step, onNext, pinned } = props;
   if (step >= 2) return <Climax key="climax" {...props} />;
   const s = step === 0
-    ? { narration: copy.ep1Narration, a: copy.ep1a, b: copy.ep1b, bg: data.ep1Bg }
-    : { narration: copy.ep2Narration, a: copy.ep2a, b: copy.ep2b, bg: data.ep2Bg };
+    ? { narration: copy.ep1Narration, a: copy.ep1a, b: copy.ep1b, bg: data.ep1Bg, k: 'ep1' }
+    : { narration: copy.ep2Narration, a: copy.ep2a, b: copy.ep2b, bg: data.ep2Bg, k: 'ep2' };
   return <Scene key={step} {...s} label={copy.epTitle} accent={data.accent} onChoose={onNext} pinned={!!pinned} />;
 }
 
-function Backdrop({ accent, bg, glow, at, base, alt }: { accent: string; bg?: string; glow: string; at: string; base: string; alt?: string }) {
+function Backdrop({ accent, bg, glow, at, base, alt, field }: { accent: string; bg?: string; glow: string; at: string; base: string; alt?: string; field?: string }) {
   return (
-    <div className="lf-ep-bg">
+    <div className="lf-ep-bg" data-field={field}>
       <div className="lf-ep-placeholder" style={{ background: `radial-gradient(ellipse at ${at}, ${accent}${glow}, transparent 60%), ${base}` }} />
       {bg && <div className="lf-ep-img-layer"><img src={bg} alt={alt || 'хайрын зураг'} /></div>}
       <div className="lf-ep-vignette" />
@@ -28,8 +28,8 @@ function Backdrop({ accent, bg, glow, at, base, alt }: { accent: string; bg?: st
   );
 }
 
-function Scene({ narration, a, b, bg, label, accent, onChoose, pinned }: {
-  narration: string; a: string; b: string; bg: string; label: string; accent: string; onChoose: () => void; pinned: boolean;
+function Scene({ narration, a, b, bg, label, accent, onChoose, pinned, k }: {
+  narration: string; a: string; b: string; bg: string; label: string; accent: string; onChoose: () => void; pinned: boolean; k: string;
 }) {
   const [time, setTime] = useState(10);
   const [picked, setPicked] = useState<string | null>(null);
@@ -45,17 +45,17 @@ function Scene({ narration, a, b, bg, label, accent, onChoose, pinned }: {
 
   return (
     <section className="lf-screen lf-episode">
-      <Backdrop accent={accent} bg={bg} glow="33" at="50% 30%" base="#0a0a0a" alt={label} />
+      <Backdrop accent={accent} bg={bg} glow="33" at="50% 30%" base="#0a0a0a" alt={label} field={`${k}Bg`} />
       <motion.div className="lf-ep-content" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         <div className="lf-ep-label">{label}</div>
-        <p className="lf-ep-narration">{narration}</p>
+        <p className="lf-ep-narration" data-field={`ov.${k}Narration`}>{narration}</p>
         <div className="lf-ep-timer" aria-label={`Сонгоход ${Math.ceil(time)} секунд үлдлээ`}>
           <div className="lf-ep-timer-bar"><span style={{ transform: `scaleX(${pct / 100})` }} /></div>
         </div>
         <div className="lf-ep-choices">
-          {[a, b].map((opt) => (
+          {[a, b].map((opt, n) => (
             <button
-              key={opt}
+              key={opt} data-field={`ov.${k}${n ? 'b' : 'a'}`}
               className={`lf-choice${picked === opt ? ' chosen' : ''}`}
               style={picked === opt ? { boxShadow: `0 0 24px ${accent}aa`, borderColor: accent } : undefined}
               disabled={!!picked && picked !== opt}
@@ -94,18 +94,18 @@ function Climax({ data, copy, onCredits }: Props) {
 
   return (
     <section className="lf-screen lf-climax">
-      <Backdrop accent={data.accent} bg={data.climaxBg} glow="44" at="50% 35%" base="#080808" alt={copy.climaxTitle} />
+      <Backdrop accent={data.accent} bg={data.climaxBg} glow="44" at="50% 35%" base="#080808" alt={copy.climaxTitle} field="climaxBg" />
       <motion.div className="lf-climax-content" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6 }}>
         <div className="lf-ep-label">УЛИРЛЫН ТӨГСГӨЛ</div>
-        <h1 className="lf-climax-title">{copy.climaxTitle}</h1>
-        <p className="lf-climax-sub">{copy.climaxSub}</p>
+        <h1 className="lf-climax-title" data-field="ov.climaxTitle">{copy.climaxTitle}</h1>
+        <p className="lf-climax-sub" data-field="ov.climaxSub">{copy.climaxSub}</p>
         <div className="lf-climax-cta">
           <motion.button className="lf-btn lf-btn-play lf-btn-big lf-cta-yes" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={yes}>
             {YES_LABEL[data.occasion]}
           </motion.button>
           {isAsk && (
             <button
-              className="lf-cta-no"
+              className="lf-cta-no" data-field="funnyNoButton"
               style={noStyle}
               onMouseEnter={data.funnyNoButton ? run : undefined}
               onTouchStart={data.funnyNoButton ? (e) => { e.preventDefault(); run(); } : undefined}

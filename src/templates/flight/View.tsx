@@ -23,7 +23,7 @@ export function toFlight(c: Content): FlightData {
     toCode: s(c.toCode, 'ҮҮРД').toUpperCase(), toCity: s(c.toCity, 'Үүрд'),
     date: s(c.date), boarding: s(c.boarding, '20:14'), gate: s(c.gate, '14'), seat: s(c.seat, 'Миний хажууд'), cabin: s(c.cabin, 'Нэгдүгээр зэрэг'),
     color: s(c.color, '#1f4fd1'),
-    stops: Array.from({ length: 6 }, (_, i) => ({ name: names[i] || '', code: codes[i] || '', date: dates[i] || '', note: notes[i] || '', photo: photos[i] || '' })),
+    stops: Array.from({ length: 6 }, (_, i) => ({ name: names[i] || '', code: codes[i] || '', date: dates[i] || '', note: notes[i] || '', photo: photos[i] || '', i })),
     finalTitle: s(c.finalTitle, 'Үүрдэд тавтай морил'), finalMessage: s(c.finalMessage), music: s(c.music),
   };
 }

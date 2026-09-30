@@ -1,9 +1,9 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import './editor.css';
-import type { Content, ContentValue, Field, Section, TemplateMeta } from '@/templates/types';
-import { FieldControl, asArr } from './Fields';
+import { allFields, type Content, type ContentValue, type Field, type Section, type TemplateMeta } from '@/templates/types';
+import { FieldControl, ImageSlot, TextBox, asArr } from './Fields';
 import { Cards } from './Cards';
 import { uploadMedia } from '@/lib/upload';
 import { PreviewFrame, type Device } from './PreviewFrame';
@@ -151,6 +151,113 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
     w?.focus();
   };
 
+  /* ── field ↔ preview mapping (see src/templates/fieldHighlight.ts for the preview side) ──
+     Sidebar controls carry data-edit-field="<key>" or "<key>.<i>"; preview elements carry
+     the same id as data-field. */
+  const side = useRef<HTMLElement>(null);
+  const fieldOf = useCallback((id: string) => {
+    const base = id.replace(/(\.\d+)+$/, '');
+    const idx = base === id ? null : Number(id.slice(base.length + 1).split('.')[0]);
+    for (const sec of meta.schema) {
+      const f = sec.fields.find((x) => x.key === base);
+      if (f) return { sec, f, idx };
+    }
+    return null;
+  }, [meta]);
+  const inCards = (sec: Section, key: string) => !!sec.cards && [sec.cards.image, sec.cards.title, sec.cards.text].includes(key);
+  const pinFor = useCallback((id: string): string | number | null => {
+    const r = fieldOf(id); if (!r) return null;
+    const { sec, f, idx } = r;
+    if (inCards(sec, f.key) && sec.cards!.previewPrefix) return `${sec.cards!.previewPrefix}${idx ?? 0}`;
+    if (f.itemPreview && idx != null) return `${f.itemPreview}${idx}`;
+    return f.previewPage ?? sec.previewPage ?? null;
+  }, [fieldOf]);
+  const labelFor = useCallback((id: string) => {
+    const r = fieldOf(id); if (!r) return id;
+    const { sec, f, idx } = r;
+    if (idx == null) return f.label;
+    if (inCards(sec, f.key)) return `${sec.cards!.itemLabel} ${idx + 1} · ${f.key === sec.cards!.image ? 'зураг' : f.key === sec.cards!.title ? 'гарчиг' : 'тэмдэглэл'}`;
+    return `${('itemLabel' in f && f.itemLabel) || f.label} ${idx + 1}`;
+  }, [fieldOf]);
+  const broadcast = (msg: object) => document.querySelectorAll<HTMLIFrameElement>('iframe[src^="/render/"]')
+    .forEach((f) => f.contentWindow?.postMessage(msg, window.location.origin));
+
+  // what the buyer is on right now: the focused control, else the hovered one
+  const [active, setActive] = useState<string | null>(null);
+  const [sheet, setSheet] = useState<string | null>(null); // phone: field opened from the preview
+  useEffect(() => {
+    const el = side.current; if (!el) return;
+    const idOf = (t: EventTarget | null) => (t instanceof Element ? t.closest('[data-edit-field]')?.getAttribute('data-edit-field') ?? null : null);
+    let focused: string | null = null, hovered: string | null = null, t = 0;
+    const upd = () => setActive(focused ?? hovered);
+    const fin = (e: FocusEvent) => { focused = idOf(e.target); upd(); };
+    const fout = (e: FocusEvent) => { focused = el.contains(e.relatedTarget as Node) ? idOf(e.relatedTarget) : null; upd(); };
+    const over = (e: PointerEvent) => { const id = idOf(e.target); clearTimeout(t); t = window.setTimeout(() => { hovered = id; upd(); }, id ? 180 : 60); };
+    const leave = () => { clearTimeout(t); hovered = null; upd(); };
+    el.addEventListener('focusin', fin); el.addEventListener('focusout', fout);
+    el.addEventListener('pointerover', over); el.addEventListener('pointerleave', leave);
+    return () => {
+      clearTimeout(t);
+      el.removeEventListener('focusin', fin); el.removeEventListener('focusout', fout);
+      el.removeEventListener('pointerover', over); el.removeEventListener('pointerleave', leave);
+    };
+  }, [mode]);
+  const current = sheet ?? active;
+  useEffect(() => {
+    broadcast({ type: 'dear:focus-field', field: current, label: current ? labelFor(current) : '' });
+    if (current) { const p = pinFor(current); if (p != null) setFocusPin(p); }
+  }, [current, labelFor, pinFor]);
+
+  // «Хаана юу байна»: the same number on each field and on its element in the preview
+  const [where, setWhere] = useState(false);
+  const numbers = useMemo(() => Object.fromEntries(allFields(meta).map((f, i) => [f.key, i + 1])), [meta]);
+  useEffect(() => { broadcast({ type: 'dear:badges', map: where ? numbers : null }); }, [where, numbers]);
+
+  // a preview that (re)loads gets the current highlight/badges too
+  const sync = useRef(() => {});
+  sync.current = () => {
+    broadcast({ type: 'dear:focus-field', field: current, label: current ? labelFor(current) : '' });
+    broadcast({ type: 'dear:badges', map: where ? numbers : null });
+  };
+  // preview → field: open its step, scroll to it, focus it, flash it (phone: a bottom sheet)
+  const [pending, setPending] = useState<string | null>(null);
+  const openField = useRef((id: string) => {});
+  openField.current = (id: string) => {
+    const r = fieldOf(id); if (!r) return;
+    setOpen(r.sec.id);
+    const p = pinFor(id); if (p != null) setFocusPin(p);
+    if (tab === 'preview' && window.innerWidth < 900) { setSheet(id); return; }
+    setPending(id);
+  };
+  useEffect(() => {
+    const onMsg = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return;
+      if (e.data?.type === 'dear:ready') setTimeout(() => sync.current(), 80);
+      if (e.data?.type === 'dear:field-click' && typeof e.data.field === 'string') openField.current(e.data.field);
+    };
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+  useEffect(() => {
+    if (!pending) return;
+    const id = pending, base = id.replace(/(\.\d+)+$/, '');
+    const raf = requestAnimationFrame(() => requestAnimationFrame(() => {
+      const root = side.current;
+      const el = root?.querySelector<HTMLElement>(`[data-edit-field="${CSS.escape(id)}"]`) ?? root?.querySelector<HTMLElement>(`[data-edit-field="${CSS.escape(base)}"]`);
+      if (el) {
+        el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        const input = el.querySelector<HTMLElement>('textarea, input:not([type=file]):not([type=color]):not([type=date]), button');
+        input?.focus({ preventScroll: true });
+        // the click that got us here focuses the preview iframe once it finishes — take the caret back
+        setTimeout(() => { if (document.activeElement?.tagName === 'IFRAME') input?.focus({ preventScroll: true }); }, 160);
+        el.classList.remove('ed-flash'); void el.offsetWidth; el.classList.add('ed-flash');
+        setTimeout(() => el.classList.remove('ed-flash'), 1400);
+      }
+      setPending(null);
+    }));
+    return () => cancelAnimationFrame(raf);
+  }, [pending, open]);
+
   const saveLabel = { saved: 'Бүгд хадгалагдсан', dirty: 'Хадгалаагүй өөрчлөлт…', saving: 'Хадгалж байна…', error: 'Хадгалж чадсангүй — дараагийн засвараар дахин оролдоно' }[save];
 
   const shareModal = share && slug && (
@@ -190,18 +297,24 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
         </div>
         <div className="row">
           {quick && (
-            <button className="btn btn-sm btn-ghost ed-quick-back" onClick={() => setMode('quick')} title="Нэр, зураг, өнгө аясаа 4 алхмаар">⚡ Хялбар</button>
+            <button className="btn btn-sm btn-ghost ed-quick-back" onClick={() => setMode('quick')} title="Нэр, зураг, өнгө аясаа 4 алхмаар">⚡<span className="ed-lbl"> Хялбар</span></button>
           )}
           <div className="ed-devices">
             <button className={device === 'desktop' ? 'on' : ''} onClick={() => setDevice('desktop')} title="Компьютер">🖥</button>
             <button className={device === 'mobile' ? 'on' : ''} onClick={() => setDevice('mobile')} title="Утас">📱</button>
           </div>
           <button
-            className={`btn btn-sm ${previewingFull ? 'btn-primary' : ''}`}
+            className={`btn btn-sm ed-full-btn ${previewingFull ? 'btn-primary' : ''}`}
             onClick={() => setPreviewingFull((v) => !v)}
             title="Хэсэг тус бүрт зогсолгүй, эхнээс дуустал бүтнээр нь үзэх"
           >
-            ▶ Бүтнээр
+            ▶<span className="ed-lbl"> Бүтнээр</span>
+          </button>
+          <button
+            className={`btn btn-sm ${where ? 'btn-primary' : ''}`} aria-pressed={where} onClick={() => setWhere((w) => !w)}
+            title="Засаж болох хэсэг бүрийг дугаарлаж, талбартай нь холбож харуулна"
+          >
+            📍<span className="ed-lbl"> Хаана юу байна</span>
           </button>
           {status === 'published'
             ? <button className="btn btn-sm btn-rose" onClick={() => setShare(true)}>Хуваалцах</button>
@@ -209,7 +322,7 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
         </div>
       </header>
 
-      <aside className="ed-side">
+      <aside className="ed-side" ref={side}>
         <div className="ed-lock">🔒 Энэ хуудсыг зөвхөн та засах эрхтэй</div>
         <nav className="ed-steps" aria-label="Хэсгүүд">
           {meta.schema.map((s, i) => {
@@ -240,7 +353,14 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
         </nav>
         {currentSection && (
           <section className="ed-sec open">
-            <h2 className="ed-sec-title">{currentSection.title}</h2>
+            <h2 className="ed-sec-title">
+              <span>{currentSection.title}</span>
+              {/* mini-map: the page/scene this step controls, with the focused element marked */}
+              <PreviewFrame
+                inert thumb className="ed-minimap" title={`${currentSection.title} — бяцхан зураг`}
+                templateId={meta.id} content={content} pin={pin} device="mobile" pad={0} debounceMs={1500}
+              />
+            </h2>
             <div className="ed-sec-body">
               {currentSection.description && <p className="ed-help" style={{ marginTop: 0 }}>{currentSection.description}</p>}
               {(() => {
@@ -254,14 +374,14 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
                       <Cards
                         key={currentSection.id} cfg={cards} content={content} onPatch={patch} upload={upload}
                         tokens={tokensFor(cards.text)} titleMax={maxOf(cards.title)} textMax={maxOf(cards.text)}
-                        onFocusCard={(i) => cards.previewPrefix && setFocusPin(`${cards.previewPrefix}${i}`)}
+                        onFocusCard={(i) => cards.previewPrefix && setFocusPin(`${cards.previewPrefix}${i}`)} badges={where ? numbers : undefined}
                       />
                     )}
                     {currentSection.fields.filter((f) => !inCards(f.key)).map((f) => (
                       <FieldControl
                         key={f.key} field={f} value={content[f.key]} onChange={(v) => set(f.key, v)} upload={upload}
                         tokens={f.tokens ? meta.tokens : undefined}
-                        onFocus={f.previewPage != null ? () => setFocusPin(f.previewPage!) : undefined}
+                        badge={where ? numbers[f.key] : undefined}
                       />
                     ))}
                   </>
@@ -287,7 +407,7 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
 
       <section className="ed-stage">
         <PreviewFrame
-          key={previewingFull ? 'full' : 'pinned'} className="ed-stage-frame"
+          key={previewingFull ? 'full' : 'pinned'} className="ed-stage-frame" edit={!previewingFull}
           templateId={meta.id} content={content} pin={pin} device={device} debounceMs={debounce}
         />
         <input
@@ -296,6 +416,21 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
         />
       </section>
 
+      {sheet && (() => {
+        const r = fieldOf(sheet); if (!r) return null;
+        const { f, idx } = r, arr = asArr(content[f.key]);
+        const setItem = (v: string) => { const next = Array.from({ length: Math.max(arr.length, (idx ?? 0) + 1) }, (_, k) => arr[k] ?? ''); next[idx!] = v; set(f.key, next); };
+        return (
+          <div className="ed-sheet-wrap" onClick={(e) => e.target === e.currentTarget && setSheet(null)}>
+            <div className="ed-sheet" role="dialog" aria-label={labelFor(sheet)}>
+              <header><b>✎ {labelFor(sheet)}</b><button type="button" className="btn btn-sm btn-primary" onClick={() => setSheet(null)}>Болсон</button></header>
+              {idx != null && f.type === 'list' ? <TextBox multiline value={arr[idx] ?? ''} max={f.max} rows={3} onChange={setItem} tokens={f.tokens ? meta.tokens : undefined} label={labelFor(sheet)} />
+                : idx != null && f.type === 'images' ? <ImageSlot url={arr[idx] ?? ''} onChange={setItem} upload={upload} />
+                : <FieldControl field={f} value={content[f.key]} onChange={(v) => set(f.key, v)} upload={upload} tokens={f.tokens ? meta.tokens : undefined} />}
+            </div>
+          </div>
+        );
+      })()}
       {shareModal}
     </div>
   );

@@ -38,11 +38,11 @@ function useCount(to: number, run: boolean, ms = 1600) {
   return v;
 }
 
-function Photo({ src, alt, className, style }: { src: string; alt?: string; className?: string; style?: CSSProperties }) {
+function Photo({ src, alt, className, style, field }: { src: string; alt?: string; className?: string; style?: CSSProperties; field?: string }) {
   const [bad, setBad] = useState(false);
   if (!src || bad) return null; // no empty frames — the slide just goes without a photo
   return (
-    <div className={`wr-photo ${className ?? ''}`} style={style}>
+    <div className={`wr-photo ${className ?? ''}`} style={style} data-field={field}>
       <img src={src} alt={alt || 'хайрын зураг'} onError={() => setBad(true)} />
     </div>
   );
@@ -66,9 +66,9 @@ export default function Wrapped({ data, pin }: { data: WrappedData; pin?: string
     return Number.isFinite(s) ? Math.max(1, Math.floor((Date.now() - s) / 864e5) + 1) : 0;
   }, [data.startDate]);
 
-  const songs = data.songs.filter((s) => s.title.trim());
-  const places = data.places.filter((p) => p.name.trim());
-  const words = data.words.filter((w) => w.trim());
+  const songs = data.songs.map((s, i) => ({ ...s, i })).filter((s) => s.title.trim());
+  const places = data.places.map((p, i) => ({ ...p, i })).filter((p) => p.name.trim());
+  const words = data.words.map((w, i) => ({ w, i })).filter((x) => x.w.trim());
 
   /* slide list — sections with no content are skipped */
   type S = { id: string; node: (on: boolean) => ReactNode; long?: boolean };
@@ -77,8 +77,8 @@ export default function Wrapped({ data, pin }: { data: WrappedData; pin?: string
   slides.push({ id: 'top', node: () => (
     <div className="wr-center">
       <p className="wr-kicker">{data.year} оны №1 мөч</p>
-      <Photo src={data.topPhoto} alt={data.topCaption} className="wr-top-photo" />
-      <h2 className="wr-h2">{data.topCaption}</h2>
+      <Photo src={data.topPhoto} alt={data.topCaption} className="wr-top-photo" field="topPhoto" />
+      <h2 className="wr-h2" data-field="topCaption">{data.topCaption}</h2>
     </div>
   ) });
   if (songs.length) slides.push({ id: 'songs', node: () => (
@@ -88,7 +88,7 @@ export default function Wrapped({ data, pin }: { data: WrappedData; pin?: string
       <ol className="wr-list">
         {songs.map((s, i) => (
           <li key={i} style={{ '--d': `${0.25 + i * 0.18}s` } as CSSProperties}>
-            <b>{i + 1}</b><span><strong>{s.title}</strong><small>{s.artist}</small></span>
+            <b>{i + 1}</b><span><strong data-field={`songTitles.${s.i}`}>{s.title}</strong><small data-field={`songArtists.${s.i}`}>{s.artist}</small></span>
             <em className="wr-eq"><i /><i /><i /><i /></em>
           </li>
         ))}
@@ -102,7 +102,7 @@ export default function Wrapped({ data, pin }: { data: WrappedData; pin?: string
       <ol className="wr-list places">
         {places.map((p, i) => (
           <li key={i} style={{ '--d': `${0.25 + i * 0.18}s` } as CSSProperties}>
-            <b>{i + 1}</b><span><strong>{p.name}</strong>{p.count && <small>{p.count}</small>}</span><em className="wr-pin">📍</em>
+            <b>{i + 1}</b><span><strong data-field={`places.${p.i}`}>{p.name}</strong>{p.count && <small data-field={`placeCounts.${p.i}`}>{p.count}</small>}</span><em className="wr-pin">📍</em>
           </li>
         ))}
       </ol>
@@ -112,8 +112,8 @@ export default function Wrapped({ data, pin }: { data: WrappedData; pin?: string
     <div className="wr-center">
       <p className="wr-kicker">Бидний хамгийн их хэлдэг үгс</p>
       <div className="wr-words">
-        {words.map((w, i) => (
-          <span key={i} style={{ '--d': `${0.3 + i * 0.22}s`, '--s': `${[3.4, 2.4, 2, 2.8, 1.7, 2.2, 1.6, 2.5][i % 8]}`, '--r': `${[-6, 5, -3, 8, -8, 3, 6, -4][i % 8]}deg`, background: pal[(i + 1) % pal.length] } as CSSProperties}>{w}</span>
+        {words.map(({ w, i: slot }, i) => (
+          <span key={i} data-field={`words.${slot}`} style={{ '--d': `${0.3 + i * 0.22}s`, '--s': `${[3.4, 2.4, 2, 2.8, 1.7, 2.2, 1.6, 2.5][i % 8]}`, '--r': `${[-6, 5, -3, 8, -8, 3, 6, -4][i % 8]}deg`, background: pal[(i + 1) % pal.length] } as CSSProperties}>{w}</span>
         ))}
       </div>
     </div>
@@ -121,17 +121,17 @@ export default function Wrapped({ data, pin }: { data: WrappedData; pin?: string
   slides.push({ id: 'persona', node: () => (
     <div className="wr-center">
       <p className="wr-kicker">Чиний хайрын төрөл бол…</p>
-      <div className="wr-badge"><svg viewBox="0 0 200 200"><path d="M100 0l22 36 41-12-6 42 40 18-30 30 18 38-42 4-8 42-35-24-35 24-8-42-42-4 18-38-30-30 40-18-6-42 41 12z" /></svg><span>{data.persona.emoji}</span></div>
-      <h2 className="wr-h1">{data.persona.title}</h2>
-      <p className="wr-body">{data.persona.text}</p>
+      <div className="wr-badge" data-field="personaEmoji"><svg viewBox="0 0 200 200"><path d="M100 0l22 36 41-12-6 42 40 18-30 30 18 38-42 4-8 42-35-24-35 24-8-42-42-4 18-38-30-30 40-18-6-42 41 12z" /></svg><span>{data.persona.emoji}</span></div>
+      <h2 className="wr-h1" data-field="personaTitle">{data.persona.title}</h2>
+      <p className="wr-body" data-field="personaText">{data.persona.text}</p>
     </div>
   ) });
   if (data.photos.some(Boolean)) slides.push({ id: 'photos', node: () => (
     <div className="wr-center">
       <p className="wr-kicker">{data.year} оны зургууд</p>
       <div className="wr-grid">
-        {data.photos.filter(Boolean).slice(0, 6).map((p, i) => (
-          <Photo key={i} src={p} style={{ '--d': `${0.2 + i * 0.15}s`, '--r': `${[-4, 3, -2, 5, -5, 2][i]}deg` } as CSSProperties} />
+        {data.photos.map((p, slot) => ({ p, slot })).filter((x) => x.p).slice(0, 6).map(({ p, slot }, i) => (
+          <Photo key={i} src={p} field={`photos.${slot}`} style={{ '--d': `${0.2 + i * 0.15}s`, '--r': `${[-4, 3, -2, 5, -5, 2][i]}deg` } as CSSProperties} />
         ))}
       </div>
     </div>
@@ -139,8 +139,8 @@ export default function Wrapped({ data, pin }: { data: WrappedData; pin?: string
   slides.push({ id: 'msg', long: true, node: (on) => (
     <div className="wr-msg">
       <p className="wr-kicker">Бас нэг зүйл</p>
-      <p className="wr-letter"><Typed text={data.message} run={on} /></p>
-      <p className="wr-sign">— {data.you}</p>
+      <p className="wr-letter" data-field="message"><Typed text={data.message} run={on} /></p>
+      <p className="wr-sign">— <span data-field="you">{data.you}</span></p>
     </div>
   ) });
   slides.push({ id: 'summary', long: true, node: () => (
@@ -151,8 +151,8 @@ export default function Wrapped({ data, pin }: { data: WrappedData; pin?: string
           <div><small>{data.year} · Wrapped</small><strong>{data.them} &amp; {data.you}</strong></div>
         </div>
         <div className="wr-card-grid">
-          {songs.length > 0 && <div><small>Топ дуу</small>{songs.slice(0, 3).map((s, i) => <p key={i}>{i + 1} {s.title}</p>)}</div>}
-          {places.length > 0 && <div><small>Топ газар</small>{places.slice(0, 3).map((p, i) => <p key={i}>{i + 1} {p.name}</p>)}</div>}
+          {songs.length > 0 && <div><small>Топ дуу</small>{songs.slice(0, 3).map((s, i) => <p key={i} data-field={`songTitles.${s.i}`}>{i + 1} {s.title}</p>)}</div>}
+          {places.length > 0 && <div><small>Топ газар</small>{places.slice(0, 3).map((p, i) => <p key={i} data-field={`places.${p.i}`}>{i + 1} {p.name}</p>)}</div>}
           {days > 0 && <div><small>Хамтдаа</small><p className="big">{days.toLocaleString('en-US')} өдөр</p></div>}
           <div><small>Хайрын төрөл</small><p className="big sm">{data.persona.emoji} {data.persona.title}</p></div>
         </div>
@@ -235,7 +235,7 @@ export default function Wrapped({ data, pin }: { data: WrappedData; pin?: string
 
   return (
     <div className="wr-root" style={{ '--bg': bg, '--fg': dark ? '#fff' : '#0b0b10', '--accent': accent, '--accent-fg': lum(accent) < 0.35 ? '#fff' : '#0b0b10' } as CSSProperties}>
-      <div className="wr-stage">
+      <div className="wr-stage" data-field="theme">
         <div className="wr-shapes" key={'s' + i} aria-hidden>
           <i className="c1" style={{ background: pal[(Math.max(i, 0) + 1) % pal.length] }} />
           <i className="c2" style={{ background: pal[(Math.max(i, 0) + 3) % pal.length] }} />
@@ -245,9 +245,9 @@ export default function Wrapped({ data, pin }: { data: WrappedData; pin?: string
 
         {i < 0 ? (
           <div className="wr-intro">
-            <p className="wr-kicker">{data.them}, энэ чамд</p>
-            <h1 className="wr-mega">Бидний<br />{data.year}<br />он</h1>
-            <p className="wr-body">{data.you} бидний өдөр, дуу, газар бүрийг эргэн санаад чамд зориулж үүнийг хийлээ.</p>
+            <p className="wr-kicker"><span data-field="them">{data.them}</span>, энэ чамд</p>
+            <h1 className="wr-mega" data-field="year">Бидний<br />{data.year}<br />он</h1>
+            <p className="wr-body"><span data-field="you">{data.you}</span> бидний өдөр, дуу, газар бүрийг эргэн санаад чамд зориулж үүнийг хийлээ.</p>
             <button className="wr-cta" onClick={start}>Эхэлье ▶</button>
             <small className="wr-hint">Баруун талд дарж урагшилна · удаан дарж зогсооно</small>
           </div>
@@ -274,7 +274,7 @@ function DaysSlide({ days, on }: { days: number; on: boolean }) {
   return (
     <div className="wr-center">
       <p className="wr-kicker">Бид одоогоор хамтдаа</p>
-      <div className="wr-num">{n.toLocaleString('en-US')}</div>
+      <div className="wr-num" data-field="startDate">{n.toLocaleString('en-US')}</div>
       <h2 className="wr-h1">өдрийг өнгөрөөлөө</h2>
       <p className="wr-body">Энэ бол бие биеэ сонгосон <b>{hours.toLocaleString('en-US')}</b> цаг.<br />Магадгүй хосуудын топ 0.001%.</p>
     </div>

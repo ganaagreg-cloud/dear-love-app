@@ -7,12 +7,12 @@ const NEBULA =
   'radial-gradient(circle at 55% 15%, rgba(120,80,255,.12), transparent 30%), #1c1c1c';
 const PROGRESS = [70, 40, 25, 10];
 
-type CardItem = { title: string; photo: string; progress?: number };
+type CardItem = { title: string; photo: string; progress?: number; i: number };
 
-function Card({ item, accent, onPlay }: { item: CardItem; accent: string; onPlay: () => void }) {
+function Card({ item, accent, onPlay, keys }: { item: CardItem; accent: string; onPlay: () => void; keys: [string, string] }) {
   return (
     <div className="lf-card" role="button" tabIndex={0} onClick={onPlay} onKeyDown={(e) => e.key === 'Enter' && onPlay()}>
-      <div className="lf-card-img">
+      <div className="lf-card-img" data-field={`${keys[0]}.${item.i}`}>
         {item.photo ? (
           <img src={item.photo} alt={item.title || 'хайрын зураг'} loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
         ) : (
@@ -21,7 +21,7 @@ function Card({ item, accent, onPlay }: { item: CardItem; accent: string; onPlay
         {item.progress != null && <div className="lf-progress"><span style={{ width: `${item.progress}%` }} /></div>}
         <div className="lf-card-play">▶</div>
       </div>
-      <div className="lf-card-title">{item.title}</div>
+      <div className="lf-card-title" data-field={`${keys[1]}.${item.i}`}>{item.title}</div>
     </div>
   );
 }
@@ -34,7 +34,7 @@ export default function Browse({ data, copy, onPlay }: ScreenProps & { onPlay: (
   const build = (titles: readonly string[], photos: string[], key: 'cw' | 'hits', withProgress: boolean): CardItem[] => {
     const custom = (ov[key] as string[] | undefined) ?? [];
     return titles
-      .map((title, i) => ({ title, photo: photos[i] ?? '', progress: withProgress ? PROGRESS[i] : undefined, custom: !!custom[i]?.trim() }))
+      .map((title, i) => ({ title, photo: photos[i] ?? '', progress: withProgress ? PROGRESS[i] : undefined, custom: !!custom[i]?.trim(), i }))
       .filter((c) => c.photo || c.custom || data.previewPlaceholders);
   };
   const row1 = build(copy.cw, data.cwPhotos, 'cw', true);
@@ -45,32 +45,32 @@ export default function Browse({ data, copy, onPlay }: ScreenProps & { onPlay: (
     <section className="lf-screen lf-browse">
       <nav className="lf-nav">
         <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
-          <div className="lf-logo">LoveFlix</div>
+          <div className="lf-logo" data-field="accent">LoveFlix</div>
           <div className="lf-nav-links">
             <span onClick={() => scrollTo('.lf-hero')} style={{ cursor: 'pointer' }}>Нүүр</span>
             <span onClick={() => scrollTo('.lf-rows')} style={{ cursor: 'pointer' }}>Бид</span>
             <span onClick={() => scrollTo('.lf-row-cta')} style={{ cursor: 'pointer' }}>Миний жагсаалт</span>
           </div>
         </div>
-        <div className="lf-nav-avatar">{initial(name)}</div>
+        <div className="lf-nav-avatar" data-field="partnerName">{initial(name)}</div>
       </nav>
 
       <div className="lf-hero">
-        <div className="lf-hero-bg">
+        <div className="lf-hero-bg" data-field="heroPhoto">
           <div className="lf-hero-placeholder" />{data.heroPhoto && <img className="lf-hero-img" src={data.heroPhoto} alt={copy.heroTitle || 'хайрын зураг'} onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
           <div className="lf-hero-fade" />
           <div className="lf-hero-fade-bottom" />
         </div>
         <div className="lf-hero-content">
-          <div className="lf-hero-badge"><span className="lf-n-mark">L</span>{copy.badge}</div>
-          <h1 className="lf-hero-title">{copy.heroTitle}</h1>
+          <div className="lf-hero-badge" data-field="occasion"><span className="lf-n-mark">L</span>{copy.badge}</div>
+          <h1 className="lf-hero-title" data-field="ov.heroTitle">{copy.heroTitle}</h1>
           <div className="lf-hero-meta">
             <span className="lf-match">99% тохирол</span>
             <span className="lf-rating">U/A 16+</span>
             <span>1 улирал</span>
             <span className="lf-hd">HD</span>
           </div>
-          <p className="lf-hero-synopsis">{copy.synopsis}</p>
+          <p className="lf-hero-synopsis" data-field="ov.synopsis">{copy.synopsis}</p>
           <div className="lf-hero-actions">
             <button className="lf-btn lf-btn-play" onClick={onPlay}><span className="lf-play-tri" /> Тоглуулах</button>
             <button className="lf-btn lf-btn-info" onClick={onPlay}><i className="lf-info-i">i</i> Дэлгэрэнгүй</button>
@@ -81,20 +81,20 @@ export default function Browse({ data, copy, onPlay }: ScreenProps & { onPlay: (
       <div className="lf-rows">
         {row1.length > 0 && (
           <div className="lf-row">
-            <h2 className="lf-row-title">{copy.row1}</h2>
-            <div className="lf-row-scroll">{row1.map((c, i) => <Card key={i} item={c} accent={data.accent} onPlay={onPlay} />)}</div>
+            <h2 className="lf-row-title" data-field="ov.row1">{copy.row1}</h2>
+            <div className="lf-row-scroll">{row1.map((c, i) => <Card key={i} item={c} accent={data.accent} onPlay={onPlay} keys={['cwPhotos', 'ov.cw']} />)}</div>
           </div>
         )}
 
         <div className="lf-row">
-          <h2 className="lf-row-title">{copy.row2}</h2>
+          <h2 className="lf-row-title" data-field="ov.row2">{copy.row2}</h2>
           <div className="lf-row-scroll lf-top10">
             {copy.reasons.slice(0, 5).map((r, i) => (
               <div className="lf-rank" key={i}>
                 <span className="lf-rank-num">{i + 1}</span>
                 <div className="lf-rank-card">
                   <span className="lf-rank-heart">♥</span>
-                  <span className="lf-rank-text">{r}</span>
+                  <span className="lf-rank-text" data-field={`ov.reasons.${i}`}>{r}</span>
                 </div>
               </div>
             ))}
@@ -103,8 +103,8 @@ export default function Browse({ data, copy, onPlay }: ScreenProps & { onPlay: (
 
         {row3.length > 0 && (
           <div className="lf-row">
-            <h2 className="lf-row-title">{copy.row3}</h2>
-            <div className="lf-row-scroll">{row3.map((c, i) => <Card key={i} item={c} accent={data.accent} onPlay={onPlay} />)}</div>
+            <h2 className="lf-row-title" data-field="ov.row3">{copy.row3}</h2>
+            <div className="lf-row-scroll">{row3.map((c, i) => <Card key={i} item={c} accent={data.accent} onPlay={onPlay} keys={['hitPhotos', 'ov.hits']} />)}</div>
           </div>
         )}
 

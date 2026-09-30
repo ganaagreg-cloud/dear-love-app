@@ -6,6 +6,8 @@ type Base = {
   required?: boolean;
   /** Preview scene to show while this field has focus — overrides the section's `previewPage`. */
   previewPage?: string | number;
+  /** List/images fields: item i previews `${itemPreview}${i}` (e.g. 'stop:' → 'stop:2'). */
+  itemPreview?: string;
   /** Show the template's `tokens` as insert-at-cursor chips above this text field. */
   tokens?: boolean;
 };

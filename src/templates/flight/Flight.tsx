@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 
-export type Stop = { name: string; code: string; date: string; note: string; photo: string };
+/** `i` = the stop's slot in the editor lists (kept when empty stops are skipped). */
+export type Stop = { name: string; code: string; date: string; note: string; photo: string; i: number };
 export type FlightData = {
   airline: string; flightNo: string;
   passenger: string; captain: string;
@@ -17,7 +18,7 @@ type Scene = 'board' | 'pass' | 'fly' | 'land';
 const FLAP = 'АБВГДЕЁЖЗИЙКЛМНОӨПРСТУҮФХЦЧШЩЪЫЬЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789♥ ';
 
 /* ───────── split-flap text ───────── */
-function Flap({ text, delay = 0, len }: { text: string; delay?: number; len?: number }) {
+function Flap({ text, delay = 0, len, field }: { text: string; delay?: number; len?: number; field?: string }) {
   const target = (text.toUpperCase() + ' '.repeat(len ?? 0)).slice(0, len ?? text.length);
   const [shown, setShown] = useState(() => ' '.repeat(target.length));
   useEffect(() => {
@@ -33,7 +34,7 @@ function Flap({ text, delay = 0, len }: { text: string; delay?: number; len?: nu
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [target, delay]);
-  return <span className="fl-flap">{[...shown].map((c, i) => <i key={i}>{c === ' ' ? ' ' : c}</i>)}</span>;
+  return <span className="fl-flap" data-field={field}>{[...shown].map((c, i) => <i key={i}>{c === ' ' ? ' ' : c}</i>)}</span>;
 }
 
 /* ───────── barcode (deterministic from text) ───────── */
@@ -89,7 +90,9 @@ function Land() {
 
 export default function Flight({ data, pin }: { data: FlightData; pin?: string | number | null }) {
   const isScene = (v: unknown): v is Scene => v === 'board' || v === 'pass' || v === 'fly' || v === 'land';
-  const [scene, setScene] = useState<Scene>(isScene(pin) ? pin : 'board');
+  // editor pin 'stop:<i>' = the fly scene, parked at stop i's postcard
+  const stopPin = typeof pin === 'string' && /^stop:\d+$/.test(pin) ? Number(pin.slice(5)) : null;
+  const [scene, setScene] = useState<Scene>(isScene(pin) ? pin : stopPin != null ? 'fly' : 'board');
   const [torn, setTorn] = useState(false);
   const stops = data.stops.filter((s) => s.name.trim());
   const pts = useMemo(() => stopPositions(stops.length), [stops.length]);
@@ -109,6 +112,7 @@ export default function Flight({ data, pin }: { data: FlightData; pin?: string |
   // section-switching works too (same fix as Wrapped.tsx's equivalent effect).
   useEffect(() => {
     if (isScene(pin)) setScene(pin);
+    else if (stopPin != null) setScene('fly');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pin]);
 
@@ -129,24 +133,24 @@ export default function Flight({ data, pin }: { data: FlightData; pin?: string |
           <p className="fl-eyebrow">Таны тасалбар бэлэн</p>
           <div className={`fl-pass ${torn ? 'torn' : ''}`}>
             <div className="fl-main">
-              <header className="fl-head">
-                <span className="fl-logo">✈︎ {data.airline}</span>
-                <span className="fl-class">{data.cabin}</span>
+              <header className="fl-head" data-field="color">
+                <span className="fl-logo" data-field="airline">✈︎ {data.airline}</span>
+                <span className="fl-class" data-field="cabin">{data.cabin}</span>
               </header>
               <div className="fl-route">
-                <div><b>{data.fromCode}</b><small>{data.fromCity}</small></div>
+                <div><b data-field="fromCode">{data.fromCode}</b><small data-field="fromCity">{data.fromCity}</small></div>
                 <div className="fl-plane"><i />✈<i /></div>
-                <div className="r"><b>{data.toCode}</b><small>{data.toCity}</small></div>
+                <div className="r"><b data-field="toCode">{data.toCode}</b><small data-field="toCity">{data.toCity}</small></div>
               </div>
               <div className="fl-fields">
-                <div><small>Зорчигч</small><strong>{data.passenger}</strong></div>
-                <div><small>Нислэг</small><strong>{data.flightNo}</strong></div>
-                <div><small>Огноо</small><strong>{data.date}</strong></div>
-                <div><small>Суух цаг</small><strong>{data.boarding}</strong></div>
-                <div><small>Хаалга</small><strong>{data.gate}</strong></div>
-                <div><small>Суудал</small><strong>{data.seat}</strong></div>
+                <div data-field="passenger"><small>Зорчигч</small><strong>{data.passenger}</strong></div>
+                <div data-field="flightNo"><small>Нислэг</small><strong>{data.flightNo}</strong></div>
+                <div data-field="date"><small>Огноо</small><strong>{data.date}</strong></div>
+                <div data-field="boarding"><small>Суух цаг</small><strong>{data.boarding}</strong></div>
+                <div data-field="gate"><small>Хаалга</small><strong>{data.gate}</strong></div>
+                <div data-field="seat"><small>Суудал</small><strong>{data.seat}</strong></div>
               </div>
-              <p className="fl-captain">Жолоодох нисгэгч: <b>{data.captain}</b></p>
+              <p className="fl-captain">Жолоодох нисгэгч: <b data-field="captain">{data.captain}</b></p>
             </div>
             <div className="fl-stub">
               <div className="fl-stub-in">
@@ -162,15 +166,20 @@ export default function Flight({ data, pin }: { data: FlightData; pin?: string |
           <small className="fl-hint">Замдаа {stops.length} буудал · аятайхан нислэг хүсье</small>
         </div>
       )}
-      {scene === 'fly' && <Journey data={data} stops={stops} pts={pts} d={d} onLand={() => setScene('land')} />}
+      {scene === 'fly' && (
+        <Journey
+          key={stopPin ?? 'fly'} data={data} stops={stops} pts={pts} d={d} onLand={() => setScene('land')}
+          parkAt={stopPin == null ? null : Math.max(0, stops.findIndex((s) => s.i === stopPin))}
+        />
+      )}
       {scene === 'land' && (
         <div className="fl-land-scene">
           <div className="fl-arrivals"><Flap text="ИРЛЭЭ" len={5} /> <Flap text={data.toCode} len={Math.max(3, data.toCode.length)} delay={300} /></div>
           <div className="fl-passport">
-            <div className="fl-stamp"><span>{data.toCity}</span><b>♥ ЗӨВШӨӨРӨВ ♥</b><small>{data.date}</small></div>
-            <h1>{data.finalTitle}</h1>
-            <p>{data.finalMessage}</p>
-            <p className="fl-sign">— Нисгэгч {data.captain}</p>
+            <div className="fl-stamp"><span data-field="toCity">{data.toCity}</span><b>♥ ЗӨВШӨӨРӨВ ♥</b><small data-field="date">{data.date}</small></div>
+            <h1 data-field="finalTitle">{data.finalTitle}</h1>
+            <p data-field="finalMessage">{data.finalMessage}</p>
+            <p className="fl-sign">— Нисгэгч <span data-field="captain">{data.captain}</span></p>
           </div>
           <button className="fl-btn ghost" onClick={() => { setTorn(false); setScene('board'); }}>↺ Дахин нисэх</button>
         </div>
@@ -182,7 +191,7 @@ export default function Flight({ data, pin }: { data: FlightData; pin?: string |
 function DepartureBoard({ data, onSkip }: { data: FlightData; onSkip: () => void }) {
   const rows = [
     { t: '08:15', f: 'LV 101', to: 'ХААНА Ч БИШ', s: 'ЦУЦЛАВ' },
-    { t: data.boarding.slice(0, 5), f: data.flightNo, to: data.toCity, s: 'СУУЖ БАЙНА', me: true },
+    { t: data.boarding.slice(0, 5), f: data.flightNo, to: data.toCity, s: 'СУУЖ БАЙНА', me: true, fields: ['boarding', 'flightNo', 'toCity'] },
     { t: '11:40', f: 'LV 404', to: 'ГАНЦААРАА', s: 'ЦУЦЛАВ' },
   ];
   return (
@@ -192,14 +201,14 @@ function DepartureBoard({ data, onSkip }: { data: FlightData; onSkip: () => void
         <div className="fl-board-row th"><span>ЦАГ</span><span>НИСЛЭГ</span><span>ЧИГЛЭЛ</span><span>ТӨЛӨВ</span></div>
         {rows.map((r, i) => (
           <div className={`fl-board-row ${r.me ? 'me' : ''}`} key={i}>
-            <Flap text={r.t} len={5} delay={i * 220} />
-            <Flap text={r.f} len={7} delay={i * 220 + 120} />
-            <Flap text={r.to} len={12} delay={i * 220 + 240} />
+            <Flap text={r.t} len={5} delay={i * 220} field={r.fields?.[0]} />
+            <Flap text={r.f} len={7} delay={i * 220 + 120} field={r.fields?.[1]} />
+            <Flap text={r.to} len={12} delay={i * 220 + 240} field={r.fields?.[2]} />
             <Flap text={r.s} len={10} delay={i * 220 + 360} />
           </div>
         ))}
       </div>
-      <p className="fl-board-call">Зорчигч <b>{data.passenger}</b> та {data.gate}-р хаалга руу явна уу.</p>
+      <p className="fl-board-call">Зорчигч <b data-field="passenger">{data.passenger}</b> та <span data-field="gate">{data.gate}</span>-р хаалга руу явна уу.</p>
     </div>
   );
 }
@@ -210,11 +219,12 @@ function Clock() {
 }
 
 /* ───────── the flight across the map ───────── */
-function Journey({ data, stops, pts, d, onLand }: { data: FlightData; stops: Stop[]; pts: [number, number][]; d: string; onLand: () => void }) {
+function Journey({ data, stops, pts, d, onLand, parkAt = null }: { data: FlightData; stops: Stop[]; pts: [number, number][]; d: string; onLand: () => void; parkAt?: number | null }) {
   const path = useRef<SVGPathElement>(null);
-  const [leg, setLeg] = useState(0);            // flying towards pts[leg+1]
-  const [atStop, setAtStop] = useState<number | null>(null);
-  const [plane, setPlane] = useState({ x: pts[0][0], y: pts[0][1], a: 0 });
+  // parkAt (editor): start already landed at that stop, postcard open
+  const [leg, setLeg] = useState(parkAt ?? 0);            // flying towards pts[leg+1]
+  const [atStop, setAtStop] = useState<number | null>(parkAt);
+  const [plane, setPlane] = useState(() => { const p = pts[parkAt == null ? 0 : parkAt + 1] ?? pts[0]; return { x: p[0], y: p[1], a: 0 }; });
   const [drawn, setDrawn] = useState(0);
   const [vp, setVp] = useState({ w: 1000, h: 700 });
   const lens = useRef<number[]>([]);
@@ -236,6 +246,8 @@ function Journey({ data, stops, pts, d, onLand }: { data: FlightData; stops: Sto
     while (out.length < pts.length) out.push(total);
     out[0] = 0; out[pts.length - 1] = total;
     lens.current = out;
+    if (parkAt != null) setDrawn(out[parkAt + 1] ?? 0); // parked: route drawn up to this stop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pts, d]);
 
   // fly one leg
@@ -309,12 +321,12 @@ function Journey({ data, stops, pts, d, onLand }: { data: FlightData; stops: Sto
       {s && (
         <div className="fl-postcard-wrap">
           <div className={`fl-postcard ${s.photo ? '' : 'no-photo'}`} key={atStop}>
-            {s.photo && <div className="fl-pc-photo"><PhotoImg src={s.photo} alt={s.name} /></div>}
+            {s.photo && <div className="fl-pc-photo" data-field={`stopPhotos.${s.i}`}><PhotoImg src={s.photo} alt={s.name} /></div>}
             <div className="fl-pc-body">
-              <div className="fl-pc-stamp">{(s.code || s.name.slice(0, 3)).toUpperCase()}</div>
-              <small>{atStop! + 1}-р буудал{s.date && ` · ${s.date}`}</small>
-              <h2>{s.name}</h2>
-              <p>{s.note}</p>
+              <div className="fl-pc-stamp" data-field={`stopCodes.${s.i}`}>{(s.code || s.name.slice(0, 3)).toUpperCase()}</div>
+              <small>{atStop! + 1}-р буудал{s.date && <> · <span data-field={`stopDates.${s.i}`}>{s.date}</span></>}</small>
+              <h2 data-field={`stopNames.${s.i}`}>{s.name}</h2>
+              <p data-field={`stopNotes.${s.i}`}>{s.note}</p>
               <button className="fl-btn sm" onClick={next}>{atStop! + 1 === stops.length ? 'Газардахаар ✈︎' : 'Нислэгээ үргэлжлүүлэх ✈︎'}</button>
             </div>
           </div>

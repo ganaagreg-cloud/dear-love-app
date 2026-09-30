@@ -21,6 +21,10 @@ type Props = {
   title?: string;
   /** Non-interactive thumbnail (mini-map). */
   inert?: boolean;
+  /** Click-to-edit inside the preview (hover outline, pencil cursor, click → open field). */
+  edit?: boolean;
+  /** A thumbnail next to a bigger preview: keep it silent (no music/sound effects). */
+  thumb?: boolean;
 };
 
 /**
@@ -29,7 +33,7 @@ type Props = {
  * answers its own iframe's «ready».
  */
 export const PreviewFrame = forwardRef<HTMLIFrameElement | null, Props>(function PreviewFrame(
-  { templateId, content, pin, device, debounceMs = 700, recipient = false, pad = 36, className, style, title = 'Шууд харагдац', inert },
+  { templateId, content, pin, device, debounceMs = 700, recipient = false, pad = 36, className, style, title = 'Шууд харагдац', inert, edit = false, thumb = false },
   ref,
 ) {
   const frame = useRef<HTMLIFrameElement>(null);
@@ -37,8 +41,8 @@ export const PreviewFrame = forwardRef<HTMLIFrameElement | null, Props>(function
   const latest = useRef(content); latest.current = content;
 
   const post = useCallback(
-    () => frame.current?.contentWindow?.postMessage({ type: 'dear:content', content: latest.current, pin, recipient }, window.location.origin),
-    [pin, recipient],
+    () => frame.current?.contentWindow?.postMessage({ type: 'dear:content', content: latest.current, pin, recipient, edit, thumb }, window.location.origin),
+    [pin, recipient, edit, thumb],
   );
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
