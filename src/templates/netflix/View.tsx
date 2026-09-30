@@ -16,7 +16,7 @@ import type { Content } from '../types';
 const str = (v: unknown, d = '') => (typeof v === 'string' ? v : d);
 const pad = (v: unknown, n: number) => Array.from({ length: n }, (_, i) => (Array.isArray(v) ? (v[i] as string) || '' : ''));
 
-export function toLoveData(c: Content): LoveData {
+export function toLoveData(c: Content, editable = false): LoveData {
   const occasion = (str(c.occasion) in COPY ? str(c.occasion) : 'anniversary') as Occasion;
   const base = COPY[occasion] as unknown as Record<string, string | readonly string[]>;
   const overrides: Record<string, string | string[]> = {};
@@ -36,7 +36,8 @@ export function toLoveData(c: Content): LoveData {
     yourName: str(c.yourName),
     accent: str(c.accent, '#E50914'),
     funnyNoButton: c.funnyNoButton === true,
-    previewPlaceholders: true,
+    // Placeholder cards only help the buyer while editing; the recipient only sees real photos.
+    previewPlaceholders: editable,
     songName: str(c.songName),
     profilePhoto: str(c.profilePhoto),
     heroPhoto: str(c.heroPhoto),
@@ -47,8 +48,8 @@ export function toLoveData(c: Content): LoveData {
   };
 }
 
-export default function NetflixView({ content, pin }: { content: Content; pin?: string | number | null; editable?: boolean }) {
-  const data = useMemo(() => toLoveData(content), [content]);
+export default function NetflixView({ content, pin, editable = false }: { content: Content; pin?: string | number | null; editable?: boolean }) {
+  const data = useMemo(() => toLoveData(content, editable), [content, editable]);
   return (
     <div style={{ minHeight: '100dvh', background: '#141414' }}>
       <LoveFlix data={data} pin={pin} />

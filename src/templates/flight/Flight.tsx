@@ -308,11 +308,11 @@ function Journey({ data, stops, pts, d, onLand }: { data: FlightData; stops: Sto
 
       {s && (
         <div className="fl-postcard-wrap">
-          <div className="fl-postcard" key={atStop}>
-            <div className="fl-pc-photo">{s.photo ? <PhotoImg src={s.photo} alt={s.name} /> : <span>♥</span>}</div>
+          <div className={`fl-postcard ${s.photo ? '' : 'no-photo'}`} key={atStop}>
+            {s.photo && <div className="fl-pc-photo"><PhotoImg src={s.photo} alt={s.name} /></div>}
             <div className="fl-pc-body">
               <div className="fl-pc-stamp">{(s.code || s.name.slice(0, 3)).toUpperCase()}</div>
-              <small>{atStop! + 1}-р буудал · {s.date}</small>
+              <small>{atStop! + 1}-р буудал{s.date && ` · ${s.date}`}</small>
               <h2>{s.name}</h2>
               <p>{s.note}</p>
               <button className="fl-btn sm" onClick={next}>{atStop! + 1 === stops.length ? 'Газардахаар ✈︎' : 'Нислэгээ үргэлжлүүлэх ✈︎'}</button>

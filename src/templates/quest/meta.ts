@@ -16,12 +16,12 @@ export const questMeta: TemplateMeta = {
   price: 29900,
   cover: '/covers/quest.jpg',
   accent: '#ff5d8f',
-  features: ['Жинхэнэ тоглоом', '5 дурсамжийн авдар', 'Өөрсдийн дүр', 'Чиптюн хөгжим', 'Пиксел салют'],
+  features: ['Жинхэнэ тоглоом', '12 хүртэл дурсамжийн авдар', 'Өөрсдийн дүр', 'Чиптюн хөгжим', 'Пиксел салют'],
   schema: [
     {
       id: 'game', title: 'Тоглоом ба консол', short: 'Тоглоом', previewPage: 'title',
       fields: [
-        { type: 'text', key: 'title', label: 'Тоглоомын нэр', max: 16, placeholder: 'ХАЙРЫН АЯЛАЛ', required: true },
+        { type: 'text', key: 'title', label: 'Тоглоомын нэр', max: 16, placeholder: 'ХАЙРЫН АЯЛАЛ' },
         { type: 'text', key: 'subtitle', label: 'Дэд гарчиг', max: 36 },
         { type: 'color', key: 'consoleColor', label: 'Консолын өнгө', presets: ['#FF8FB8', '#B9A3FF', '#8FE3C7', '#FFD66B', '#FF7A7A', '#8EC9FF'] },
         { type: 'date', key: 'startDate', label: 'Үерхэж эхэлсэн өдөр (заавал биш)', help: 'Тоглоомын дээд хэсэг болон эцсийн оноонд «…-р өдөр» гэж гарна.' },
@@ -41,23 +41,23 @@ export const questMeta: TemplateMeta = {
     },
     {
       id: 'memories', title: 'Эрдэнэсийн авдрууд (дурсамж)', short: 'Авдрууд', previewPage: 'chest:0',
-      description: 'Авдар бүр нэг зураг + тэмдэглэл нээнэ. Картыг чирж дарааллыг нь солино.',
-      cards: { count: 5, image: 'memoryPhotos', title: 'memoryTitles', text: 'memoryTexts', itemLabel: 'Авдар', previewPrefix: 'chest:' },
+      description: 'Авдар бүр нэг зураг + тэмдэглэл нээнэ. 12 хүртэл авдар нэмж болно. Картыг чирж дарааллыг нь солино.',
+      cards: { count: 12, image: 'memoryPhotos', title: 'memoryTitles', text: 'memoryTexts', itemLabel: 'Авдар', previewPrefix: 'chest:' },
       fields: [
-        { type: 'images', key: 'memoryPhotos', label: 'Авдрын зургууд (дарааллаар)', max: 5, required: true },
-        { type: 'list', key: 'memoryTitles', label: 'Авдрын гарчиг', count: 5, max: 22, itemLabel: 'Гарчиг', required: true, tokens: true },
-        { type: 'list', key: 'memoryTexts', label: 'Авдрын тэмдэглэл', count: 5, max: 160, itemLabel: 'Тэмдэглэл', required: true, tokens: true },
+        { type: 'images', key: 'memoryPhotos', label: 'Авдрын зургууд (дарааллаар)', max: 12 },
+        { type: 'list', key: 'memoryTitles', label: 'Авдрын гарчиг', count: 12, max: 22, itemLabel: 'Гарчиг' },
+        { type: 'list', key: 'memoryTexts', label: 'Авдрын тэмдэглэл', count: 12, max: 160, itemLabel: 'Тэмдэглэл', tokens: true },
       ],
     },
     {
       id: 'story', title: 'Түүх ба сүүлийн асуулт', short: 'Түүх', previewPage: 'dialog:intro',
       fields: [
-        { type: 'textarea', key: 'intro', label: 'Эхлэлийн мессеж', max: 160, rows: 3, required: true, tokens: true, previewPage: 'dialog:intro' },
-        { type: 'textarea', key: 'npcGreeting', label: 'Тэр тан дээр ирэхэд хэлэх үг', max: 160, rows: 3, required: true, tokens: true, previewPage: 'dialog:greeting' },
-        { type: 'text', key: 'question', label: 'Таны асуулт', max: 70, required: true, tokens: true, previewPage: 'dialog:question' },
-        { type: 'text', key: 'yesA', label: 'Хариултын 1-р товч', max: 12, required: true, previewPage: 'dialog:question' },
-        { type: 'text', key: 'yesB', label: 'Хариултын 2-р товч', max: 12, required: true, previewPage: 'dialog:question' },
-        { type: 'textarea', key: 'ending', label: 'Төгсгөлийн мессеж', max: 220, rows: 4, required: true, tokens: true, previewPage: 'ending' },
+        { type: 'textarea', key: 'intro', label: 'Эхлэлийн мессеж', max: 160, rows: 3, tokens: true, previewPage: 'dialog:intro' },
+        { type: 'textarea', key: 'npcGreeting', label: 'Тэр тан дээр ирэхэд хэлэх үг', max: 160, rows: 3, tokens: true, previewPage: 'dialog:greeting' },
+        { type: 'text', key: 'question', label: 'Таны асуулт', max: 70, tokens: true, previewPage: 'dialog:question' },
+        { type: 'text', key: 'yesA', label: 'Хариултын 1-р товч', max: 12, previewPage: 'dialog:question' },
+        { type: 'text', key: 'yesB', label: 'Хариултын 2-р товч', max: 12, previewPage: 'dialog:question' },
+        { type: 'textarea', key: 'ending', label: 'Төгсгөлийн мессеж', max: 220, rows: 4, tokens: true, previewPage: 'ending' },
       ],
     },
     {

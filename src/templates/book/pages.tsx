@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import s from './Scrapbook.module.css';
 import { Page, Photo, Tape, Ransom, Clutter, Sticker, Lines } from './parts';
 import type { ScrapbookData } from './scrapbookData';
@@ -28,6 +29,10 @@ export function renderPages(d: ScrapbookData, onPick?: (slot: number) => void, s
     <Photo src={p(slot)} className={className} onClick={onPick ? () => onPick(slot) : undefined} selected={selected === slot} />
   );
 
+  // A strip/row of small photos: dropped entirely for the recipient when none are filled.
+  const strip = (className: string, ...slots: number[]) =>
+    !onPick && slots.every((n) => !p(n)) ? null : <div className={className}>{slots.map((n) => <Fragment key={n}>{photo(n)}</Fragment>)}</div>;
+
   return [
     <Page key={0} n={0} hard className={s.frontCover}>
       <div className={s.crumples} data-bleed />
@@ -53,9 +58,7 @@ export function renderPages(d: ScrapbookData, onPick?: (slot: number) => void, s
       <Tape className={s.recordTape} />
       <p className={cap(s.recordWords, s.onKraft)}>{t.recordWords}</p>
       <Sticker src={SPRIG} className={s.whiteFlowers} />
-      <div className={s.recordMiniStrip}>
-        {photo(5)}{photo(6)}{photo(7)}
-      </div>
+      {strip(s.recordMiniStrip, 5, 6, 7)}
     </Page>,
 
     <Page key={2} n={2} className={s.luckyPage}>
@@ -89,9 +92,7 @@ export function renderPages(d: ScrapbookData, onPick?: (slot: number) => void, s
       <Clutter src={C_RED} className={s.littleClutter} />
       <h2>{t.littleTitle}</h2>
       {photo(13, s.littleMainPhoto)}
-      <div className={s.contactStrip}>
-        {photo(14)}{photo(15)}{photo(16)}
-      </div>
+      {strip(s.contactStrip, 14, 15, 16)}
       <p className={cap(s.littleNote)}>{t.littleNote}</p>
       <Sticker src={TULIPS} className={s.littleFlower} />
       <div className={s.mapScrap} data-bleed />
@@ -116,9 +117,7 @@ export function renderPages(d: ScrapbookData, onPick?: (slot: number) => void, s
       <div className={s.paperNoteOne}><small>{t.noteOneLabel}</small><p>{t.noteOne}</p></div>
       <div className={s.paperNoteTwo}><small>{t.noteTwoLabel}</small><p>{t.noteTwo}</p></div>
       <div className={s.paperNoteThree}><p>{t.noteThree}</p></div>
-      <div className={s.notesFilmStrip}>
-        {photo(21)}{photo(22)}{photo(23)}
-      </div>
+      {strip(s.notesFilmStrip, 21, 22, 23)}
       <span className={s.threadHeart} aria-hidden>♡</span>
     </Page>,
 
@@ -126,9 +125,7 @@ export function renderPages(d: ScrapbookData, onPick?: (slot: number) => void, s
       <Clutter src={C_RED} className={s.soundtrackPaper} />
       <div className={s.soundtrackVinyl} data-bleed><span /></div>
       <Ransom className={s.soundtrackLeftTitle}>{t.songsTitle}</Ransom>
-      <div className={s.soundtrackFilmStrip}>
-        {photo(24)}{photo(25)}{photo(26)}{photo(27)}
-      </div>
+      {strip(s.soundtrackFilmStrip, 24, 25, 26, 27)}
       {photo(28, s.soundtrackSnapshot)}
       <Sticker src={CAT_SIT} className={`${s.catSprite} ${s.catSpriteOne}`} />
       <p className={cap(s.soundtrackHandNote)}>{t.soundtrackHandNote}</p>
@@ -172,9 +169,7 @@ export function renderPages(d: ScrapbookData, onPick?: (slot: number) => void, s
 
     <Page key={10} n={10} className={s.pocketPage}>
       <h2>{t.pocketTitle}</h2>
-      <div className={s.pocketPhotos}>
-        {photo(33)}{photo(34)}{photo(35)}
-      </div>
+      {strip(s.pocketPhotos, 33, 34, 35)}
       <div className={s.keepsakePocket}><span>{d.keepsakeDate}</span><i aria-hidden>✿</i></div>
       <p className={cap(s.tomorrow)}>{t.tomorrow}</p>
     </Page>,

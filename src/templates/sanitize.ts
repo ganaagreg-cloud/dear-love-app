@@ -30,7 +30,8 @@ export function sanitizeContent(meta: TemplateMeta, input: unknown, mediaPrefix:
       // so this is a no-op for every other template's images field.
       case 'images': out[f.key] = (Array.isArray(v) ? v : []).map(okMedia).slice(0, f.max); break;
       case 'color': out[f.key] = typeof v === 'string' && COLOR.test(v) ? v : String(meta.defaults[f.key] ?? '#ffffff'); break;
-      case 'date': out[f.key] = typeof v === 'string' && DATE.test(v) ? v : String(meta.defaults[f.key] ?? ''); break;
+      // '' is a real answer («no date») — only malformed values fall back to the default.
+      case 'date': out[f.key] = v === '' ? '' : typeof v === 'string' && DATE.test(v) ? v : String(meta.defaults[f.key] ?? ''); break;
       case 'select': out[f.key] = f.options.some((o) => o.value === v) ? (v as string) : String(meta.defaults[f.key] ?? f.options[0].value); break;
       case 'toggle': out[f.key] = v === true; break;
       case 'list': {

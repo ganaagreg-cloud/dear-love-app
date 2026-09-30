@@ -144,7 +144,7 @@ export default function Scrapbook({ data = defaults, pin = null, editable = fals
 
       <div className={cx(s.intro, introVisible ? s.introVisible : s.introHidden)} aria-hidden={!introVisible}>
         <RadiatingHearts intro />
-        <button type="button" className={s.introNote} onClick={openBook} tabIndex={introVisible ? 0 : -1} autoFocus>
+        <button type="button" className={s.introNote} onClick={openBook} tabIndex={introVisible ? 0 : -1} autoFocus={!editable /* never steal the caret from the editor */}>
           <span>Чамд зориулсан</span>
           <strong>бэлэг</strong>
           <small>нээх <b>→</b></small>

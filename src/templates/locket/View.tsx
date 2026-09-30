@@ -20,7 +20,8 @@ export function toLocketConfig(c: Content) {
     milestone: Number(c.milestone) || 1000,
     music: str(c.music),
     locketPhotos: [arr(c.locketPhotos)[0] || '', arr(c.locketPhotos)[1] || ''],
-    memories: Array.from({ length: 5 }, (_, i) => ({ src: photos[i] || '', caption: caps[i] || '' })),
+    // Only memories with a photo become polaroids — the recipient never sees a stand-in image.
+    memories: Array.from({ length: 5 }, (_, i) => ({ src: photos[i] || '', caption: caps[i] || '' })).filter((m) => m.src),
     chapters: arr(c.chapters),
     text: {
       prologue: T('prologue'), ch1: T('ch1'), ch2: T('ch2'), ch3: T('ch3'), ch4: T('ch4'),

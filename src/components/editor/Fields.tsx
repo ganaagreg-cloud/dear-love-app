@@ -184,7 +184,7 @@ const isoOk = (iso: string) => {
 };
 const dotted = (iso: string) => (iso ? iso.replace(/-/g, '.') : '');
 
-function DateInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+export function DateInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const [text, setText] = useState(dotted(value));
   const [bad, setBad] = useState(false);
   const picker = useRef<HTMLInputElement>(null);

@@ -1,11 +1,14 @@
 'use client';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import './editor.css';
 import type { Content, ContentValue, Field, Section, TemplateMeta } from '@/templates/types';
 import { FieldControl, asArr } from './Fields';
 import { Cards } from './Cards';
 import { uploadMedia } from '@/lib/upload';
+import { PreviewFrame, type Device } from './PreviewFrame';
+import { Quick } from './Quick';
+import { QUICK } from '@/templates/quickRegistry';
 
 type Props = {
   meta: TemplateMeta;
@@ -20,8 +23,7 @@ type Props = {
   subdomain: boolean;
 };
 
-type SaveState = 'saved' | 'dirty' | 'saving' | 'error';
-const DEVICES = { desktop: { w: 1366, h: 820 }, mobile: { w: 390, h: 844 } } as const;
+export type SaveState = 'saved' | 'dirty' | 'saving' | 'error';
 const cleanSlug = (v: string) => v.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').slice(0, 40);
 
 /** A `required` field counts as filled when every slot/item has something in it. */
@@ -44,15 +46,19 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   // the preview scene of whatever field/card has focus; falls back to the step's own scene
   const [focusPin, setFocusPin] = useState<string | number | null>(null);
   useEffect(() => { setFocusPin(null); }, [open]);
-  const [device, setDevice] = useState<keyof typeof DEVICES>('desktop');
+  const [device, setDevice] = useState<Device>('desktop');
+  // Quick create (names → photos → tone → publish) is the default for a gift that isn't
+  // published yet; «Дэлгэрэнгүй засах» opens the full step editor. ?mode=advanced forces it.
+  const quick = QUICK[meta.id];
+  const [mode, setMode] = useState<'quick' | 'advanced'>(quick && initialStatus !== 'published' ? 'quick' : 'advanced');
+  useEffect(() => { if (new URLSearchParams(location.search).get('mode') === 'advanced') setMode('advanced'); }, []);
   const [tab, setTab] = useState<'edit' | 'preview'>('edit');
   const [share, setShare] = useState(false);
   const [publishing, setPublishing] = useState(false);
 
   useEffect(() => { if (window.innerWidth < 900) setDevice('mobile'); }, []);
 
-  /* ── live preview (iframe + postMessage) ── */
-  const frame = useRef<HTMLIFrameElement>(null);
+  /* ── live preview ── */
   const latest = useRef(content); latest.current = content;
   const [previewingFull, setPreviewingFull] = useState(false);
   const openIndex = meta.schema.findIndex((s) => s.id === open);
@@ -60,17 +66,7 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   const prevSection = openIndex > 0 ? meta.schema[openIndex - 1] : undefined;
   const nextSection = openIndex >= 0 && openIndex < meta.schema.length - 1 ? meta.schema[openIndex + 1] : undefined;
   const pin = previewingFull ? null : (focusPin ?? currentSection?.previewPage ?? null);
-  const post = useCallback(
-    () => frame.current?.contentWindow?.postMessage({ type: 'dear:content', content: latest.current, pin }, window.location.origin),
-    [pin],
-  );
-  useEffect(() => {
-    const onMsg = (e: MessageEvent) => { if (e.origin === window.location.origin && e.data?.type === 'dear:ready') post(); };
-    window.addEventListener('message', onMsg);
-    return () => window.removeEventListener('message', onMsg);
-  }, [post]);
   const debounce = meta.previewDebounceMs ?? 700;
-  useEffect(() => { const t = setTimeout(post, debounce); return () => clearTimeout(t); }, [content, post, debounce]);
 
   /* ── autosave ── */
   const persist = useCallback(async () => {
@@ -128,12 +124,14 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
     const r = await fetch(`/api/pages/${pageId}/publish`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
     return { ok: r.ok, j: await r.json().catch(() => ({})) };
   };
+  const [publishErr, setPublishErr] = useState('');
   const publish = async () => {
-    setPublishing(true);
+    setPublishing(true); setPublishErr('');
     if (save !== 'saved') await persist();
-    const { ok, j } = await callPublish({ publish: true });
+    const { ok, j } = await callPublish({ publish: true }).catch(() => ({ ok: false, j: {} as Record<string, string> }));
     setPublishing(false);
     if (ok) { setStatus('published'); setSlug(j.slug); setSlugDraft(j.slug); setUrl(j.url); setShare(true); }
+    else setPublishErr(j.error || 'Нийтэлж чадсангүй. Интернэтээ шалгаад дахин дарна уу.');
   };
   const saveSlug = async () => {
     setSlugErr('');
@@ -153,22 +151,28 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
     w?.focus();
   };
 
-  /* ── scale the preview device to fit ── */
-  const stage = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(0.5);
-  useLayoutEffect(() => {
-    const el = stage.current; if (!el) return;
-    const fit = () => {
-      const d = DEVICES[device], pad = 36;
-      setScale(Math.min((el.clientWidth - pad) / d.w, (el.clientHeight - pad) / d.h, 1));
-    };
-    fit();
-    const ro = new ResizeObserver(fit); ro.observe(el);
-    return () => ro.disconnect();
-  }, [device, tab]);
-
-  const d = DEVICES[device];
   const saveLabel = { saved: 'Бүгд хадгалагдсан', dirty: 'Хадгалаагүй өөрчлөлт…', saving: 'Хадгалж байна…', error: 'Хадгалж чадсангүй — дараагийн засвараар дахин оролдоно' }[save];
+
+  const shareModal = share && slug && (
+    <ShareModal
+      url={url} slug={slug} slugDraft={slugDraft} setSlugDraft={setSlugDraft} saveSlug={saveSlug} slugErr={slugErr}
+      linkBase={linkBase} subdomain={subdomain} copied={copied} copy={copy} shareToFacebook={shareToFacebook}
+      unpublish={unpublish} close={() => setShare(false)}
+    />
+  );
+
+  if (mode === 'quick' && quick) {
+    return (
+      <>
+        <Quick
+          meta={meta} spec={quick} content={content} onPatch={patch} upload={upload}
+          saveLabel={saveLabel} save={save} status={status} publishing={publishing} publishErr={publishErr}
+          onPublish={publish} onShare={() => setShare(true)} onAdvanced={() => setMode('advanced')}
+        />
+        {shareModal}
+      </>
+    );
+  }
 
   return (
     <div className="ed" data-tab={tab}>
@@ -185,6 +189,9 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
           <button className={tab === 'preview' ? 'on' : ''} onClick={() => setTab('preview')}>Харах</button>
         </div>
         <div className="row">
+          {quick && (
+            <button className="btn btn-sm btn-ghost ed-quick-back" onClick={() => setMode('quick')} title="Нэр, зураг, өнгө аясаа 4 алхмаар">⚡ Хялбар</button>
+          )}
           <div className="ed-devices">
             <button className={device === 'desktop' ? 'on' : ''} onClick={() => setDevice('desktop')} title="Компьютер">🖥</button>
             <button className={device === 'mobile' ? 'on' : ''} onClick={() => setDevice('mobile')} title="Утас">📱</button>
@@ -278,19 +285,31 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
         </p>
       </aside>
 
-      <section className="ed-stage" ref={stage}>
-        <div className="ed-device" data-device={device} style={{ width: d.w * scale, height: d.h * scale }}>
-          <iframe key={previewingFull ? 'full' : 'pinned'} ref={frame} title="Шууд харагдац" src={`/render/${meta.id}`} onLoad={post} allow="autoplay; encrypted-media"
-            style={{ width: d.w, height: d.h, transform: `scale(${scale})` }} />
-          <input
-            ref={pickPhotoInput} type="file" accept="image/*" hidden
-            onChange={(e) => { void onPickPhotoFile(e.target.files?.[0]); e.target.value = ''; }}
-          />
-        </div>
+      <section className="ed-stage">
+        <PreviewFrame
+          key={previewingFull ? 'full' : 'pinned'} className="ed-stage-frame"
+          templateId={meta.id} content={content} pin={pin} device={device} debounceMs={debounce}
+        />
+        <input
+          ref={pickPhotoInput} type="file" accept="image/*" hidden
+          onChange={(e) => { void onPickPhotoFile(e.target.files?.[0]); e.target.value = ''; }}
+        />
       </section>
 
-      {share && slug && (
-        <div className="ed-modal" onClick={(e) => e.target === e.currentTarget && setShare(false)}>
+      {shareModal}
+    </div>
+  );
+}
+
+type ShareProps = {
+  url: string; slug: string; slugDraft: string; setSlugDraft: (v: string) => void; saveSlug: () => void; slugErr: string;
+  linkBase: string; subdomain: boolean; copied: boolean; copy: () => void; shareToFacebook: () => void;
+  unpublish: () => void; close: () => void;
+};
+
+function ShareModal({ url, slug, slugDraft, setSlugDraft, saveSlug, slugErr, linkBase, subdomain, copied, copy, shareToFacebook, unpublish, close }: ShareProps) {
+  return (
+    <div className="ed-modal" onClick={(e) => e.target === e.currentTarget && close()}>
           <div className="ed-modal-card">
             <div style={{ fontSize: 40 }}>💌</div>
             <h2>Таны хуудас бэлэн боллоо</h2>
@@ -320,7 +339,5 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
             <button className="btn btn-ghost btn-sm" onClick={unpublish} style={{ marginTop: 8 }}>Нийтлэлээс буцаах</button>
           </div>
         </div>
-      )}
-    </div>
   );
 }

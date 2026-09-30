@@ -497,8 +497,8 @@ function placeholder(label, hue) {
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 function loadImg(src, fb, cb) { if (!src) return cb(fb); const im = new Image(); im.onload = () => cb(src); im.onerror = () => cb(fb); im.src = src; }
-loadImg(CONFIG.locketPhotos[0], placeholder('you', 345), u => $('#lp1').setAttribute('href', u));
-loadImg(CONFIG.locketPhotos[1], placeholder('me', 20), u => $('#lp2').setAttribute('href', u));
+loadImg(CONFIG.locketPhotos[0], placeholder(CONFIG.to || 'чи', 345), u => $('#lp1').setAttribute('href', u));
+loadImg(CONFIG.locketPhotos[1], placeholder(CONFIG.from || 'би', 20), u => $('#lp2').setAttribute('href', u));
 
 /* ---------- sky canvas ---------- */
 const sky = $('#sky'), sctx = sky.getContext('2d');

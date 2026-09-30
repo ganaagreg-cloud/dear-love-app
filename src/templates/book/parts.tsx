@@ -8,6 +8,8 @@ export const cx = (...c: (string | false | undefined)[]) => c.filter(Boolean).jo
 export function Photo({ src, className, onClick, selected }: { src?: string; className?: string; onClick?: () => void; selected?: boolean }) {
   const [failed, setFailed] = useState(false);
   const empty = !src || failed;
+  // The recipient never sees an empty frame — only the buyer (editable preview) gets the «+» tile.
+  if (empty && !onClick) return null;
   const body = empty ? (
     // Paper scrap + washi-tape corners; the call-to-action only makes sense for the buyer.
     <div className={x.photoEmpty} aria-hidden>{onClick && <span>+ Зураг нэмэх</span>}</div>

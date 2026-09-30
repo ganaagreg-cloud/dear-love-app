@@ -40,9 +40,10 @@ function useCount(to: number, run: boolean, ms = 1600) {
 
 function Photo({ src, alt, className, style }: { src: string; alt?: string; className?: string; style?: CSSProperties }) {
   const [bad, setBad] = useState(false);
+  if (!src || bad) return null; // no empty frames — the slide just goes without a photo
   return (
     <div className={`wr-photo ${className ?? ''}`} style={style}>
-      {src && !bad ? <img src={src} alt={alt || 'хайрын зураг'} onError={() => setBad(true)} /> : <span>♥</span>}
+      <img src={src} alt={alt || 'хайрын зураг'} onError={() => setBad(true)} />
     </div>
   );
 }

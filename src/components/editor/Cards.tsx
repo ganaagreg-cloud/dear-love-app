@@ -15,13 +15,23 @@ export function Cards({ cfg, content, onPatch, upload, tokens, titleMax, textMax
 }) {
   const col = (key: string) => Array.from({ length: cfg.count }, (_, i) => asArr(content[key])[i] ?? '');
   const photos = col(cfg.image), titles = col(cfg.title), texts = col(cfg.text);
+  // Cards shown = up to the last one with content, plus any empty ones the buyer just added.
+  let filled = 0;
+  for (let i = 0; i < cfg.count; i++) if (photos[i] || titles[i].trim() || texts[i].trim()) filled = i + 1;
+  const [added, setAdded] = useState(0);
+  const shown = Math.min(cfg.count, Math.max(1, filled + added));
+  const remove = (i: number) => {
+    const drop = (arr: string[]) => [...arr.slice(0, i), ...arr.slice(i + 1), ''];
+    onPatch({ [cfg.image]: drop(photos), [cfg.title]: drop(titles), [cfg.text]: drop(texts) });
+    setAdded((a) => Math.max(0, a - (i >= filled ? 1 : 0)));
+  };
 
   const setAt = (key: string, arr: string[], i: number, v: string) => { const next = [...arr]; next[i] = v; onPatch({ [key]: next }); };
   // several pointer moves can land before React re-renders — always shift the newest order
   const cur = useRef({ photos, titles, texts });
   cur.current = { photos, titles, texts };
   const move = (from: number, to: number) => {
-    if (to < 0 || to >= cfg.count || from === to) return;
+    if (to < 0 || to >= shown || from === to) return; // never into a hidden slot / the add row
     const shift = (arr: string[]) => { const next = [...arr]; next.splice(to, 0, ...next.splice(from, 1)); return next; };
     const c = cur.current;
     cur.current = { photos: shift(c.photos), titles: shift(c.titles), texts: shift(c.texts) };
@@ -54,7 +64,7 @@ export function Cards({ cfg, content, onPatch, upload, tokens, titleMax, textMax
 
   return (
     <ol className="ed-cards" ref={list}>
-      {photos.map((src, i) => (
+      {photos.slice(0, shown).map((src, i) => (
         <li
           key={i}
           className={`ed-card ${dragging === i ? 'dragging' : ''}`}
@@ -76,6 +86,9 @@ export function Cards({ cfg, content, onPatch, upload, tokens, titleMax, textMax
             >⠿</button>
             <b>{cfg.itemLabel} {i + 1}</b>
             {!src && <span className="ed-card-warn">⚠ Зураггүй</span>}
+            {shown > 1 && (
+              <button type="button" className="ed-card-del" onClick={() => remove(i)} aria-label={`${cfg.itemLabel} ${i + 1}-г хасах`} title="Хасах">✕</button>
+            )}
           </div>
           <div className="ed-card-body">
             <CardPhoto src={src} upload={upload} onChange={(u) => setAt(cfg.image, photos, i, u)} />
@@ -89,6 +102,13 @@ export function Cards({ cfg, content, onPatch, upload, tokens, titleMax, textMax
           </div>
         </li>
       ))}
+      {shown < cfg.count && (
+        <li className="ed-card-addrow">
+          <button type="button" className="ed-add wide" onClick={() => { setAdded((a) => a + 1); onFocusCard(shown); }}>
+            <b>＋</b><span>{cfg.itemLabel} нэмэх ({shown}/{cfg.count})</span>
+          </button>
+        </li>
+      )}
     </ol>
   );
 }

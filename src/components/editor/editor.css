@@ -61,6 +61,11 @@
 .ed-card-handle { border: 0; background: none; width: 32px; height: 32px; border-radius: 8px; color: var(--ink-3); font-size: 1.1rem; cursor: grab; touch-action: none; flex: none; }
 .ed-card-handle:hover, .ed-card-handle:focus-visible { background: var(--bg-2); color: var(--ink); }
 .ed-card.dragging .ed-card-handle { cursor: grabbing; }
+.ed-card-del { border: 0; background: none; width: 32px; height: 32px; border-radius: 8px; color: var(--ink-3); flex: none; }
+.ed-card-del:hover { background: #fdecec; color: var(--err); }
+.ed-card-warn + .ed-card-del { margin-left: 0; }
+.ed-card-head > b + .ed-card-del { margin-left: auto; }
+.ed-card-addrow { list-style: none; }
 .ed-card-warn { margin-left: auto; font-size: .72rem; font-weight: 700; color: var(--warn); background: #fff6e5; border-radius: 999px; padding: 3px 8px; }
 .ed-card-body { display: grid; grid-template-columns: 88px 1fr; gap: 10px; align-items: start; }
 .ed-card-photo .ed-thumb, .ed-card-photo .ed-add { width: 88px; }

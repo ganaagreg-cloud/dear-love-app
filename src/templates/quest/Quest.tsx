@@ -18,8 +18,15 @@ export type QuestData = {
 };
 
 /* ── world constants (GBA-ish 240×160) ── */
-const W = 240, H = 160, GROUND = 132, WORLD = 1520, NPC_X = 1440;
-const CHEST_X = [210, 450, 690, 930, 1170];
+const W = 240, H = 160, GROUND = 132;
+/** The path grows with the number of memories: one chest every 240px, then the heart gate. */
+export const MAX_CHESTS = 12;
+function layout(n: number) {
+  const CHEST_X = Array.from({ length: Math.max(1, n) }, (_, i) => 210 + i * 240);
+  const NPC_X = CHEST_X[CHEST_X.length - 1] + 270;
+  return { CHEST_X, NPC_X, WORLD: NPC_X + 80 };
+}
+type Layout = ReturnType<typeof layout>;
 const SPEED = 72, GRAV = 520, JUMP = 178;
 
 type Particle = { x: number; y: number; vx: number; vy: number; life: number; max: number; color: string; size: number; heart?: boolean; grav?: number };
@@ -52,7 +59,7 @@ const mix = (a: string, b: string, t: number) => {
 const at3 = (p: number, d: string, s: string, n: string) => (p < 0.5 ? mix(d, s, p / 0.5) : mix(s, n, (p - 0.5) / 0.5));
 const rng = (seed: number) => () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
 
-function newGame(): Game {
+function newGame({ CHEST_X, NPC_X }: Layout): Game {
   const hearts: Game['hearts'] = [];
   for (let x = 90; x < NPC_X - 60; x += 26) {
     if (CHEST_X.some((c) => Math.abs(c - x) < 26)) continue;
@@ -68,7 +75,10 @@ function newGame(): Game {
 
 export default function Quest({ data, previewScene = null }: { data: QuestData; previewScene?: PreviewScene | null }) {
   const canvas = useRef<HTMLCanvasElement>(null);
-  const game = useRef<Game>(newGame());
+  const total = data.memories.length;
+  const lay = useMemo(() => layout(total), [total]);
+  const { CHEST_X, NPC_X, WORLD } = lay;
+  const game = useRef<Game>(newGame(lay));
   const chip = useRef<Chip | null>(null);
   const song = useRef<HTMLAudioElement | null>(null);
   const keys = useRef({ l: false, r: false });
@@ -92,7 +102,6 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
   const scene = playing ? null : previewScene;
   const sceneRef = useRef(scene); sceneRef.current = scene;
 
-  const total = data.memories.length;
   const days = (() => {
     const s = Date.parse(data.startDate + 'T00:00:00');
     return Number.isFinite(s) ? Math.max(1, Math.floor((Date.now() - s) / 864e5) + 1) : 0;
@@ -153,7 +162,7 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
   const start = () => {
     setPlaying(true);
     startAudio();
-    game.current = newGame();
+    game.current = newGame(lay);
     setWinCard(false);
     openDialog([
       { name: '♥ АЯЛАЛ', text: fill(data.intro) },
@@ -185,7 +194,7 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
     if (sceneRef.current) setPlaying(true);
     const m = modeRef.current;
     if (m === 'title') start();
-    else if (m === 'win' && winCard) { game.current = newGame(); setWinCard(false); setMode('title'); }
+    else if (m === 'win' && winCard) { game.current = newGame(lay); setWinCard(false); setMode('title'); }
     else if (m === 'dialog') advance();
   };
   const dir = (d: -1 | 1) => {
@@ -194,7 +203,7 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
 
   const memoryDialog = (i: number): Dlg => {
     const mem = data.memories[i];
-    return { name: fill(mem.title) || `Дурсамж ${i + 1}`, text: fill(mem.text), photo: mem.src, badge: `ДУРСАМЖ ${i + 1}/${total}` };
+    return { name: fill(mem.title) || `Дурсамж ${i + 1}`, text: fill(mem.text), photo: mem.src || undefined, badge: `ДУРСАМЖ ${i + 1}/${total}` };
   };
 
   // latest handlers for listeners / game loop
@@ -205,7 +214,7 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
      changes, so typing doesn't restart the fireworks or re-walk the player. ── */
   useEffect(() => {
     if (!scene) return;
-    const g = newGame();
+    const g = newGame(lay);
     const walkTo = (px: number, opened: number) => {
       g.px = px; g.frozen = true;
       g.chests.forEach((c, i) => { c.open = i < opened; });
@@ -229,7 +238,7 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
     game.current = g;
     if (scene === 'music') startAudio(); else stopAudio();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scene]);
+  }, [scene, lay]);
   // …while the text of a staged dialog follows every keystroke, already fully typed.
   useEffect(() => {
     if (!scene) return;
@@ -273,8 +282,8 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
     };
     const R = rng(7);
     const stars = Array.from({ length: 70 }, () => ({ x: R() * W, y: R() * 100, s: R() * 6 }));
-    const trees = Array.from({ length: 26 }, (_, i) => ({ x: 40 + i * 58 + Math.round(R() * 30), r: 6 + Math.round(R() * 4) }));
-    const flowers = Array.from({ length: 120 }, () => ({ x: Math.round(R() * WORLD), c: ['#ff7aa2', '#fff07a', '#ffffff', '#c7a3ff'][Math.floor(R() * 4)] }));
+    const trees = Array.from({ length: Math.ceil(WORLD / 58) }, (_, i) => ({ x: 40 + i * 58 + Math.round(R() * 30), r: 6 + Math.round(R() * 4) }));
+    const flowers = Array.from({ length: Math.round(WORLD / 12) }, () => ({ x: Math.round(R() * WORLD), c: ['#ff7aa2', '#fff07a', '#ffffff', '#c7a3ff'][Math.floor(R() * 4)] }));
     const clouds = Array.from({ length: 7 }, (_, i) => ({ x: i * 90 + R() * 40, y: 14 + R() * 34, s: 0.8 + R() * 0.6 }));
 
     const disc = (cx: number, cy: number, r: number, color: string) => {
@@ -485,7 +494,7 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [data, total, days]);
+  }, [data, total, days, lay]);
 
   /* ── touch controls helpers ── */
   const hold = (k: 'l' | 'r') => ({
@@ -504,7 +513,7 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
     p: makeSprite(characterRows(data.playerLook, 0), characterPalette(data.playerLook, data.playerColor)).toDataURL(),
     n: makeSprite(characterRows(data.npcLook, 0), characterPalette(data.npcLook, data.npcColor)).toDataURL(),
   }, [mode, data.playerLook, data.playerColor, data.npcLook, data.npcColor]);
-  const playFromStart = () => { game.current = newGame(); start(); };
+  const playFromStart = () => { game.current = newGame(lay); start(); };
 
   return (
     <div className="qs-root" style={{ '--console': data.consoleColor, '--console-dark': shade(data.consoleColor, -0.28), '--console-light': shade(data.consoleColor, 0.35) } as CSSProperties}>
