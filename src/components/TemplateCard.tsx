@@ -5,7 +5,7 @@ import type { TemplateMeta } from '@/templates/types';
 export default function TemplateCard({ t }: { t: TemplateMeta }) {
   return (
     <article className="tcard">
-      <Link href={`/templates/${t.id}`} className="tcard-media" aria-label={`${t.name} — жишээ үзэх`}>
+      <Link href={`/gift/${t.id}`} className="tcard-media" aria-label={`${t.name} — жишээ үзэх`}>
         <img src={t.cover} alt="" loading="lazy" />
         <span className="tcard-tag">{t.category}</span>
       </Link>
@@ -19,7 +19,7 @@ export default function TemplateCard({ t }: { t: TemplateMeta }) {
         <div className="tcard-foot">
           <span className="price">{formatMnt(t.price)}<small>нэг удаа</small></span>
           <div className="tcard-actions">
-            <Link href={`/templates/${t.id}`} className="btn btn-sm">Үзэх</Link>
+            <Link href={`/gift/${t.id}`} className="btn btn-sm">Үзэх</Link>
             <Link href={`/buy/${t.id}`} className="btn btn-sm btn-rose">Үүсгэх</Link>
           </div>
         </div>

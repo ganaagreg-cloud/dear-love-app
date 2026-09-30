@@ -119,9 +119,6 @@
 
 .ed-stage { grid-area: stage; position: relative; display: grid; place-items: center; overflow: hidden;
   background: radial-gradient(circle at 50% 30%, #fff 0%, #f1e8ef 70%); }
-.ed-device { position: relative; border-radius: 14px; overflow: hidden; background: #000; box-shadow: 0 30px 60px -20px rgba(60, 20, 50, .45), 0 0 0 1px rgba(0, 0, 0, .08); }
-.ed-device[data-device='mobile'] { border-radius: 28px; box-shadow: 0 30px 60px -20px rgba(60, 20, 50, .45), 0 0 0 8px #1b1418; }
-.ed-device iframe { position: absolute; left: 0; top: 0; border: 0; transform-origin: 0 0; background: #000; }
 
 .ed-modal { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgba(30, 15, 30, .45); backdrop-filter: blur(4px); }
 .ed-modal-card { width: min(460px, 100%); background: #fff; border-radius: 24px; padding: 28px; text-align: center; box-shadow: 0 40px 80px -20px rgba(0, 0, 0, .4); }
@@ -163,9 +160,24 @@
   .ed-top .btn-sm { padding: 0 9px; }
 }
 @media (max-width: 480px) {
-  .ed-title, .ed-save { max-width: 16vw; }
+  /* two header rows on phones: [← title · Засах/Харах] then the actions — nothing gets cut off */
+  .ed { grid-template-rows: auto 1fr; }
+  .ed-top { flex-wrap: wrap; row-gap: 6px; padding: 8px 10px; }
+  .ed-top > .row:last-child { width: 100%; justify-content: flex-end; }
+  .ed-top > .row:last-child .btn-rose { margin-left: auto; }
+  .ed-title, .ed-save { max-width: 34vw; }
   .ed-tabs button { padding: 6px 9px; }
   .ed-back { width: 32px; height: 32px; }
   .ed-full-btn { display: none; }
   .ed-top .btn { white-space: nowrap; }
 }
+.ed-icon-btn { width: 36px; padding: 0 !important; font-weight: 800; }
+.ed-summary { margin: 0 0 12px; padding: 10px 12px; border-radius: 12px; background: var(--rose-soft); color: var(--ink); font-size: .86rem; font-weight: 600; line-height: 1.45; }
+.ed-example { display: block; margin-top: 6px; border: 0; background: none; padding: 4px 0; color: var(--rose); font-size: .78rem; font-weight: 700; text-align: left; cursor: pointer; }
+.ed-example:hover { text-decoration: underline; text-underline-offset: 3px; }
+.ed-retry { margin-left: 6px; border: 0; background: none; color: var(--rose); font-weight: 800; font-size: inherit; padding: 0; }
+.ed-issues { background: #fff8ec; border: 1px solid #f3dcb0; border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+.ed-issues-head { width: 100%; display: flex; justify-content: space-between; align-items: center; border: 0; background: none; padding: 10px 12px; min-height: 44px; font-size: .82rem; font-weight: 700; color: var(--warn); }
+.ed-issues ul { list-style: none; margin: 0; padding: 0 6px 8px; display: grid; gap: 2px; }
+.ed-issues li button { width: 100%; text-align: left; border: 0; background: none; border-radius: 8px; padding: 8px 8px; min-height: 40px; font-size: .82rem; color: var(--ink); }
+.ed-issues li button:hover { background: #fff; color: var(--rose); }

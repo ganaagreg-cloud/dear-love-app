@@ -8,9 +8,10 @@ import { RESERVED_SLUGS, SLUG_RE, pageUrl } from '@/lib/env';
 const randomSlug = customAlphabet('abcdefghijkmnpqrstuvwxyz23456789', 8);
 
 /**
- * POST { publish?: boolean, slug?: string }
+ * POST { publish?: boolean, slug?: string, suggest?: string }
  *  - publish:false → unpublish
  *  - slug → set a custom link name (anu-bat → anu-bat.yourdomain.mn)
+ *  - suggest → preferred name for a page that has no link yet (falls back to random)
  */
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getUser();
@@ -34,6 +35,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (RESERVED_SLUGS.has(want)) return NextResponse.json({ error: 'Энэ нэрийг ашиглах боломжгүй' }, { status: 400 });
     if (want !== page.slug && (await db.slugTaken(want, page.id))) return NextResponse.json({ error: 'Энэ нэр аль хэдийн авагдсан байна' }, { status: 409 });
     slug = want;
+  }
+  // First publish: try a readable name from the buyer's names («nomin-temuulen», then -2, -3…)
+  const suggest = typeof body.suggest === 'string' ? body.suggest.trim().toLowerCase() : '';
+  for (let i = 1; !slug && SLUG_RE.test(suggest) && i <= 9; i++) {
+    const s = i === 1 ? suggest : `${suggest}-${i}`;
+    if (SLUG_RE.test(s) && !RESERVED_SLUGS.has(s) && !(await db.slugTaken(s))) slug = s;
   }
   for (let i = 0; !slug && i < 6; i++) {
     const s = randomSlug();

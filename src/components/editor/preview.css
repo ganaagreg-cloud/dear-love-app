@@ -1,0 +1,5 @@
+/* PreviewFrame's own look — used in the editor, the quick flow, and the template page. */
+.pf { display: grid; place-items: center; }
+.ed-device { position: relative; border-radius: 14px; overflow: hidden; background: #000; box-shadow: 0 30px 60px -20px rgba(60, 20, 50, .45), 0 0 0 1px rgba(0, 0, 0, .08); }
+.ed-device[data-device='mobile'] { border-radius: 28px; box-shadow: 0 30px 60px -20px rgba(60, 20, 50, .45), 0 0 0 8px #1b1418; }
+.ed-device iframe { position: absolute; left: 0; top: 0; border: 0; transform-origin: 0 0; background: #000; }

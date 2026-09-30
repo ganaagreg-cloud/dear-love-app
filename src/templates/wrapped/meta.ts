@@ -16,10 +16,10 @@ export const wrappedMeta: TemplateMeta = {
   features: ['Стори слайдууд', 'Топ 5 дуу ба газар', 'Хайрын төрөл', 'Хураангуй карт', '4 өнгөний загвар'],
   schema: [
     {
-      id: 'basics', title: 'Үндсэн', previewPage: '__intro__',
+      id: 'basics', title: 'Үндсэн', summary: 'Нүүр слайд ба хамт өнгөрүүлсэн өдрийн тоологч.', previewPage: '__intro__',
       fields: [
-        { type: 'text', key: 'them', label: 'Түүний нэр', max: 20 },
-        { type: 'text', key: 'you', label: 'Таны нэр', max: 20 },
+        { type: 'text', key: 'them', label: 'Түүний нэр', max: 20, example: 'Ану' },
+        { type: 'text', key: 'you', label: 'Таны нэр', max: 20, example: 'Бат' },
         { type: 'text', key: 'year', label: 'Он / гарчиг', max: 12, placeholder: '2026' },
         { type: 'date', key: 'startDate', label: 'Үерхэж эхэлсэн өдөр', help: '«Хамтдаа өнгөрүүлсэн өдөр» тоологчид ашиглагдана.' },
         {
@@ -29,48 +29,49 @@ export const wrappedMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'moment', title: 'Таны №1 мөч', previewPage: 'top',
+      id: 'moment', title: 'Таны №1 мөч', summary: '«№1 мөч» слайд — хамгийн гоё зураг, нэг мөр тайлбар.', previewPage: 'top',
       fields: [
         { type: 'image', key: 'topPhoto', label: 'Зураг' },
-        { type: 'text', key: 'topCaption', label: 'Тайлбар', max: 60 },
+        { type: 'text', key: 'topCaption', label: 'Тайлбар', max: 60, example: 'Төөрөөд ч хамаагүй байсан тэр шөнө' },
       ],
     },
     {
-      id: 'songs', title: 'Топ 5 дуу', previewPage: 'songs',
+      id: 'songs', title: 'Топ 5 дуу', summary: '«Бидний саундтрек» — топ 5 дуу.', previewPage: 'songs',
       fields: [
-        { type: 'list', key: 'songTitles', label: 'Дууны нэр', count: 5, max: 40, itemLabel: 'Дуу' },
+        { type: 'list', key: 'songTitles', label: 'Дууны нэр', count: 5, max: 40, itemLabel: 'Дуу', example: 'Perfect' },
         { type: 'list', key: 'songArtists', label: 'Дуучин', count: 5, max: 40, itemLabel: 'Дуучин' },
         { type: 'audio', key: 'music', label: 'Стори үзэх үед тоглох дуу (mp3, заавал биш)', maxMB: 10 },
       ],
     },
     {
-      id: 'places', title: 'Топ 5 газар', previewPage: 'places',
+      id: 'places', title: 'Топ 5 газар', summary: '«Бид болсон газрууд» — топ 5 газар.', previewPage: 'places',
       fields: [
-        { type: 'list', key: 'places', label: 'Газрууд', count: 5, max: 36, itemLabel: 'Газар' },
+        { type: 'list', key: 'places', label: 'Газрууд', count: 5, max: 36, itemLabel: 'Газар', example: 'Бидний кофе шоп' },
         { type: 'list', key: 'placeCounts', label: 'Газар бүрийн доорх бичвэр', count: 5, max: 30, itemLabel: 'ж: 23 удаа' },
       ],
     },
     {
-      id: 'words', title: 'Хамгийн их хэлдэг үгс', previewPage: 'words',
-      fields: [{ type: 'list', key: 'words', label: 'Үг / хэллэг', count: 8, max: 18, itemLabel: 'Үг' }],
+      id: 'words', title: 'Хамгийн их хэлдэг үгс', summary: 'Хамгийн их хэлдэг үгс — өнгөт наалт шиг хөвнө.', previewPage: 'words',
+      fields: [{ type: 'list', key: 'words', label: 'Үг / хэллэг', count: 8, max: 18, itemLabel: 'Үг', example: 'хайраа' }],
     },
     {
-      id: 'persona', title: 'Хайрын төрөл', previewPage: 'persona',
+      id: 'persona', title: 'Хайрын төрөл', summary: '«Чиний хайрын төрөл» — нэг инээдтэй тодорхойлолт.', previewPage: 'persona',
       fields: [
         { type: 'text', key: 'personaEmoji', label: 'Эможи', max: 4 },
-        { type: 'text', key: 'personaTitle', label: 'Нэр', max: 30 },
+        { type: 'text', key: 'personaTitle', label: 'Нэр', max: 30, example: 'Алтан ретривер' },
         { type: 'textarea', key: 'personaText', label: 'Тайлбар', max: 160, rows: 3 },
       ],
     },
     {
-      id: 'photos', title: 'Зургийн цуглуулга', previewPage: 'photos',
+      id: 'photos', title: 'Зургийн цуглуулга', summary: 'Зургийн цуглуулгын слайд.', previewPage: 'photos',
       fields: [{ type: 'images', key: 'photos', label: '6 хүртэл зураг', max: 6 }],
     },
     {
-      id: 'message', title: 'Мессеж', previewPage: 'msg',
-      fields: [{ type: 'textarea', key: 'message', label: 'Таны мессеж', max: 600, rows: 6 }],
+      id: 'message', title: 'Мессеж', summary: 'Сүүлийн слайд: өөрөө бичигдэх таны мессеж.', previewPage: 'msg',
+      fields: [{ type: 'textarea', key: 'message', label: 'Таны мессеж', max: 600, rows: 6, example: 'Энэ жилийн хамгийн гоё өдрүүд чамтай байсан.' }],
     },
   ],
+  tour: ['__intro__', 'days', 'top', 'songs', 'persona', 'summary'],
   defaults: {
     them: 'Ану', you: 'Бат', year: '2026', startDate: '2024-01-10', theme: 'neon',
     topPhoto: '', topCaption: 'Төөрөөд ч хамаагүй байсан тэр шөнө',

@@ -9,6 +9,9 @@ import { uploadMedia } from '@/lib/upload';
 import { PreviewFrame, type Device } from './PreviewFrame';
 import { Quick } from './Quick';
 import { QUICK } from '@/templates/quickRegistry';
+import { IntroModal, RecipientView, ShareScreen, introSeenLocally, markIntroSeen } from './Guide';
+import { suggestSlug } from '@/lib/slug';
+import { dative } from '@/lib/mn';
 
 type Props = {
   meta: TemplateMeta;
@@ -21,6 +24,8 @@ type Props = {
   /** ".dearlove.mn" (subdomain mode) or "dearlove.mn/p/" */
   linkBase: string;
   subdomain: boolean;
+  /** This user already saw (or skipped) the 3-slide editor intro. */
+  introSeen: boolean;
 };
 
 export type SaveState = 'saved' | 'dirty' | 'saving' | 'error';
@@ -33,7 +38,7 @@ const filled = (f: Field, v: ContentValue | undefined) =>
   : typeof v === 'string' ? v.trim() !== '' : v != null;
 const missing = (s: Section, c: Content) => s.fields.some((f) => f.required && !filled(f, c[f.key]));
 
-export default function Editor({ meta, pageId, userId, initialContent, initialStatus, initialSlug, initialUrl, linkBase, subdomain }: Props) {
+export default function Editor({ meta, pageId, userId, initialContent, initialStatus, initialSlug, initialUrl, linkBase, subdomain, introSeen }: Props) {
   const [content, setContent] = useState<Content>(initialContent);
   const [save, setSave] = useState<SaveState>('saved');
   const [status, setStatus] = useState(initialStatus);
@@ -41,11 +46,18 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   const [url, setUrl] = useState(initialUrl);
   const [slugDraft, setSlugDraft] = useState(initialSlug ?? '');
   const [slugErr, setSlugErr] = useState('');
-  const [copied, setCopied] = useState(false);
+  const [intro, setIntro] = useState(false);
+  useEffect(() => { if (!introSeen && !introSeenLocally()) setIntro(true); }, [introSeen]);
+  const closeIntro = useCallback(() => { setIntro(false); markIntroSeen(); }, []);
+  const [recipientView, setRecipientView] = useState(false);
   const [open, setOpen] = useState<string>(meta.schema[0]?.id ?? '');
   // the preview scene of whatever field/card has focus; falls back to the step's own scene
   const [focusPin, setFocusPin] = useState<string | number | null>(null);
-  useEffect(() => { setFocusPin(null); }, [open]);
+  // A jump from the preview / «Анхаарах зүйл» opens a step with a specific scene already set —
+  // don't let the step change wipe it; and keep that scene while the buyer stays on that field.
+  const keepPin = useRef(false);
+  const pinLock = useRef<{ base: string } | null>(null);
+  useEffect(() => { if (keepPin.current) { keepPin.current = false; return; } setFocusPin(null); }, [open]);
   const [device, setDevice] = useState<Device>('desktop');
   // Quick create (names → photos → tone → publish) is the default for a gift that isn't
   // published yet; «Дэлгэрэнгүй засах» opens the full step editor. ?mode=advanced forces it.
@@ -128,7 +140,10 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   const publish = async () => {
     setPublishing(true); setPublishErr('');
     if (save !== 'saved') await persist();
-    const { ok, j } = await callPublish({ publish: true }).catch(() => ({ ok: false, j: {} as Record<string, string> }));
+    // first publish gets a readable link from the two names («nomin-temuulen»)
+    const names = QUICK[meta.id]?.read(content);
+    const suggest = names ? suggestSlug(names.them, names.you) : '';
+    const { ok, j } = await callPublish({ publish: true, suggest }).catch(() => ({ ok: false, j: {} as Record<string, string> }));
     setPublishing(false);
     if (ok) { setStatus('published'); setSlug(j.slug); setSlugDraft(j.slug); setUrl(j.url); setShare(true); }
     else setPublishErr(j.error || 'Нийтэлж чадсангүй. Интернэтээ шалгаад дахин дарна уу.');
@@ -144,11 +159,6 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   const unpublish = async () => {
     const { ok } = await callPublish({ publish: false });
     if (ok) { setStatus('paid'); setShare(false); }
-  };
-  const copy = async () => { await navigator.clipboard?.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1600); };
-  const shareToFacebook = () => {
-    const w = window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=580,height=650,noopener,noreferrer');
-    w?.focus();
   };
 
   /* ── field ↔ preview mapping (see src/templates/fieldHighlight.ts for the preview side) ──
@@ -205,7 +215,11 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   const current = sheet ?? active;
   useEffect(() => {
     broadcast({ type: 'dear:focus-field', field: current, label: current ? labelFor(current) : '' });
-    if (current) { const p = pinFor(current); if (p != null) setFocusPin(p); }
+    if (!current) return;
+    // landed on the whole field (e.g. its «＋ add» button) after a jump to one of its items: keep that item's scene
+    if (pinLock.current && pinLock.current.base === current) return;
+    pinLock.current = null;
+    const p = pinFor(current); if (p != null) setFocusPin(p);
   }, [current, labelFor, pinFor]);
 
   // «Хаана юу байна»: the same number on each field and on its element in the preview
@@ -224,8 +238,10 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   const openField = useRef((id: string) => {});
   openField.current = (id: string) => {
     const r = fieldOf(id); if (!r) return;
+    if (r.sec.id !== open) keepPin.current = true;
     setOpen(r.sec.id);
-    const p = pinFor(id); if (p != null) setFocusPin(p);
+    const p = pinFor(id);
+    if (p != null) { setFocusPin(p); pinLock.current = { base: r.f.key }; }
     if (tab === 'preview' && window.innerWidth < 900) { setSheet(id); return; }
     setPending(id);
   };
@@ -258,14 +274,44 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
     return () => cancelAnimationFrame(raf);
   }, [pending, open]);
 
+  /* ── things worth fixing, in plain words, each with a one-tap fix ── */
+  const issues = useMemo(() => {
+    const out: { id: string; text: string }[] = [];
+    const dat = (w: string) => dative(w.toLowerCase());
+    for (const sec of meta.schema) {
+      for (const f of sec.fields) {
+        if (f.required && !filled(f, content[f.key])) out.push({ id: f.key, text: `«${f.label}» хоосон байна — энд дарж бөглөх` });
+      }
+      // items that have words but no photo (Quest chests, Flight stops) — optional, but the gift looks better with one
+      const c = sec.cards;
+      const photosF = c ? sec.fields.find((x) => x.key === c.image) : sec.fields.find((x) => x.type === 'images' && x.itemPreview);
+      const wordsF = c ? sec.fields.find((x) => x.key === c.title) : sec.fields.find((x) => x.type === 'list');
+      if (photosF && wordsF) {
+        const photos = asArr(content[photosF.key]), words = asArr(content[wordsF.key]);
+        const label = c?.itemLabel ?? ('itemLabel' in wordsF && wordsF.itemLabel) ?? 'Хэсэг';
+        words.forEach((w, i) => {
+          if (w?.trim() && !photos[i]) out.push({ id: `${photosF.key}.${i}`, text: `${i + 1}-р ${dat(String(label))} зураг алга — энд дарж нэмэх` });
+        });
+      }
+    }
+    return out;
+  }, [meta, content]);
+  const [issuesOpen, setIssuesOpen] = useState(false);
+
   const saveLabel = { saved: 'Бүгд хадгалагдсан', dirty: 'Хадгалаагүй өөрчлөлт…', saving: 'Хадгалж байна…', error: 'Хадгалж чадсангүй — дараагийн засвараар дахин оролдоно' }[save];
 
-  const shareModal = share && slug && (
-    <ShareModal
-      url={url} slug={slug} slugDraft={slugDraft} setSlugDraft={setSlugDraft} saveSlug={saveSlug} slugErr={slugErr}
-      linkBase={linkBase} subdomain={subdomain} copied={copied} copy={copy} shareToFacebook={shareToFacebook}
-      unpublish={unpublish} close={() => setShare(false)}
-    />
+  const themName = QUICK[meta.id]?.read(content).them ?? '';
+  const shareModal = (
+    <>
+      {share && slug && (
+        <ShareScreen
+          url={url} slug={slug} name={themName} slugDraft={slugDraft} setSlugDraft={setSlugDraft} saveSlug={saveSlug} slugErr={slugErr}
+          linkBase={linkBase} subdomain={subdomain} unpublish={unpublish} close={() => setShare(false)}
+        />
+      )}
+      {intro && <IntroModal onClose={closeIntro} />}
+      {recipientView && <RecipientView templateId={meta.id} content={content} name={themName} onClose={() => setRecipientView(false)} />}
+    </>
   );
 
   if (mode === 'quick' && quick) {
@@ -274,7 +320,7 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
         <Quick
           meta={meta} spec={quick} content={content} onPatch={patch} upload={upload}
           saveLabel={saveLabel} save={save} status={status} publishing={publishing} publishErr={publishErr}
-          onPublish={publish} onShare={() => setShare(true)} onAdvanced={() => setMode('advanced')}
+          onPublish={publish} onShare={() => setShare(true)} onAdvanced={() => setMode('advanced')} onHelp={() => setIntro(true)}
         />
         {shareModal}
       </>
@@ -288,7 +334,10 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
           <Link href="/dashboard" className="ed-back" aria-label="Миний хуудсууд руу буцах">←</Link>
           <div style={{ minWidth: 0 }}>
             <div className="ed-title">{meta.name}</div>
-            <div className={`ed-save ${save}`}>{saveLabel}</div>
+            <div className={`ed-save ${save}`}>
+              {saveLabel}
+              {save === 'error' && <button type="button" className="ed-retry" onClick={() => void persist()}>↻ Дахин</button>}
+            </div>
           </div>
         </div>
         <div className="ed-tabs">
@@ -296,6 +345,8 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
           <button className={tab === 'preview' ? 'on' : ''} onClick={() => setTab('preview')}>Харах</button>
         </div>
         <div className="row">
+            <button className="btn btn-sm ed-icon-btn" onClick={() => setIntro(true)} aria-label="Хэрхэн ашиглах вэ?" title="Хэрхэн ашиглах вэ?">?</button>
+          <button className="btn btn-sm ed-recipient-btn" onClick={() => setRecipientView(true)} title="Утсан дээр яг ингэж нээгдэнэ">👁<span className="ed-lbl"> Хүлээн авагч юу харах вэ?</span></button>
           {quick && (
             <button className="btn btn-sm btn-ghost ed-quick-back" onClick={() => setMode('quick')} title="Нэр, зураг, өнгө аясаа 4 алхмаар">⚡<span className="ed-lbl"> Хялбар</span></button>
           )}
@@ -324,6 +375,20 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
 
       <aside className="ed-side" ref={side}>
         <div className="ed-lock">🔒 Энэ хуудсыг зөвхөн та засах эрхтэй</div>
+        {issues.length > 0 && (
+          <div className={`ed-issues ${issuesOpen ? 'open' : ''}`}>
+            <button type="button" className="ed-issues-head" onClick={() => setIssuesOpen((o) => !o)} aria-expanded={issuesOpen}>
+              <span>⚠ Анхаарах зүйл ({issues.length})</span><i aria-hidden>{issuesOpen ? '▴' : '▾'}</i>
+            </button>
+            {issuesOpen && (
+              <ul>
+                {issues.map((it) => (
+                  <li key={it.id}><button type="button" onClick={() => openField.current(it.id)}>{it.text}</button></li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
         <nav className="ed-steps" aria-label="Хэсгүүд">
           {meta.schema.map((s, i) => {
             // Page-based templates (Book: numeric previewPage) label each step with the page
@@ -362,6 +427,7 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
               />
             </h2>
             <div className="ed-sec-body">
+              {currentSection.summary && <p className="ed-summary">{currentSection.summary}</p>}
               {currentSection.description && <p className="ed-help" style={{ marginTop: 0 }}>{currentSection.description}</p>}
               {(() => {
                 const cards = currentSection.cards;
@@ -433,46 +499,5 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
       })()}
       {shareModal}
     </div>
-  );
-}
-
-type ShareProps = {
-  url: string; slug: string; slugDraft: string; setSlugDraft: (v: string) => void; saveSlug: () => void; slugErr: string;
-  linkBase: string; subdomain: boolean; copied: boolean; copy: () => void; shareToFacebook: () => void;
-  unpublish: () => void; close: () => void;
-};
-
-function ShareModal({ url, slug, slugDraft, setSlugDraft, saveSlug, slugErr, linkBase, subdomain, copied, copy, shareToFacebook, unpublish, close }: ShareProps) {
-  return (
-    <div className="ed-modal" onClick={(e) => e.target === e.currentTarget && close()}>
-          <div className="ed-modal-card">
-            <div style={{ fontSize: 40 }}>💌</div>
-            <h2>Таны хуудас бэлэн боллоо</h2>
-            <p className="muted small">Энэ линкийг түүнд илгээгээрэй. Дараа хийсэн засвар тань шууд харагдана.</p>
-
-            <label className="ed-label" style={{ marginTop: 14 }}><span>Линкийн нэр</span></label>
-            <div className="slug-row">
-              {!subdomain && <span>{linkBase}</span>}
-              <input value={slugDraft} onChange={(e) => setSlugDraft(cleanSlug(e.target.value))} onKeyDown={(e) => e.key === 'Enter' && saveSlug()} placeholder="anu-bat" aria-label="Линкийн нэр" />
-              {subdomain && <span>{linkBase}</span>}
-              {slugDraft !== slug && <button className="btn btn-sm btn-primary" style={{ margin: 4 }} onClick={saveSlug}>Хадгалах</button>}
-            </div>
-            <p className={`ed-help ${slugErr ? 'err' : ''}`}>{slugErr || 'Латин жижиг үсэг, тоо, зураас. Жишээ нь: anu-bat, 1000-honog'}</p>
-
-            <div className="ed-link"><input readOnly value={url} onFocus={(e) => e.target.select()} /></div>
-            <div className="row" style={{ justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button className="btn btn-primary" onClick={copy}>{copied ? 'Хуулсан ✓' : 'Линк хуулах'}</button>
-              <button className="btn btn-fb" onClick={shareToFacebook}>Facebook</button>
-              {typeof navigator !== 'undefined' && 'share' in navigator && (
-                <button className="btn" onClick={() => navigator.share({ title: 'Танд зориулав ♡', url }).catch(() => {})}>Instagram, TikTok, Messenger…</button>
-              )}
-              <a className="btn" href={url} target="_blank" rel="noreferrer">Нээх</a>
-            </div>
-            {!(typeof navigator !== 'undefined' && 'share' in navigator) && (
-              <p className="ed-help">Instagram, TikTok зэрэг апп руу шууд хуваалцах товч утасны мобайл хөтчид гардаг. Компьютер дээрээс бол линкийг хуулаад тухайн апп-даа буулгаарай.</p>
-            )}
-            <button className="btn btn-ghost btn-sm" onClick={unpublish} style={{ marginTop: 8 }}>Нийтлэлээс буцаах</button>
-          </div>
-        </div>
   );
 }

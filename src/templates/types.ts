@@ -10,6 +10,8 @@ type Base = {
   itemPreview?: string;
   /** Show the template's `tokens` as insert-at-cursor chips above this text field. */
   tokens?: boolean;
+  /** One-click sample value: «Жишээ: «Анхны болзоо» ← дарж оруулах» (lists: fills the first empty item). */
+  example?: string;
 };
 
 export type Field =
@@ -31,6 +33,8 @@ export type Section = {
   id: string; title: string; description?: string; fields: Field[];
   /** Which slide/scene/screen/page in the template's own preview this section's fields affect — drives the editor's live-preview pinning. */
   previewPage?: string | number;
+  /** One sentence at the top of the step: what this part of the finished gift is. */
+  summary?: string;
   /** Short step-tab label (e.g. «Түүх»). Without it the tab shows its number. */
   short?: string;
   /**
@@ -64,6 +68,8 @@ export type TemplateMeta = {
   demo?: Content;
   /** Placeholders the template resolves in its text (e.g. {player}) — offered as insert chips on `tokens` fields. */
   tokens?: { token: string; label: string }[];
+  /** Scenes (preview pins) the template page's silent autoplay walks through, ~2.5s each. */
+  tour?: (string | number)[];
   /** How long the editor waits after a keystroke before updating the preview (default 700ms). */
   previewDebounceMs?: number;
 };

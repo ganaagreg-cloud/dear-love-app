@@ -16,10 +16,10 @@ export const locketMeta: TemplateMeta = {
   features: ['2 медальон зураг', '5 дурсамжийн зураг', 'Бичигдэх захидал', 'Өдөр тоологч', 'Өөрийн дуу (mp3)'],
   schema: [
     {
-      id: 'names', title: 'Нэр ба анхны өдөр',
+      id: 'names', title: 'Нэр ба анхны өдөр', summary: 'Түүхийн эхлэл ба «бидний өдрүүд» тоологч.',
       fields: [
-        { type: 'text', key: 'to', label: 'Түүнийг юу гэж дууддаг вэ?', max: 40, placeholder: 'Хайрт минь' },
-        { type: 'text', key: 'from', label: 'Таны нэр / гарын үсэг', max: 40 },
+        { type: 'text', key: 'to', label: 'Түүнийг юу гэж дууддаг вэ?', max: 40, placeholder: 'Хайрт минь', example: 'Хайрт минь' },
+        { type: 'text', key: 'from', label: 'Таны нэр / гарын үсэг', max: 40, example: 'Бат' },
         { type: 'date', key: 'startDate', label: 'Анх үерхэж эхэлсэн өдөр', help: '«Бидний өдрүүд» тоологчид ашиглагдана.' },
         {
           type: 'select', key: 'milestone', label: 'Тоолох зорилго',
@@ -31,7 +31,7 @@ export const locketMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'locket', title: 'Медальон',
+      id: 'locket', title: 'Медальон', summary: 'Зүрхэн медальон нээгдэхэд доторх хоёр зураг.',
       description: 'Зүрхэн медальон дотор нуугдах хоёр зураг.',
       fields: [
         { type: 'images', key: 'locketPhotos', label: 'Медальоны зураг (зүүн, баруун)', max: 2 },
@@ -39,14 +39,14 @@ export const locketMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'memories', title: 'III бүлэг · Бяцхан мөчүүд',
+      id: 'memories', title: 'III бүлэг · Бяцхан мөчүүд', summary: 'III бүлэг: одод шиг гялалзах дурсамжийн зургууд.',
       fields: [
         { type: 'images', key: 'memoryPhotos', label: 'Дурсамжийн зургууд', max: 5 },
-        { type: 'list', key: 'memoryCaptions', label: 'Зураг доорх бичвэр', count: 5, max: 32, itemLabel: 'Бичвэр' },
+        { type: 'list', key: 'memoryCaptions', label: 'Зураг доорх бичвэр', count: 5, max: 32, itemLabel: 'Бичвэр', example: 'анхны болзоо' },
       ],
     },
     {
-      id: 'story', title: 'Түүхийн бичвэр',
+      id: 'story', title: 'Түүхийн бичвэр', summary: 'Бүлэг бүрийн бичвэр, эцсийн асуулт ба хариулт.',
       description: 'Шинэ мөр оруулахдаа Enter дарна. {days}, {to}, {from} автоматаар бөглөгдөнө.',
       fields: [
         { type: 'list', key: 'chapters', label: 'Бүлгүүдийн гарчиг', count: 5, max: 40, itemLabel: 'Бүлэг' },
@@ -56,21 +56,21 @@ export const locketMeta: TemplateMeta = {
         { type: 'textarea', key: 'text.ch3', label: 'III бүлэг — дурсамжууд', max: 200, rows: 2 },
         { type: 'text', key: 'text.ch4', label: 'IV бүлэг — тоологчийн доорх үг', max: 120 },
         { type: 'textarea', key: 'text.finale', label: 'Төгсгөлийн үг', max: 160, rows: 2 },
-        { type: 'text', key: 'text.question', label: 'Таны асуулт', max: 100 },
+        { type: 'text', key: 'text.question', label: 'Таны асуулт', max: 100, example: 'Дараагийн мянган өдрийг надтай бичих үү?' },
         { type: 'text', key: 'text.answer', label: '«Тийм» гэсний дараах үг', max: 100 },
       ],
     },
     {
-      id: 'letter', title: 'Захидал',
+      id: 'letter', title: 'Захидал', summary: 'Төгсгөлд дугтуйнаас гарч ирэх захидал.',
       fields: [
-        { type: 'text', key: 'letterTitle', label: 'Захидлын гарчиг', max: 40 },
+        { type: 'text', key: 'letterTitle', label: 'Захидлын гарчиг', max: 40, example: 'Хайрт минь' },
         { type: 'text', key: 'letterGreeting', label: 'Мэндчилгээ', max: 60 },
         { type: 'textarea', key: 'letterBody', label: 'Захидал', max: 4000, rows: 12, help: 'Догол мөр бүрийн хооронд нэг хоосон мөр үлдээнэ.' },
-        { type: 'text', key: 'letterSignoff', label: 'Төгсгөлийн үг', max: 40 },
+        { type: 'text', key: 'letterSignoff', label: 'Төгсгөлийн үг', max: 40, example: 'Үүрд чинийх,' },
       ],
     },
     {
-      id: 'music', title: 'Хөгжим',
+      id: 'music', title: 'Хөгжим', summary: 'Түүх үзэх үеийн арын дуу.',
       fields: [{ type: 'audio', key: 'music', label: 'Арын дуу (mp3, 10 MB хүртэл)', maxMB: 10 }],
     },
   ],

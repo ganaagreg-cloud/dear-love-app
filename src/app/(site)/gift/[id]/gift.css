@@ -1,0 +1,54 @@
+.gift { padding-top: 24px; padding-bottom: 60px; }
+.gift-top { display: grid; gap: 28px; align-items: start; }
+.gift-demo { display: grid; justify-items: center; gap: 10px; }
+.tour { position: relative; width: min(300px, 76vw); aspect-ratio: 390 / 844; margin: 10px 0 12px; }
+.tour-frame { position: absolute; inset: 0; display: grid; place-items: center; }
+.tour-dots { position: absolute; left: 0; right: 0; bottom: -18px; display: flex; justify-content: center; gap: 5px; }
+.tour-dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--line); transition: width .3s, background .3s; }
+.tour-dots i.on { width: 16px; background: var(--rose); }
+.gift-demo-cap { margin: 14px 0 0; font-size: .85rem; color: var(--ink-3); text-align: center; }
+.gift-demo-cap a { color: var(--rose); font-weight: 700; }
+.gift-info h1 { font-family: var(--serif); font-weight: 500; font-size: clamp(2rem, 5vw, 3rem); line-height: 1.1; margin: 6px 0 10px; letter-spacing: -.02em; }
+.gift-tagline { font-size: 1.05rem; color: var(--ink-2); line-height: 1.5; margin: 0 0 14px; }
+.gift-buy { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin: 22px 0 16px; }
+.gift-buy .price { font-size: 1.6rem; font-weight: 800; display: grid; line-height: 1.1; }
+.gift-buy .price small { font-size: .75rem; font-weight: 600; color: var(--ink-3); }
+.gift-desc { color: var(--ink-2); line-height: 1.6; font-size: .95rem; }
+
+.gift-how { margin-top: 56px; }
+.gift-how h2, .gift-faq h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(1.6rem, 3vw, 2.2rem); text-align: center; margin: 0 0 22px; }
+.gift-how ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.gift-how li { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: grid; gap: 4px; box-shadow: var(--shadow); }
+.gift-how li > b { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--rose); color: #fff; font-size: .85rem; margin-top: 6px; }
+.gift-how li strong { font-size: 1.1rem; }
+.gift-how li span { color: var(--ink-2); font-size: .92rem; }
+.how-art { height: 150px; border-radius: 16px; background: linear-gradient(160deg, #fff0f6, #f1e8ef); position: relative; overflow: hidden; display: grid; place-items: center; }
+.how-pick img { position: absolute; width: 92px; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 12px; box-shadow: 0 10px 20px -8px rgba(60, 20, 50, .45); border: 3px solid #fff; }
+.how-pick .c0 { transform: translateX(-62px) rotate(-10deg) scale(.9); }
+.how-pick .c1 { z-index: 1; box-shadow: 0 0 0 3px var(--rose), 0 14px 26px -10px rgba(60, 20, 50, .5); }
+.how-pick .c2 { transform: translateX(62px) rotate(10deg) scale(.9); }
+.how-phone { width: 90px; height: 130px; border-radius: 16px; background: #fff; box-shadow: 0 0 0 4px #2a1f2d; padding: 12px 10px; display: grid; gap: 6px; align-content: start; }
+.how-phone .line { height: 8px; border-radius: 4px; background: var(--bg-2); }
+.how-phone .line.short { width: 60%; background: var(--rose-soft); }
+.how-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.how-tiles i { aspect-ratio: 1; border-radius: 5px; background: linear-gradient(135deg, #f7b2c7, #b9a3ff); }
+.how-tiles i:nth-child(2) { background: linear-gradient(135deg, #8fe3c7, #8ec9ff); }
+.how-tiles i:nth-child(3) { background: linear-gradient(135deg, #ffd66b, #ff8fb8); }
+.how-phone .cta { height: 12px; border-radius: 6px; background: var(--ink); }
+.how-send { gap: 8px; align-content: center; padding: 0 16px; }
+.how-bubble { justify-self: end; background: var(--rose); color: #fff; border-radius: 16px 16px 4px 16px; padding: 10px 12px; font-size: .82rem; font-weight: 700; max-width: 90%; }
+.how-bubble.them { justify-self: start; background: #fff; color: var(--ink); border-radius: 16px 16px 16px 4px; box-shadow: var(--shadow); font-weight: 600; }
+.gift-how-cta { text-align: center; margin-top: 22px; }
+
+.gift-faq { margin: 56px auto 0; max-width: 720px; }
+.gift-faq details { background: #fff; border: 1px solid var(--line); border-radius: 16px; margin-bottom: 8px; }
+.gift-faq summary { cursor: pointer; list-style: none; padding: 16px 18px; font-weight: 700; display: flex; justify-content: space-between; gap: 12px; min-height: 52px; align-items: center; }
+.gift-faq summary::-webkit-details-marker { display: none; }
+.gift-faq summary::after { content: '+'; color: var(--rose); font-size: 1.3rem; line-height: 1; }
+.gift-faq details[open] summary::after { content: '−'; }
+.gift-faq details p { margin: 0; padding: 0 18px 16px; color: var(--ink-2); line-height: 1.55; }
+
+@media (min-width: 860px) {
+  .gift-top { grid-template-columns: 380px 1fr; gap: 48px; }
+  .gift-how ol { grid-template-columns: repeat(3, 1fr); }
+}

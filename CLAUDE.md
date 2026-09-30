@@ -27,13 +27,15 @@ If `NEXT_PUBLIC_SUPABASE_URL`/`NEXT_PUBLIC_SUPABASE_ANON_KEY` are unset, the app
 
 ### Data layer is swappable: Supabase vs. a JSON file
 
-`src/lib/store.ts` defines a single `Store` interface (`getPage`, `createOrder`, `markPagePaid`, `recordEvent`, ...) with two implementations: `sbStore` (Supabase/Postgres) and `fileStore` (a JSON file under `.demo-data/`, serialized through a promise chain so concurrent writes can't race). `store()` picks one based on `isDemo()`. **Any new persistence feature must be added to the `Store` interface and implemented in both.** The Postgres schema (tables, RLS policies, the `media` storage bucket) lives in `supabase/migrations/0001_init.sql`.
+`src/lib/store.ts` defines a single `Store` interface (`getPage`, `createOrder`, `markPagePaid`, `recordEvent`, ...) with two implementations: `sbStore` (Supabase/Postgres) and `fileStore` (a JSON file under `.demo-data/`, serialized through a promise chain so concurrent writes can't race). `store()` picks one based on `isDemo()`. **Any new persistence feature must be added to the `Store` interface and implemented in both.** The Postgres schema (tables, RLS policies, the `media` storage bucket) lives in `supabase/migrations/` (`0001_init.sql`; `0002_user_prefs.sql` adds per-user UI flags such as «editor intro seen»).
 
 ### Template system is schema-driven
 
 Each template under `src/templates/<id>/` exports a `meta.ts` (`TemplateMeta`: id, price — **the only source of truth for what's charged** — cover image, `schema: Section[]` describing editable fields, `defaults`, and `demo` preview overrides) and a `View.tsx` (`({ content }) => ...`). `src/templates/registry.ts` lists all templates (`TEMPLATES`) and resolves what to render via `resolveContent`: `defaults ← demo (if previewing) ← buyer's saved content`.
 
-To add a template: create `src/templates/<id>/{meta.ts,View.tsx}`, register it in `src/templates/registry.ts` and `src/templates/TemplateView.tsx`, add `public/covers/<id>.jpg`. The editor (`src/components/editor/Editor.tsx`), field validation, live preview, and publish flow all work automatically off the `schema`.
+To add a template: create `src/templates/<id>/{meta.ts,View.tsx,quick.ts}`, register it in `src/templates/registry.ts`, `src/templates/TemplateView.tsx` and `src/templates/quickRegistry.ts`, add `public/covers/<id>.jpg`. The editor (`src/components/editor/Editor.tsx`), field validation, live preview, and publish flow all work automatically off the `schema`. **Read `src/templates/README.md` first** — it covers `pin` scenes, the `data-field` click-to-edit convention (`src/templates/fieldHighlight.ts`), the quick create `QuickSpec`, and the rule that the recipient (`editable === false`) never sees an empty placeholder.
+
+The editor opens unpublished gifts in the 4-step quick create flow (`src/components/editor/Quick.tsx`); the step forms are «Дэлгэрэнгүй засах» (`?mode=advanced`).
 
 Field types are declared in `src/templates/types.ts` (`Field`: text, textarea, image, images, audio, color, date, select, toggle, list, spotify). **Every save is re-validated server-side** by `src/templates/sanitize.ts::sanitizeContent()`, which is the real security boundary: only schema-declared keys survive, values are coerced/clipped to their field type, and image/audio URLs are rejected unless they start with the page's own media prefix (`src/lib/pages.ts::mediaPrefix`, scoped to `<userId>/<pageId>/`). Never trust client-submitted content without this pass.
 

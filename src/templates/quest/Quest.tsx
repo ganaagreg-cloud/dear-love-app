@@ -74,7 +74,7 @@ function newGame({ CHEST_X, NPC_X }: Layout): Game {
   };
 }
 
-export default function Quest({ data, previewScene = null }: { data: QuestData; previewScene?: PreviewScene | null }) {
+export default function Quest({ data, previewScene = null, editing = false }: { data: QuestData; previewScene?: PreviewScene | null; editing?: boolean }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const total = data.memories.length;
   const lay = useMemo(() => layout(total), [total]);
@@ -518,7 +518,7 @@ export default function Quest({ data, previewScene = null }: { data: QuestData; 
 
   return (
     <div className="qs-root" style={{ '--console': data.consoleColor, '--console-dark': shade(data.consoleColor, -0.28), '--console-light': shade(data.consoleColor, 0.35) } as CSSProperties}>
-      {previewScene && !playing && (
+      {editing && previewScene && !playing && (
         <button className="qs-playall" onClick={playFromStart}>▶ Бүтэн тоглох</button>
       )}
       <div className="qs-floaties" aria-hidden>{Array.from({ length: 14 }, (_, i) => <i key={i} style={{ '--i': i } as CSSProperties}>♥</i>)}</div>

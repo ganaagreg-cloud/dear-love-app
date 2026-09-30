@@ -87,3 +87,4 @@
   .qk-foot { padding: 16px 28px 22px; background: linear-gradient(transparent, #fff 30%); }
   .qk-grid { grid-template-columns: repeat(4, 1fr); }
 }
+.qk-help { width: 36px; height: 36px; font-weight: 800; font-size: .95rem; }

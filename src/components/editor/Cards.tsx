@@ -1,7 +1,7 @@
 'use client';
 import { useRef, useState, type PointerEvent as RPointerEvent } from 'react';
 import type { Content, Section } from '@/templates/types';
-import { TextBox, asArr, useUpload, type Tokens, type Uploader } from './Fields';
+import { PhotoHint, TextBox, asArr, useUpload, type Tokens, type Uploader } from './Fields';
 
 type Cfg = NonNullable<Section['cards']>;
 
@@ -65,6 +65,8 @@ export function Cards({ cfg, content, onPatch, upload, tokens, titleMax, textMax
   const up = () => { drag.current = null; setDragging(null); };
 
   return (
+    <>
+    <PhotoHint />
     <ol className="ed-cards" ref={list}>
       {photos.slice(0, shown).map((src, i) => (
         <li
@@ -117,6 +119,7 @@ export function Cards({ cfg, content, onPatch, upload, tokens, titleMax, textMax
         </li>
       )}
     </ol>
+    </>
   );
 }
 

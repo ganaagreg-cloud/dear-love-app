@@ -19,6 +19,23 @@ type Props = {
 export const asStr = (v: unknown) => (typeof v === 'string' ? v : '');
 export const asArr = (v: unknown) => (Array.isArray(v) ? (v as string[]) : []);
 
+export const PhotoHint = () => (
+  <p className="ed-help">📷 Хамтдаа авхуулсан зураг сайхан харагдана · босоо (4:5) хамгийн тохиромжтой · 10 MB хүртэл, том зургийг бид өөрөө жижигрүүлнэ</p>
+);
+
+/** «Жишээ: «…» ← дарж оруулах» — fills the field (or a list's first empty item) with the sample. */
+function Example({ field: f, value, onChange }: { field: Field; value: ContentValue | undefined; onChange: (v: ContentValue) => void }) {
+  if (!f.example) return null;
+  if (f.type === 'list') {
+    const arr = Array.from({ length: f.count }, (_, i) => asArr(value)[i] ?? '');
+    const at = arr.findIndex((x) => !x.trim());
+    if (at < 0 || arr.includes(f.example)) return null;
+    return <button type="button" className="ed-example" onClick={() => { const next = [...arr]; next[at] = f.example!; onChange(next); }}>Жишээ: «{f.example}» ← дарж оруулах</button>;
+  }
+  if (asStr(value) === f.example) return null;
+  return <button type="button" className="ed-example" onClick={() => onChange(f.example!)}>Жишээ: «{f.example}» ← дарж оруулах</button>;
+}
+
 /** Anything a buyer might write more than a line of gets a growing box, never a one-line input. */
 const LONG = 40;
 
@@ -37,6 +54,8 @@ export function FieldControl({ field: f, value, onChange, upload, tokens, onFocu
       )}
       <Control field={f} value={value} onChange={onChange} upload={upload} tokens={tokens} />
       {f.help && <p className="ed-help">{f.help}</p>}
+      {(f.type === 'image' || f.type === 'images') && <PhotoHint />}
+      {f.example && <Example field={f} value={value} onChange={onChange} />}
     </div>
   );
 }

@@ -49,17 +49,17 @@ export const bookMeta: TemplateMeta = {
   features: ['12 эргэдэг хуудас', '10 хүртэл зураг', 'Spotify дуу', '30+ тэмдэглэл'],
   schema: [
     {
-      id: 'basics', title: 'Нүүр ба үндсэн', previewPage: 0,
+      id: 'basics', title: 'Нүүр ба үндсэн', summary: 'Номын нүүр хавтас — түүний нэр, дурсгалын огноо, зүрхний гэрэл.', previewPage: 0,
       fields: [
-        { type: 'text', key: 'partnerName', label: 'Түүний нэр (нүүрэн дээр)', max: 30, placeholder: 'хайрт минь' },
+        { type: 'text', key: 'partnerName', label: 'Түүний нэр (нүүрэн дээр)', max: 30, placeholder: 'хайрт минь', example: 'Ану' },
         { type: 'text', key: 'texts.coverEyebrow', label: 'Нүүрний дээд бичвэр', max: 30 },
         { type: 'text', key: 'texts.coverSub', label: 'Нүүрний доод бичвэр', max: 50 },
         { type: 'color', key: 'heartColor', label: 'Зүрхний гэрлийн өнгө', presets: ['#FFF7E8', '#F1A7B7', '#E94F64', '#F6C86B', '#B9E3C6'] },
-        { type: 'text', key: 'keepsakeDate', label: 'Дурсгалын огноо', max: 20, placeholder: '15 · 11 · 21' },
+        { type: 'text', key: 'keepsakeDate', label: 'Дурсгалын огноо', max: 20, placeholder: '15 · 11 · 21', example: '10 · 01 · 24' },
       ],
     },
     {
-      id: 'photos', title: 'Зургууд',
+      id: 'photos', title: 'Зургууд', summary: 'Номын бүх зураг. Хуудас бүрийн зураг дээр шууд дарж сольж болно.',
       description: 'Энд нэмсэн зургууд номын эхний хуудсуудад (нүүр, дуу, азтай) ашиглагдана. Номын бусад хуудас бүр өөрийн тусдаа зурагтай тул тухайн хуудсан дээрх зураг дээр шууд дарж сольж болно — хуудас бүр өөр өөрийн зурагтай, хооронд нь давхцахгүй.',
       // 38 = the total number of independent photo placements across all 12 pages (see
       // pages.tsx). Every placement has its own fixed index and is never shared with
@@ -68,10 +68,10 @@ export const bookMeta: TemplateMeta = {
       fields: [{ type: 'images', key: 'photos', label: 'Номын зургууд', max: 38 }],
     },
     {
-      id: 'song', title: 'Таны дуу', previewPage: 1,
+      id: 'song', title: 'Таны дуу', summary: 'Пянз, кассет, Spotify тоглуулагчтай «бидний дуу» хуудсууд.', previewPage: 1,
       fields: [
         { type: 'spotify', key: 'spotify', label: 'Spotify дууны холбоос', placeholder: 'https://open.spotify.com/track/…' },
-        { type: 'text', key: 'songName', label: 'Дууны нэр (Spotify холбоосгүй бол)', max: 60 },
+        { type: 'text', key: 'songName', label: 'Дууны нэр (Spotify холбоосгүй бол)', max: 60, example: 'бидний дуу' },
         { type: 'text', key: 'songNote', label: 'Дууны доорх бичвэр', max: 60 },
         { type: 'text', key: 'texts.recordLabel', label: 'Пянзны шошго', max: 20 },
         { type: 'text', key: 'texts.recordWords', label: 'Пянзны хажуугийн бичвэр', max: 60 },
@@ -83,30 +83,30 @@ export const bookMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'lucky', title: 'Азтай', previewPage: 2,
+      id: 'lucky', title: 'Азтай', summary: '3-р хуудас: том «АЗТАЙ» бичиг ба жижиг тэмдэглэл.', previewPage: 2,
       fields: [
         { type: 'textarea', key: 'texts.lucky', label: 'Том үг (3-р хуудас)', max: 30, rows: 2 },
-        { type: 'textarea', key: 'texts.luckyNote', label: 'Тэмдэглэл (3-р хуудас)', max: 120, rows: 2 },
+        { type: 'textarea', key: 'texts.luckyNote', label: 'Тэмдэглэл (3-р хуудас)', max: 120, rows: 2, example: 'олон хүний дундаас чамтай таарсан нь миний аз.' },
       ],
     },
     {
-      id: 'letter', title: 'Захидал', previewPage: 3,
+      id: 'letter', title: 'Захидал', summary: '4-р хуудас: дугтуйтай богино захидал.', previewPage: 3,
       fields: [
         { type: 'text', key: 'texts.letterEyebrow', label: 'Захидлын дээд бичвэр', max: 30 },
         { type: 'text', key: 'texts.letterTitle', label: 'Захидлын гарчиг', max: 30 },
-        { type: 'textarea', key: 'texts.letterBody', label: 'Захидлын бичвэр', max: 160, rows: 3 },
+        { type: 'textarea', key: 'texts.letterBody', label: 'Захидлын бичвэр', max: 160, rows: 3, example: 'тэр өдрөөс хойш би чамайг л сонгосоор.' },
         { type: 'text', key: 'texts.ticket', label: 'Тасалбар дээрх үг', max: 10 },
       ],
     },
     {
-      id: 'little', title: 'Жижигхэн зүйлс', previewPage: 4,
+      id: 'little', title: 'Жижигхэн зүйлс', summary: '5-р хуудас: хамтын жижигхэн зүйлсийн тухай.', previewPage: 4,
       fields: [
         { type: 'text', key: 'texts.littleTitle', label: '«Жижигхэн зүйлс» гарчиг', max: 30 },
         { type: 'textarea', key: 'texts.littleNote', label: '«Жижигхэн зүйлс» тэмдэглэл', max: 140, rows: 3 },
       ],
     },
     {
-      id: 'places', title: 'Газрууд', previewPage: 5,
+      id: 'places', title: 'Газрууд', summary: '6-р хуудас: хамтдаа очсон газрууд, шуудангийн тамга.', previewPage: 5,
       fields: [
         { type: 'text', key: 'texts.placesLabel', label: 'Газрын гарчиг', max: 40 },
         { type: 'textarea', key: 'texts.placesNote', label: 'Газрын тэмдэглэл', max: 120, rows: 2 },
@@ -114,7 +114,7 @@ export const bookMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'notes', title: 'Тэмдэглэлүүд', previewPage: 6,
+      id: 'notes', title: 'Тэмдэглэлүүд', summary: '7-р хуудас: цаасан тэмдэглэлүүд.', previewPage: 6,
       fields: [
         { type: 'text', key: 'texts.notesTitle', label: 'Тэмдэглэлийн хуудасны гарчиг', max: 40 },
         { type: 'text', key: 'texts.noteOneLabel', label: '1-р тэмдэглэлийн шошго', max: 30 },
@@ -125,27 +125,28 @@ export const bookMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'keepsakes', title: 'Эцсийн жагсаалт', previewPage: 9,
+      id: 'keepsakes', title: 'Эцсийн жагсаалт', summary: '10-р хуудас: хамгийн дуртай жижиг зүйлсийн жагсаалт.', previewPage: 9,
       fields: [
         { type: 'textarea', key: 'texts.finalList', label: 'Жижигхэн зүйлсийн жагсаалт', max: 200, rows: 5 },
       ],
     },
     {
-      id: 'pocket', title: 'Халаастай хуудас', previewPage: 10,
+      id: 'pocket', title: 'Халаастай хуудас', summary: '11-р хуудас: халаастай хуудас ба ирээдүйн тухай нэг мөр.', previewPage: 10,
       fields: [
         { type: 'text', key: 'texts.pocketTitle', label: 'Халаастай хуудасны гарчиг', max: 40 },
         { type: 'text', key: 'texts.tomorrow', label: 'Халаастай хуудасны тэмдэглэл', max: 60 },
       ],
     },
     {
-      id: 'back', title: 'Арын хавтас', previewPage: 11,
+      id: 'back', title: 'Арын хавтас', summary: 'Арын хавтас — номын сүүлийн үгс.', previewPage: 11,
       fields: [
         { type: 'text', key: 'texts.backTitle', label: 'Арын гарчиг', max: 24 },
         { type: 'text', key: 'texts.backTicket', label: 'Тасалбар дээрх үг', max: 12 },
-        { type: 'text', key: 'texts.backLine', label: 'Сүүлийн мөр', max: 60 },
+        { type: 'text', key: 'texts.backLine', label: 'Сүүлийн мөр', max: 60, example: 'Хайртай, Бат' },
       ],
     },
   ],
+  tour: [0, 1, 2, 3, 5, 9],
   defaults: {
     partnerName: '',
     heartColor: '#fff7e9',

@@ -23,7 +23,7 @@ export default async function Buy({ params }: { params: Promise<{ id: string }> 
         <hr className="divider" />
         <PayButton templateId={t.id} label={`${formatMnt(t.price)} төлөх`} />
         <p className="small muted center" style={{ margin: '12px 0 0' }}>
-          Нэг удаагийн төлбөр · засах эрх зөвхөн танд · <Link href={`/templates/${t.id}`} style={{ textDecoration: 'underline' }}>дахин үзэх</Link>
+          Нэг удаагийн төлбөр · засах эрх зөвхөн танд · <Link href={`/gift/${t.id}`} style={{ textDecoration: 'underline' }}>дахин үзэх</Link>
         </p>
       </div>
     </div>

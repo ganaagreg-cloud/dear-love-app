@@ -34,9 +34,9 @@ export function toQuest(c: Content): QuestData {
 
 const SCENE = /^(title|characters|chest:\d+|dialog:(intro|greeting|question)|ending|music)$/;
 
-export default function QuestView({ content, pin }: { content: Content; pin?: string | number | null; editable?: boolean }) {
+export default function QuestView({ content, pin, editable = false }: { content: Content; pin?: string | number | null; editable?: boolean }) {
   const data = useMemo(() => toQuest(content), [content]);
   // The editor pins a scene per step; content edits update that scene in place (no remount).
   const scene = typeof pin === 'string' && SCENE.test(pin) ? (pin as PreviewScene) : null;
-  return <Quest data={data} previewScene={scene} />;
+  return <Quest data={data} previewScene={scene} editing={editable} />;
 }

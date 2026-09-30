@@ -1,6 +1,7 @@
 'use client';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import type { Content } from '@/templates/types';
+import './preview.css';
 
 export const DEVICES = { desktop: { w: 1366, h: 820 }, mobile: { w: 390, h: 844 } } as const;
 export type Device = keyof typeof DEVICES;

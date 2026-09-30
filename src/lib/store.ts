@@ -35,6 +35,9 @@ export interface Store {
   /** Returns false if this webhook event id was already recorded. */
   recordEvent(id: string, type: string): Promise<boolean>;
   forgetEvent(id: string): Promise<void>;
+  /** Per-user one-time UI flags (e.g. `editorIntro` once the editor intro was seen). */
+  getUserFlags(userId: string): Promise<Record<string, boolean>>;
+  setUserFlag(userId: string, flag: string, value: boolean): Promise<void>;
 }
 
 /* ───────────────── Supabase ───────────────── */
@@ -93,10 +96,19 @@ const sbStore: Store = {
     return !error;
   },
   async forgetEvent(id) { await supabaseAdmin().from('webhook_events').delete().eq('id', id); },
+  async getUserFlags(userId) {
+    const { data } = await supabaseAdmin().from('user_prefs').select('flags').eq('user_id', userId).maybeSingle();
+    return ((data?.flags as Record<string, boolean>) ?? {});
+  },
+  async setUserFlag(userId, flag, value) {
+    const flags = { ...(await sbStore.getUserFlags(userId)), [flag]: value };
+    const { error } = await supabaseAdmin().from('user_prefs').upsert({ user_id: userId, flags, updated_at: new Date().toISOString() });
+    if (error) throw error;
+  },
 };
 
 /* ───────────────── Demo (JSON file) ───────────────── */
-type DB = { pages: PageRow[]; orders: OrderRow[]; events: string[] };
+type DB = { pages: PageRow[]; orders: OrderRow[]; events: string[]; prefs?: Record<string, Record<string, boolean>> };
 export const DEMO_DIR = path.join(process.cwd(), '.demo-data');
 const DB_FILE = path.join(DEMO_DIR, 'db.json');
 let chain: Promise<unknown> = Promise.resolve();
@@ -140,6 +152,8 @@ const fileStore: Store = {
   }),
   recordEvent: (id) => tx((db) => { if (db.events.includes(id)) return false; db.events.push(id); return true; }),
   forgetEvent: (id) => tx((db) => { db.events = db.events.filter((e) => e !== id); }),
+  getUserFlags: (userId) => tx((db) => ({ ...(db.prefs?.[userId] ?? {}) }), false),
+  setUserFlag: (userId, flag, value) => tx((db) => { db.prefs ??= {}; db.prefs[userId] = { ...(db.prefs[userId] ?? {}), [flag]: value }; }),
 };
 
 export const store = (): Store => (isDemo() ? fileStore : sbStore);

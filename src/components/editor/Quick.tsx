@@ -14,6 +14,8 @@ type Props = {
   save: SaveState; saveLabel: string; status: 'paid' | 'published';
   publishing: boolean; publishErr: string;
   onPublish: () => void; onShare: () => void; onAdvanced: () => void;
+  /** Reopen the 3-slide intro. */
+  onHelp: () => void;
 };
 
 const STEPS = ['Нэрс', 'Зургууд', 'Үгс', 'Бэлэн'] as const;
@@ -27,7 +29,7 @@ const tid = () => `t${++seq}`;
  * beside (desktop). Every answer is written straight into content through the template's
  * QuickSpec, so the advanced editor always shows exactly what this flow produced.
  */
-export function Quick({ meta, spec, content, onPatch, upload, save, saveLabel, status, publishing, publishErr, onPublish, onShare, onAdvanced }: Props) {
+export function Quick({ meta, spec, content, onPatch, upload, save, saveLabel, status, publishing, publishErr, onPublish, onShare, onAdvanced, onHelp }: Props) {
   const [step, setStep] = useState<Step>(0);
   // The template's sample names (Ану / Бат) are for the demo — a new gift starts with empty boxes.
   const init = useRef((() => {
@@ -102,6 +104,7 @@ export function Quick({ meta, spec, content, onPatch, upload, save, saveLabel, s
           </div>
           <small className={`qk-save ${save}`}>{saveLabel}</small>
         </div>
+        <button type="button" className="qk-icon qk-help" onClick={onHelp} aria-label="Хэрхэн ашиглах вэ?" title="Хэрхэн ашиглах вэ?">?</button>
         <button type="button" className="qk-adv" onClick={onAdvanced}>Дэлгэрэнгүй засах</button>
       </header>
 

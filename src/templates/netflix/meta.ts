@@ -18,7 +18,7 @@ export const netflixMeta: TemplateMeta = {
   features: ['4 төрөл', '11 хүртэл зураг', 'Интерактив анги', 'Зугтдаг «Үгүй» товч', 'Кино титр'],
   schema: [
     {
-      id: 'basics', title: 'Төрөл ба нэрс', previewPage: 'browse',
+      id: 'basics', title: 'Төрөл ба нэрс', summary: '«Хэн үзэж байна?» дэлгэц, нэрс, өнгө, үйл явдлын төрөл.', previewPage: 'browse',
       fields: [
         {
           type: 'select', key: 'occasion', label: 'Ямар үйл явдал вэ?',
@@ -27,15 +27,15 @@ export const netflixMeta: TemplateMeta = {
             { value: 'anniversary', label: 'Ой' }, { value: 'love_message', label: 'Хайрын захидал' },
           ],
         },
-        { type: 'text', key: 'partnerName', label: 'Түүний нэр', max: 24 },
-        { type: 'text', key: 'yourName', label: 'Таны нэр', max: 24 },
+        { type: 'text', key: 'partnerName', label: 'Түүний нэр', max: 24, example: 'Ану' },
+        { type: 'text', key: 'yourName', label: 'Таны нэр', max: 24, example: 'Бат' },
         { type: 'color', key: 'accent', label: 'Үндсэн өнгө', presets: ['#E50914', '#FF4D8D', '#8B5CF6', '#F59E0B', '#10B981'] },
         { type: 'toggle', key: 'funnyNoButton', label: 'Зугтдаг «Үгүй» товч (болзоонд урихад)', previewPage: 'episode:2' },
         { type: 'text', key: 'songName', label: 'Таны дуу (титрт гарна)', max: 60 },
       ],
     },
     {
-      id: 'photos', title: 'Зургууд', previewPage: 'browse',
+      id: 'photos', title: 'Зургууд', summary: 'Цувралын нүүр, мөрүүд, ангийн ар зургууд.', previewPage: 'browse',
       fields: [
         { type: 'image', key: 'profilePhoto', label: 'Профайл зураг («Хэн үзэж байна?»)', previewPage: 'profiles' },
         { type: 'image', key: 'heroPhoto', label: 'Том нүүр зураг' },
@@ -47,21 +47,21 @@ export const netflixMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'show', title: 'Цуврал', previewPage: 'browse',
+      id: 'show', title: 'Цуврал', summary: 'Цувралын нэр, товч агуулга, Топ 5 шалтгаан.', previewPage: 'browse',
       description: blankOverride,
       fields: [
-        { type: 'text', key: 'ov.heroTitle', label: 'Цувралын нэр', max: 40 },
-        { type: 'textarea', key: 'ov.synopsis', label: 'Товч агуулга', max: 220, rows: 3 },
+        { type: 'text', key: 'ov.heroTitle', label: 'Цувралын нэр', max: 40, example: 'Бидний түүх' },
+        { type: 'textarea', key: 'ov.synopsis', label: 'Товч агуулга', max: 220, rows: 3, example: 'Хоёр хүн. Нэг санамсаргүй уулзалт. Дуусашгүй цуврал.' },
         { type: 'text', key: 'ov.row1', label: '1-р мөрийн гарчиг', max: 40 },
         { type: 'list', key: 'ov.cw', label: '1-р мөрийн картууд', count: 4, max: 30, itemLabel: 'Карт' },
         { type: 'text', key: 'ov.row2', label: 'Топ 5-ын гарчиг', max: 40 },
-        { type: 'list', key: 'ov.reasons', label: 'Топ 5 шалтгаан', count: 5, max: 40, itemLabel: 'Шалтгаан' },
+        { type: 'list', key: 'ov.reasons', label: 'Топ 5 шалтгаан', count: 5, max: 40, itemLabel: 'Шалтгаан', example: 'Чиний инээд' },
         { type: 'text', key: 'ov.row3', label: '3-р мөрийн гарчиг', max: 40 },
         { type: 'list', key: 'ov.hits', label: '3-р мөрийн картууд', count: 4, max: 30, itemLabel: 'Карт' },
       ],
     },
     {
-      id: 'episode', title: 'Интерактив анги', previewPage: 'episode',
+      id: 'episode', title: 'Интерактив анги', summary: 'Сонголттой анги ба «ТИЙМ» дардаг финал.', previewPage: 'episode',
       description: blankOverride,
       fields: [
         { type: 'textarea', key: 'ov.ep1Narration', label: '1-р хэсгийн үг', max: 220, rows: 3 },
@@ -70,11 +70,12 @@ export const netflixMeta: TemplateMeta = {
         { type: 'textarea', key: 'ov.ep2Narration', label: '2-р хэсгийн үг', max: 220, rows: 3, previewPage: 'episode:1' },
         { type: 'text', key: 'ov.ep2a', label: '2-р хэсэг · сонголт А', max: 30, previewPage: 'episode:1' },
         { type: 'text', key: 'ov.ep2b', label: '2-р хэсэг · сонголт Б', max: 30, previewPage: 'episode:1' },
-        { type: 'text', key: 'ov.climaxTitle', label: 'Финалын асуулт / гарчиг', max: 50, previewPage: 'episode:2' },
+        { type: 'text', key: 'ov.climaxTitle', label: 'Финалын асуулт / гарчиг', max: 50, previewPage: 'episode:2', example: 'Надтай болзох уу?' },
         { type: 'text', key: 'ov.climaxSub', label: 'Финалын доорх бичвэр', max: 80, previewPage: 'episode:2' },
       ],
     },
   ],
+  tour: ['profiles', 'browse', 'episode', 'episode:2'],
   defaults: {
     occasion: 'anniversary',
     pronoun: 'she',
