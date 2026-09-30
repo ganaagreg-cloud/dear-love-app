@@ -16,11 +16,15 @@
 
 .ed-side { grid-area: side; overflow-y: auto; padding: 14px 14px 0; background: #fbf8fa; border-right: 1px solid var(--line); }
 .ed-lock { font-size: .76rem; font-weight: 600; color: var(--ink-2); background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; margin-bottom: 12px; }
+.ed-steps { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.ed-step { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: #fff; font-size: .76rem; font-weight: 700; color: var(--ink-3); display: grid; place-items: center; flex: none; transition: background .15s, color .15s, border-color .15s; }
+.ed-step.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+.ed-step:hover:not(.on) { border-color: var(--rose-2); color: var(--ink); }
+
 .ed-sec { background: #fff; border: 1px solid var(--line); border-radius: 16px; margin-bottom: 10px; overflow: hidden; }
-.ed-sec-head { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border: 0; background: transparent; font-weight: 700; font-size: .92rem; text-align: left; }
-.ed-sec-head i { font-style: normal; color: var(--ink-3); font-size: 1.1rem; }
-.ed-sec.open .ed-sec-head { border-bottom: 1px solid var(--line); }
+.ed-sec-title { margin: 0; padding: 14px 16px; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 1rem; }
 .ed-sec-body { padding: 14px 16px 6px; }
+.ed-step-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 14px; }
 .ed-field { margin-bottom: 16px; }
 .ed-label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: .8rem; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
 .ed-label small { font-weight: 500; color: var(--ink-3); }

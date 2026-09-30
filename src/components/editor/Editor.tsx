@@ -44,9 +44,11 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   const frame = useRef<HTMLIFrameElement>(null);
   const latest = useRef(content); latest.current = content;
   const [previewingFull, setPreviewingFull] = useState(false);
-  const pin = previewingFull ? null : (meta.schema.find((s) => s.id === open)?.previewPage ?? null);
   const openIndex = meta.schema.findIndex((s) => s.id === open);
-  const nextSection = openIndex >= 0 ? meta.schema[openIndex + 1] : undefined;
+  const currentSection = meta.schema[openIndex] ?? meta.schema[0];
+  const prevSection = openIndex > 0 ? meta.schema[openIndex - 1] : undefined;
+  const nextSection = openIndex >= 0 && openIndex < meta.schema.length - 1 ? meta.schema[openIndex + 1] : undefined;
+  const pin = previewingFull ? null : (currentSection?.previewPage ?? null);
   const post = useCallback(
     () => frame.current?.contentWindow?.postMessage({ type: 'dear:content', content: latest.current, pin }, window.location.origin),
     [pin],
@@ -79,6 +81,34 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
 
   const set = (key: string, v: ContentValue) => setContent((c) => ({ ...c, [key]: v }));
   const upload = useCallback((file: File, kind: 'image' | 'audio', maxMB?: number) => uploadMedia(file, userId, pageId, kind, maxMB), [userId, pageId]);
+
+  /* ── click a photo tile in the live preview (currently only Book does this) to
+     replace that exact slot, instead of the buyer only being able to add photos to
+     a pool and hope they land on the right page ── */
+  const pickPhotoInput = useRef<HTMLInputElement>(null);
+  const pickSlot = useRef<number | null>(null);
+  useEffect(() => {
+    const onPick = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin || e.data?.type !== 'dear:pick-photo') return;
+      pickSlot.current = e.data.slot;
+      pickPhotoInput.current?.click();
+    };
+    window.addEventListener('message', onPick);
+    return () => window.removeEventListener('message', onPick);
+  }, []);
+  const onPickPhotoFile = async (file: File | undefined) => {
+    const slot = pickSlot.current;
+    if (!file || slot == null) return;
+    const url = await upload(file, 'image').catch(() => null);
+    if (!url) return;
+    // 'photos' is Book's own images-field key — this message only ever comes from Book's preview.
+    setContent((c) => {
+      const arr = Array.isArray(c.photos) ? [...(c.photos as string[])] : [];
+      while (arr.length <= slot) arr.push('');
+      arr[slot] = url;
+      return { ...c, photos: arr };
+    });
+  };
 
   const callPublish = async (body: Record<string, unknown>) => {
     const r = await fetch(`/api/pages/${pageId}/publish`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
@@ -160,26 +190,42 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
 
       <aside className="ed-side">
         <div className="ed-lock">🔒 Энэ хуудсыг зөвхөн та засах эрхтэй</div>
-        {meta.schema.map((s) => (
-          <section key={s.id} className={`ed-sec ${open === s.id ? 'open' : ''}`}>
-            <button className="ed-sec-head" aria-expanded={open === s.id} aria-controls={`ed-sec-body-${s.id}`} onClick={() => setOpen(open === s.id ? '' : s.id)}>
-              <span>{s.title}</span><i>{open === s.id ? '−' : '+'}</i>
+        <nav className="ed-steps" aria-label="Хэсгүүд">
+          {meta.schema.map((s, i) => (
+            <button
+              key={s.id}
+              type="button"
+              className={`ed-step ${open === s.id ? 'on' : ''}`}
+              aria-current={open === s.id ? 'step' : undefined}
+              aria-label={s.title}
+              title={s.title}
+              onClick={() => setOpen(s.id)}
+            >
+              {i + 1}
             </button>
-            {open === s.id && (
-              <div className="ed-sec-body" id={`ed-sec-body-${s.id}`}>
-                {s.description && <p className="ed-help" style={{ marginTop: 0 }}>{s.description}</p>}
-                {s.fields.map((f) => (
-                  <FieldControl key={f.key} field={f} value={content[f.key]} onChange={(v) => set(f.key, v)} upload={upload} />
-                ))}
+          ))}
+        </nav>
+        {currentSection && (
+          <section className="ed-sec open">
+            <h2 className="ed-sec-title">{currentSection.title}</h2>
+            <div className="ed-sec-body">
+              {currentSection.description && <p className="ed-help" style={{ marginTop: 0 }}>{currentSection.description}</p>}
+              {currentSection.fields.map((f) => (
+                <FieldControl key={f.key} field={f} value={content[f.key]} onChange={(v) => set(f.key, v)} upload={upload} />
+              ))}
+              <div className="ed-step-nav">
+                {prevSection
+                  ? <button className="btn btn-sm" onClick={() => setOpen(prevSection.id)}>← Өмнөх</button>
+                  : <span />}
                 {nextSection && (
-                  <button className="btn btn-sm" style={{ marginTop: 10 }} onClick={() => setOpen(nextSection.id)}>
+                  <button className="btn btn-sm btn-primary" onClick={() => setOpen(nextSection.id)}>
                     Дараах: {nextSection.title} →
                   </button>
                 )}
               </div>
-            )}
+            </div>
           </section>
-        ))}
+        )}
         <p className="ed-help" style={{ padding: '6px 4px 30px' }}>
           Өөрчлөлт автоматаар хадгалагдана. {status === 'published' ? 'Таны линк шууд шинэчлэгдэнэ.' : 'Бэлэн болмогц «Нийтлэх» дарна уу.'}
         </p>
@@ -189,6 +235,10 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
         <div className="ed-device" data-device={device} style={{ width: d.w * scale, height: d.h * scale }}>
           <iframe key={previewingFull ? 'full' : 'pinned'} ref={frame} title="Шууд харагдац" src={`/render/${meta.id}`} onLoad={post} allow="autoplay; encrypted-media"
             style={{ width: d.w, height: d.h, transform: `scale(${scale})` }} />
+          <input
+            ref={pickPhotoInput} type="file" accept="image/*" hidden
+            onChange={(e) => { void onPickPhotoFile(e.target.files?.[0]); e.target.value = ''; }}
+          />
         </div>
       </section>
 

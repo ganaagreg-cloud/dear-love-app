@@ -1,5 +1,5 @@
 'use client';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import './book.css';
 import Scrapbook from './Scrapbook';
 import { scrapbookData, type ScrapbookData } from './scrapbookData';
@@ -23,13 +23,17 @@ export function toScrapbook(c: Content): ScrapbookData {
   };
 }
 
-export default function BookView({ content, pin }: { content: Content; pin?: string | number | null }) {
+export default function BookView({ content, pin, editable }: { content: Content; pin?: string | number | null; editable?: boolean }) {
   const data = useMemo(() => toScrapbook(content), [content]);
   // react-pageflip can't re-render its children in place → remount when content changes
   const key = useMemo(() => JSON.stringify(data).length + ':' + hash(JSON.stringify(data)), [data]);
+  // Scrapbook remounts on every content edit (see above) — this ref lives here, in the
+  // parent that doesn't remount, so "which page was open" and "was the intro dismissed"
+  // survive the remount instead of resetting to the cover on every keystroke/upload.
+  const pos = useRef({ page: 0, introDismissed: false });
   return (
     <div className="dl-book-root">
-      <Scrapbook key={key} data={data} pin={pin} />
+      <Scrapbook key={key} data={data} pin={pin} editable={editable} pos={pos} />
     </div>
   );
 }

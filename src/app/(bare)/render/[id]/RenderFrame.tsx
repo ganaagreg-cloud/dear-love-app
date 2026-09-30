@@ -18,5 +18,5 @@ export default function RenderFrame({ templateId, initial }: { templateId: strin
     window.parent?.postMessage({ type: 'dear:ready' }, window.location.origin);
     return () => window.removeEventListener('message', onMsg);
   }, []);
-  return <TemplateView templateId={templateId} content={content ?? initial} pin={pin} />;
+  return <TemplateView templateId={templateId} content={content ?? initial} pin={pin} editable />;
 }

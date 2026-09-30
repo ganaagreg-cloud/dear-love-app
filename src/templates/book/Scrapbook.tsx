@@ -41,27 +41,46 @@ function RadiatingHearts({ intro = false, stage = false }: { intro?: boolean; st
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FlipApi = { pageFlip: () => any };
 
-export default function Scrapbook({ data = defaults, pin = null }: { data?: ScrapbookData; pin?: string | number | null }) {
+type Pos = { current: { page: number; introDismissed: boolean } };
+
+export default function Scrapbook({ data = defaults, pin = null, editable = false, pos }: {
+  data?: ScrapbookData; pin?: string | number | null; editable?: boolean; pos?: Pos;
+}) {
   const book = useRef<FlipApi | null>(null);
-  const [page, setPage] = useState(0);
+  // `pos` survives the remount this component takes on every content edit (see View.tsx) —
+  // seed local state from it so a non-pinned edit (e.g. uploading a photo) resumes where the
+  // buyer was instead of snapping back to the closed cover every time.
+  const [page, setPage] = useState(pos?.current.page ?? 0);
   const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('landscape');
   const [apiReady, setApiReady] = useState(false);
 
   // intro → arrive state machine
-  const [introVisible, setIntroVisible] = useState(true);
+  const [introVisible, setIntroVisible] = useState(!pos?.current.introDismissed);
   const [entering, setEntering] = useState(false);
   const t = useRef<number | undefined>(undefined);
   const openBook = () => {
     setIntroVisible(false);
+    if (pos) pos.current.introDismissed = true;
     setEntering(true);
     window.clearTimeout(t.current);
     t.current = window.setTimeout(() => setEntering(false), 1500);
   };
   useEffect(() => () => window.clearTimeout(t.current), []);
 
+  const onPick = useCallback((slot: number) => {
+    window.parent?.postMessage({ type: 'dear:pick-photo', slot }, window.location.origin);
+  }, []);
+
   useEffect(() => {
-    if (!apiReady || typeof pin !== 'number') return;
+    if (!apiReady) return;
+    // A pin always wins (it names the exact page this section's fields affect). With no
+    // pin, resume `pos.current.page` instead — FLIP_CONFIG.startPage is hardcoded to 0,
+    // so without this the book would visually reopen on the cover on every remount even
+    // though `page` state itself already reads the right number for the counter/buttons.
+    const target = typeof pin === 'number' ? pin : pos?.current.page;
+    if (typeof target !== 'number') return;
     setIntroVisible(false);
+    if (pos) { pos.current.introDismissed = true; pos.current.page = target; }
     // turnToPage() is an instant jump (no animation) — flip() is animated and, for
     // targets far from the current page while the book is still on its closed cover,
     // only completes its first internal step before stopping (verified: flip(6),
@@ -70,8 +89,8 @@ export default function Scrapbook({ data = defaults, pin = null }: { data?: Scra
     // jump is also the semantically correct choice here regardless of that bug,
     // since Book remounts on every keystroke — an animated multi-second flip would
     // replay constantly while a buyer is still typing.
-    book.current?.pageFlip()?.turnToPage(pin);
-  }, [pin, apiReady]);
+    book.current?.pageFlip()?.turnToPage(target);
+  }, [pin, apiReady, pos]);
 
   const prev = useCallback(() => book.current?.pageFlip()?.flipPrev('top'), []);
   const next = useCallback(() => book.current?.pageFlip()?.flipNext('top'), []);
@@ -84,7 +103,7 @@ export default function Scrapbook({ data = defaults, pin = null }: { data?: Scra
     else if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
   };
 
-  const pages = useMemo(() => renderPages(data), [data]);
+  const pages = useMemo(() => renderPages(data, editable ? onPick : undefined), [data, editable, onPick]);
   const shown = Math.min(page + 1, TOTAL);
 
   return (
@@ -119,7 +138,7 @@ export default function Scrapbook({ data = defaults, pin = null }: { data?: Scra
               ref={book}
               className={s.flipBook}
               {...FLIP_CONFIG}
-              onFlip={(e: { data: number }) => setPage(e.data)}
+              onFlip={(e: { data: number }) => { setPage(e.data); if (pos) pos.current.page = e.data; }}
               onChangeOrientation={(e: { data: 'portrait' | 'landscape' }) => setOrientation(e.data)}
               onInit={(e: { data: { page: number; mode: 'portrait' | 'landscape' } }) => { setOrientation(e.data.mode); setApiReady(true); }}
             >

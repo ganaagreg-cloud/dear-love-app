@@ -5,10 +5,10 @@ import x from './Extras.module.css';
 
 export const cx = (...c: (string | false | undefined)[]) => c.filter(Boolean).join(' ');
 
-export function Photo({ src, className }: { src?: string; className?: string }) {
+export function Photo({ src, className, onClick }: { src?: string; className?: string; onClick?: () => void }) {
   const [failed, setFailed] = useState(false);
-  return (
-    <div className={cx(s.photo, className)}>
+  const body = (
+    <>
       {src && !failed ? (
         <img src={src} alt="хайрын зураг" loading="lazy" decoding="async" draggable={false} onError={() => setFailed(true)} />
       ) : (
@@ -16,8 +16,16 @@ export function Photo({ src, className }: { src?: string; className?: string }) 
           <i><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="9" cy="10" r="1.6" /><path d="M21 16l-5-5-8 8" /></svg></i>
         </div>
       )}
-    </div>
+    </>
   );
+  if (onClick) {
+    return (
+      <button type="button" className={cx(s.photo, x.photoClickable, className)} onClick={onClick} aria-label="Энэ зургийг солих">
+        {body}
+      </button>
+    );
+  }
+  return <div className={cx(s.photo, className)}>{body}</div>;
 }
 
 export const Tape = ({ className }: { className?: string }) => <span className={cx(s.tape, className)} aria-hidden />;

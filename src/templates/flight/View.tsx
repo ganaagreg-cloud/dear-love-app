@@ -28,7 +28,7 @@ export function toFlight(c: Content): FlightData {
   };
 }
 
-export default function FlightView({ content, pin }: { content: Content; pin?: string | number | null }) {
+export default function FlightView({ content, pin }: { content: Content; pin?: string | number | null; editable?: boolean }) {
   const data = useMemo(() => toFlight(content), [content]);
   return <Flight key={JSON.stringify(data).length} data={data} pin={pin} />;
 }
