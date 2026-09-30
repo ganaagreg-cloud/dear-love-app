@@ -2,7 +2,8 @@
 export interface ScrapbookData {
   partnerName: string;
   heartColor: string;
-  /** Up to 10 photo URLs. Slots cycle through them; empty strings show a soft grey tile. */
+  /** Indexed by fixed placement (see pages.tsx) — never cycled/shared between pages.
+   *  A missing or empty entry at an index shows a soft grey placeholder tile. */
   photos: string[];
   spotifyTrackId: string;
   songName: string;

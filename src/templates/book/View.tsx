@@ -14,7 +14,9 @@ export function toScrapbook(c: Content): ScrapbookData {
   return {
     partnerName: str(c.partnerName),
     heartColor: str(c.heartColor, scrapbookData.heartColor),
-    photos: Array.isArray(c.photos) ? (c.photos as string[]).filter(Boolean) : [],
+    // No .filter(Boolean): pages.tsx indexes this array by fixed position, so dropping
+    // empty slots would shift every later photo into the wrong placement.
+    photos: Array.isArray(c.photos) ? (c.photos as string[]).map((u) => (typeof u === 'string' ? u : '')) : [],
     spotifyTrackId: spotifyId(str(c.spotify)),
     songName: str(c.songName, scrapbookData.songName),
     songNote: str(c.songNote),

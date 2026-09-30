@@ -60,8 +60,12 @@ export const bookMeta: TemplateMeta = {
     },
     {
       id: 'photos', title: 'Зургууд',
-      description: '10 хүртэл зураг. 12 хуудас даяар тархаж байрлана.',
-      fields: [{ type: 'images', key: 'photos', label: 'Номын зургууд', max: 10 }],
+      description: 'Энд нэмсэн зургууд номын эхний хуудсуудад (нүүр, дуу, азтай) ашиглагдана. Номын бусад хуудас бүр өөрийн тусдаа зурагтай тул тухайн хуудсан дээрх зураг дээр шууд дарж сольж болно — хуудас бүр өөр өөрийн зурагтай, хооронд нь давхцахгүй.',
+      // 38 = the total number of independent photo placements across all 12 pages (see
+      // pages.tsx). Every placement has its own fixed index and is never shared with
+      // another — this bound only needs to cover them all, not steer how many a buyer
+      // is expected to upload here (10 still fills the first few pages by itself).
+      fields: [{ type: 'images', key: 'photos', label: 'Номын зургууд', max: 38 }],
     },
     {
       id: 'song', title: 'Таны дуу', previewPage: 1,
@@ -152,5 +156,14 @@ export const bookMeta: TemplateMeta = {
     keepsakeDate: '15 · 11 · 21',
     ...Object.fromEntries(Object.entries(texts).map(([k, v]) => [`texts.${k}`, v])),
   },
-  demo: { photos: [...COUPLES.slice(0, 7), PHOTOS.mnGer2, PHOTOS.ubNight, PHOTOS.mnYurtsSnow], partnerName: 'Ану' },
+  // Demo/preview only — real buyer pages never repeat a photo across placements, but the
+  // sample pool only has 16 distinct images, so this cycles them to fill all 38 slots
+  // (pages.tsx) for a full-looking standalone preview before purchase.
+  demo: {
+    photos: (() => {
+      const pool = [...COUPLES, PHOTOS.mnGer1, PHOTOS.mnGer2, PHOTOS.mnYurtsSnow, PHOTOS.mnHills, PHOTOS.ubNight, PHOTOS.ubCity];
+      return Array.from({ length: 38 }, (_, i) => pool[i % pool.length]);
+    })(),
+    partnerName: 'Ану',
+  },
 };

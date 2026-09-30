@@ -24,7 +24,11 @@ export function sanitizeContent(meta: TemplateMeta, input: unknown, mediaPrefix:
     switch (f.type) {
       case 'text': case 'textarea': out[f.key] = clip(v, f.max ?? 2000); break;
       case 'image': case 'audio': out[f.key] = okMedia(v); break;
-      case 'images': out[f.key] = (Array.isArray(v) ? v : []).map(okMedia).filter(Boolean).slice(0, f.max); break;
+      // No .filter(Boolean): some templates (Book) index this array by fixed position —
+      // dropping empty slots would shift every later URL into the wrong slot on save.
+      // Nothing currently sends empty entries except Book's own deliberate placeholders,
+      // so this is a no-op for every other template's images field.
+      case 'images': out[f.key] = (Array.isArray(v) ? v : []).map(okMedia).slice(0, f.max); break;
       case 'color': out[f.key] = typeof v === 'string' && COLOR.test(v) ? v : String(meta.defaults[f.key] ?? '#ffffff'); break;
       case 'date': out[f.key] = typeof v === 'string' && DATE.test(v) ? v : String(meta.defaults[f.key] ?? ''); break;
       case 'select': out[f.key] = f.options.some((o) => o.value === v) ? (v as string) : String(meta.defaults[f.key] ?? f.options[0].value); break;
