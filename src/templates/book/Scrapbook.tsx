@@ -127,7 +127,7 @@ export default function Scrapbook({ data = defaults, pin = null, editable = fals
       </div>
 
       <header className={s.readerBar}>
-        <div><strong>Дурсамжийн ном</strong><span>Хуудасны булангаас чирж эргүүлнэ</span></div>
+        <div><strong>Дурсамжийн ном</strong><span>{editable ? 'Доод сумаар хуудас эргүүлнэ' : 'Хуудасны булангаас чирж эргүүлнэ'}</span></div>
         <span className={s.readerCount}>{pad2(shown)} / {TOTAL}</span>
       </header>
 
@@ -138,6 +138,7 @@ export default function Scrapbook({ data = defaults, pin = null, editable = fals
               ref={book}
               className={s.flipBook}
               {...FLIP_CONFIG}
+              useMouseEvents={!editable}
               onFlip={(e: { data: number }) => { setPage(e.data); if (pos) pos.current.page = e.data; }}
               onChangeOrientation={(e: { data: 'portrait' | 'landscape' }) => setOrientation(e.data)}
               onInit={(e: { data: { page: number; mode: 'portrait' | 'landscape' } }) => { setOrientation(e.data.mode); setApiReady(true); }}
