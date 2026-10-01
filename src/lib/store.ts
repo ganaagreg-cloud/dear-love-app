@@ -93,6 +93,7 @@ const sbStore: Store = {
   },
   async recordEvent(id, type) {
     const { error } = await supabaseAdmin().from('webhook_events').insert({ id, type });
+    if (error && error.code !== '23505') throw error; // only a unique violation means "already seen"
     return !error;
   },
   async forgetEvent(id) { await supabaseAdmin().from('webhook_events').delete().eq('id', id); },
