@@ -4,6 +4,7 @@ import './guide.css';
 import type { Content } from '@/templates/types';
 import { PreviewFrame } from './PreviewFrame';
 import { dative } from '@/lib/mn';
+import QrCode from '@/components/QrCode';
 
 /* ─────────── first-open intro (3 slides, once per user) ─────────── */
 
@@ -88,6 +89,7 @@ type ShareProps = {
 export function ShareScreen({ url, slug, name, slugDraft, setSlugDraft, saveSlug, slugErr, linkBase, subdomain, unpublish, close }: ShareProps) {
   const [toast, setToast] = useState('');
   const [editSlug, setEditSlug] = useState(false);
+  const [qr, setQr] = useState(false);
   const say = (t: string) => { setToast(t); setTimeout(() => setToast(''), 2600); };
   const copy = async (text = url, msg = 'Линк хуулагдлаа ✓') => {
     try { await navigator.clipboard.writeText(text); say(msg); } catch { say('Хуулж чадсангүй — линкийг удаан дараад хуулна уу'); }
@@ -124,6 +126,9 @@ export function ShareScreen({ url, slug, name, slugDraft, setSlugDraft, saveSlug
             <b aria-hidden>{native ? '↗' : '🔗'}</b>{native ? 'Бусад' : 'Линк хуулах'}
           </button>
         </div>
+
+        <button type="button" className="gd-copy-msg" onClick={() => setQr((v) => !v)} aria-expanded={qr}>▦ QR код {qr ? 'нуух' : 'үзүүлэх / татах'}</button>
+        {qr && <><QrCode url={url} /><p className="gd-note">Утсаараа уншуулбал бэлэг шууд нээгдэнэ — карт, боодол дээр наахад тохиромжтой.</p></>}
 
         <ol className="gd-how" aria-label="Яаж илгээх вэ">
           <li><b>1</b><span><strong>Линкээ хуул</strong>дээрх «Хуулах» товч</span></li>

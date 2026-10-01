@@ -6,7 +6,9 @@ import './gift.css';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const t = getTemplate((await params).id);
-  return t ? { title: t.name, description: t.tagline } : { title: 'Загвар' };
+  return t
+    ? { title: t.name, description: t.tagline, openGraph: { type: 'website', siteName: 'Dear Love', locale: 'mn_MN', title: `${t.name} · Dear Love`, description: t.tagline } }
+    : { title: 'Загвар' };
 }
 
 const FAQ = [

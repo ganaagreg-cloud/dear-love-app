@@ -8,10 +8,14 @@ import '@fontsource/lora/500.css';
 import '@fontsource/lora/600.css';
 import '@fontsource/lora/500-italic.css';
 import './globals.css';
+import { SITE_URL } from '@/lib/env';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: { default: 'Dear Love — хайртай хүндээ зориулсан дижитал бэлэг', template: '%s · Dear Love' },
   description: 'Кино шиг загвар сонгоод зураг, дуу, үгээ оруулж, QPay-ээр төлөөд хайртай хүндээ ганц линкээр илгээгээрэй.',
+  openGraph: { type: 'website', siteName: 'Dear Love', locale: 'mn_MN', title: 'Dear Love — хайртай хүндээ зориулсан дижитал бэлэг', description: 'Кино шиг загвар сонгоод зураг, дуу, үгээ оруулж, ганц линкээр илгээгээрэй.' },
+  twitter: { card: 'summary_large_image' },
 };
 export const viewport: Viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover', themeColor: '#fbf6f8' };
 

@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import TemplateView from '@/templates/TemplateView';
 import { getTemplate, resolveContent } from '@/templates/registry';
 import { getPublicPage } from '@/lib/publicPage';
-import { SITE_URL } from '@/lib/env';
 import type { Content } from '@/templates/types';
 
 export const dynamic = 'force-dynamic';
@@ -22,7 +21,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title: 'Хэн нэгэн танд зориулж юм хийжээ ♡',
       description: 'Тайван нэг минут гаргаад нээгээрэй.',
-      images: t ? [`${SITE_URL}${t.cover}`] : undefined,
+      siteName: 'Dear Love',
+      locale: 'mn_MN',
     },
   };
 }
