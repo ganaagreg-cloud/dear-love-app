@@ -16,5 +16,5 @@ export default function TemplateView({ templateId, content, pin, editable }: {
 }) {
   const View = VIEWS[templateId as keyof typeof VIEWS];
   if (!View) return null;
-  return <View content={content} pin={pin ?? null} editable={editable} />;
+  return <div style={{ display: 'contents', overflowWrap: 'anywhere' }}><View content={content} pin={pin ?? null} editable={editable} /></div>;
 }

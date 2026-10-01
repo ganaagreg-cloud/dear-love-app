@@ -55,7 +55,7 @@ function Scene({ narration, a, b, bg, label, accent, onChoose, pinned, k }: {
         <div className="lf-ep-choices">
           {[a, b].map((opt, n) => (
             <button
-              key={opt} data-field={`ov.${k}${n ? 'b' : 'a'}`}
+              key={n} data-field={`ov.${k}${n ? 'b' : 'a'}`}
               className={`lf-choice${picked === opt ? ' chosen' : ''}`}
               style={picked === opt ? { boxShadow: `0 0 24px ${accent}aa`, borderColor: accent } : undefined}
               disabled={!!picked && picked !== opt}

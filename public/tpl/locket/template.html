@@ -48,7 +48,7 @@
   --L:300px; --W:180px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
+html,body{height:100%;overflow-wrap:anywhere}
 body{
   background:
     radial-gradient(120% 80% at 50% 115%, #1b2452 0%, #0d0f26 45%, #07060d 75%),
@@ -182,7 +182,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 .env-back,.env-front,.env-flap,.env-letter{position:absolute;inset:0}
 .env-back{background:linear-gradient(180deg,#cbb48c,#b39a70);border-radius:5px;box-shadow:0 22px 40px -12px rgba(0,0,0,.8)}
 .env-letter{z-index:1;left:7%;right:7%;top:8%;bottom:6%;background:#fbf6ea;border-radius:2px;
-  background-image:repeating-linear-gradient(180deg,transparent 0 9px,rgba(120,90,60,.2) 9px 10px);padding:10% 9%;
+  background-image:repeating-linear-gradient(180deg,transparent 0 9px,rgba(120,90,60,.2) 9px 10px);padding:10px 9%;
   font-family:var(--script);color:#5a3d25;font-size:11px;line-height:10px;text-align:left;overflow:hidden}
 .env-front{background:linear-gradient(170deg,#e7d6b3,#d6c197);clip-path:polygon(0 0,50% 58%,100% 0,100% 100%,0 100%);border-radius:5px;z-index:2}
 .env-front::after{content:"";position:absolute;inset:0;background:linear-gradient(20deg,rgba(0,0,0,.08),transparent 40%)}
@@ -196,15 +196,15 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 /* letter modal */
 .modal{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:16px;background:rgba(4,3,10,.72);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);visibility:hidden;opacity:0}
 .paper{position:relative;width:min(600px,100%);height:min(86vh,820px);overflow:auto;border-radius:4px;
-  background-color:#fbf6ea;color:#3a2a1d;padding:56px clamp(22px,6vw,58px) 30px;
+  background-color:#fbf6ea;color:#3a2a1d;padding:68px clamp(22px,6vw,58px) 30px;
   background-image:
     linear-gradient(90deg,transparent calc(clamp(22px,6vw,58px) - 16px),rgba(216,40,63,.28) calc(clamp(22px,6vw,58px) - 16px),rgba(216,40,63,.28) calc(clamp(22px,6vw,58px) - 15px),transparent calc(clamp(22px,6vw,58px) - 15px)),
     repeating-linear-gradient(180deg,transparent 0 33px,rgba(110,80,50,.16) 33px 34px);
   background-attachment:local;
   box-shadow:0 40px 90px -20px rgba(0,0,0,.9),inset 0 0 80px rgba(160,120,70,.18);
   user-select:text;-webkit-user-select:text;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:#c9b187 transparent}
-.paper h3{font-family:var(--script);font-weight:400;font-size:clamp(2.2rem,6vw,3rem);text-align:center;color:#6b1420;line-height:1.1}
-.paper .date{text-align:center;font-size:.7rem;letter-spacing:.34em;text-transform:uppercase;color:#9b7f60;margin:.4rem 0 1.6rem}
+.paper h3{font-family:var(--script);font-weight:400;font-size:clamp(2.2rem,6vw,3rem);text-align:center;color:#6b1420;line-height:68px}
+.paper .date{text-align:center;font-size:.7rem;letter-spacing:.34em;text-transform:uppercase;color:#9b7f60;margin:0;height:34px;line-height:34px}
 .paper .body p{font-size:clamp(1.08rem,2.6vw,1.24rem);line-height:34px;margin-bottom:34px;text-align:left;min-height:34px}
 .paper .body p.sig{font-family:var(--script);font-size:1.5rem;margin-bottom:0;color:#6b1420}
 .caret{display:inline-block;width:1px;height:1.05em;background:#6b1420;vertical-align:-3px;margin-left:1px;animation:blink .9s steps(1) infinite}

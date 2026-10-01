@@ -46,8 +46,8 @@ export default function Credits({ data, copy, onRestart }: ScreenProps & { onRes
         <h1 className="lf-credits-title">{copy.heroTitle}</h1>
         <p className="lf-credits-note">{copy.synopsis}</p>
         <div className="lf-credits-list">
-          {credits.map(([role, name]) => (
-            <div key={role}>
+          {credits.map(([role, name], i) => (
+            <div key={i}>
               <div className="lf-credit-role">{role}</div>
               <div className="lf-credit-name">{name}</div>
             </div>
