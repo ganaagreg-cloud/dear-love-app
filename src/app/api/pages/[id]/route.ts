@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/supabase/server';
 import { store } from '@/lib/store';
+import { bustPublicPage } from '@/lib/publicPage';
 import { mediaPrefix, ownedPage } from '@/lib/pages';
 import { getTemplate } from '@/templates/registry';
 import { sanitizeContent } from '@/templates/sanitize';
@@ -24,5 +25,6 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const content = sanitizeContent(meta, body?.content, mediaPrefix(user.id, page.id));
   try { await store().updatePage(page.id, { content }); }
   catch { return NextResponse.json({ error: 'Хадгалж чадсангүй' }, { status: 500 }); }
+  bustPublicPage(page.slug);
   return NextResponse.json({ ok: true, content });
 }

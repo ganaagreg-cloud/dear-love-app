@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import TemplateView from '@/templates/TemplateView';
 import { getTemplate, resolveContent } from '@/templates/registry';
-import { store } from '@/lib/store';
+import { getPublicPage } from '@/lib/publicPage';
 import { SITE_URL } from '@/lib/env';
 import type { Content } from '@/templates/types';
 
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 
 async function load(slug: string) {
   if (!/^[a-z0-9-]{3,40}$/.test(slug)) return null;
-  return store().getPublishedBySlug(slug);
+  return getPublicPage(slug);
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

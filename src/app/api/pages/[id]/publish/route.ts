@@ -3,6 +3,7 @@ import { customAlphabet } from 'nanoid';
 import { getUser } from '@/lib/supabase/server';
 import { store } from '@/lib/store';
 import { ownedPage } from '@/lib/pages';
+import { bustPublicPage } from '@/lib/publicPage';
 import { RESERVED_SLUGS, SLUG_RE, pageUrl } from '@/lib/env';
 
 const randomSlug = customAlphabet('abcdefghijkmnpqrstuvwxyz23456789', 8);
@@ -25,6 +26,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const db = store();
   if (body.publish === false) {
     await db.updatePage(page.id, { status: 'paid' });
+    bustPublicPage(page.slug);
     return NextResponse.json({ ok: true, status: 'paid', slug: page.slug });
   }
 
@@ -53,5 +55,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   } catch {
     return NextResponse.json({ error: 'Энэ нэр аль хэдийн авагдсан байна' }, { status: 409 }); // unique index race
   }
+  bustPublicPage(page.slug, slug);
   return NextResponse.json({ ok: true, status: 'published', slug, url: pageUrl(slug) });
 }
