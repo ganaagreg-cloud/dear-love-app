@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Dear Love (`dearlove.mn`) — a Mongolian "digital love gift" platform. A buyer picks a template, signs in with Google, pays via **QPay through Wire** (`app.wire.mn`, a unified MN payment gateway), then edits and publishes their own page at a unique subdomain: `anu-bat.dearlove.mn`. Six templates: **Wrapped** (year-in-review), **Flight** (love flight ticket), **Quest** (adventure game), **Locket** (locket story), **Book** (scrapbook/flipbook), **LoveFlix** (Netflix-style parody).
+Dear Love (`dearlove.mn`) — a Mongolian "digital love gift" platform. A buyer picks a template, signs in with Google, pays via **QPay through Wire** (`app.wire.mn`, a unified MN payment gateway), then edits and publishes their own page at a unique link: `dearlove.mn/p/anu-bat` (production uses path links, not subdomains — see «Public links» below). Six templates: **Wrapped** (year-in-review), **Flight** (love flight ticket), **Quest** (adventure game), **Locket** (locket story), **Book** (scrapbook/flipbook), **LoveFlix** (Netflix-style parody).
 
 UI copy and comments in the codebase are largely in Mongolian; this is intentional and should be preserved in user-facing strings.
 
@@ -47,9 +47,13 @@ Field types are declared in `src/templates/types.ts` (`Field`: text, textarea, i
 4. **Publish** (`src/app/api/pages/[id]/publish`): assigns/validates the slug (`SLUG_RE`, `RESERVED_SLUGS` in `src/lib/env.ts`) and flips `status: published`.
 5. **View**: `src/app/(bare)/p/[slug]` serves the published page.
 
-### Subdomain routing
+### Public links & proxy
 
-`src/proxy.ts` (Next.js middleware) rewrites `anu-bat.dearlove.mn/` → `/p/anu-bat` when the host is a subdomain of `NEXT_PUBLIC_ROOT_DOMAIN` and not in the reserved set (`www`, `app`, `api`, `admin`). It also refreshes the Supabase auth cookie and gates `/edit`, `/dashboard`, `/buy`, `/pay` behind sign-in (or the demo cookie when Supabase isn't configured), redirecting to `/login?next=...`. A single wildcard DNS entry (`*.dearlove.mn` → Vercel, nameservers pointed at `ns1/ns2.vercel-dns.com`) makes every buyer's subdomain work without per-page DNS.
+**Production serves published gifts at `https://dearlove.mn/p/<slug>`** (`src/lib/env.ts::pageUrl`). Subdomain links (`<slug>.dearlove.mn`) are an *optional* mode that only turns on when `NEXT_PUBLIC_ROOT_DOMAIN` is set; DNS for that mode (a `*` wildcard on Vercel) is **not configured**, so never set that variable in production — every link would point at a host that doesn't resolve.
+
+`src/proxy.ts` (Next.js middleware) refreshes the Supabase auth cookie and gates `/edit`, `/dashboard`, `/buy`, `/pay` behind sign-in (or the demo cookie when Supabase isn't configured), redirecting to `/login?next=...`. Only when `NEXT_PUBLIC_ROOT_DOMAIN` is set does it also rewrite `<slug>.<root>/` → `/p/<slug>` (skipping reserved hosts `www`, `app`, `api`, `admin`).
+
+Published pages are cached for 60s (`src/lib/publicPage.ts`); anything that changes what a public link shows must call `bustPublicPage(slug)`.
 
 ### Route groups
 
