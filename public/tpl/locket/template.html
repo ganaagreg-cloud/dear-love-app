@@ -95,7 +95,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 #s-prologue{justify-content:center;gap:3.2vh}
 #s-prologue .script{font-size:clamp(3.6rem,12vw,8.5rem);line-height:1}
 #s-prologue .lines{font-size:clamp(1.15rem,2.2vw,1.7rem);color:var(--cream-dim)}
-.tiny{font-size:.85rem;letter-spacing:.18em;color:rgba(244,234,214,.4);font-style:italic}
+.tiny{font-size:.85rem;letter-spacing:.18em;color:rgba(244,234,214,.62);font-style:italic}
 
 .btn-gold{position:relative;padding:15px 38px;border-radius:999px;letter-spacing:.34em;text-transform:uppercase;font-size:.8rem;font-weight:500;
   color:#1a1206;background:linear-gradient(135deg,#f7e6b0,#d4a955 45%,#b5873a 70%,#f0d690);
@@ -176,7 +176,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 
 .under{position:absolute;left:0;right:0;top:calc(var(--L) + var(--W) + 30px);display:flex;flex-direction:column;align-items:center;gap:12px;z-index:4;padding:0 16px}
 .locket-cap{font-family:var(--script);font-size:clamp(1.6rem,3.4vw,2.6rem);color:var(--gold-hi);opacity:0;text-shadow:0 0 24px rgba(246,227,168,.35)}
-.drag-hint{font-size:.8rem;font-style:italic;letter-spacing:.14em;color:rgba(244,234,214,.45)}
+.drag-hint{font-size:.8rem;font-style:italic;letter-spacing:.14em;color:rgba(244,234,214,.62)}
 
 .envelope{position:absolute;left:50%;bottom:6.5vh;width:min(210px,46vw);aspect-ratio:1.55;margin-left:calc(min(210px,46vw) / -2);perspective:800px;z-index:5;cursor:pointer;visibility:hidden}
 .env-back,.env-front,.env-flap,.env-letter{position:absolute;inset:0}
@@ -204,12 +204,12 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
   box-shadow:0 40px 90px -20px rgba(0,0,0,.9),inset 0 0 80px rgba(160,120,70,.18);
   user-select:text;-webkit-user-select:text;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:#c9b187 transparent}
 .paper h3{font-family:var(--script);font-weight:400;font-size:clamp(2.2rem,6vw,3rem);text-align:center;color:#6b1420;line-height:68px}
-.paper .date{text-align:center;font-size:.7rem;letter-spacing:.34em;text-transform:uppercase;color:#9b7f60;margin:0;height:34px;line-height:34px}
+.paper .date{text-align:center;font-size:.7rem;letter-spacing:.34em;text-transform:uppercase;color:#7a5f43;margin:0;height:34px;line-height:34px}
 .paper .body p{font-size:clamp(1.08rem,2.6vw,1.24rem);line-height:34px;margin-bottom:34px;text-align:left;min-height:34px}
 .paper .body p.sig{font-family:var(--script);font-size:1.5rem;margin-bottom:0;color:#6b1420}
 .caret{display:inline-block;width:1px;height:1.05em;background:#6b1420;vertical-align:-3px;margin-left:1px;animation:blink .9s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
-.paper .x{position:absolute;right:14px;top:12px;width:36px;height:36px;border-radius:50%;font-size:22px;color:#8a6a4a;line-height:1}
+.paper .x{position:absolute;right:10px;top:8px;width:44px;height:44px;border-radius:50%;font-size:22px;color:#8a6a4a;line-height:1}
 .paper .x:hover{background:rgba(0,0,0,.05)}
 .paper .actions{position:sticky;bottom:-30px;display:flex;justify-content:center;padding:14px 0 18px;background:linear-gradient(180deg,rgba(251,246,234,0),#fbf6ea 45%)}
 .paper .skip{padding:8px 22px;border-radius:999px;border:1px solid rgba(107,20,32,.35);font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;color:#6b1420;font-weight:600}
@@ -221,13 +221,13 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 .q{font-size:clamp(1.25rem,2.6vw,2rem);font-style:italic;font-weight:300;max-width:760px}
 .choices{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
 .answer{font-family:var(--script);font-size:clamp(1.8rem,4vw,3rem);color:var(--gold-hi);min-height:1.3em}
-.replay{margin-top:1vh;font-size:.78rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(244,234,214,.45);opacity:0}
+.replay{margin-top:1vh;font-size:.78rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(244,234,214,.62);opacity:0}
 .replay:hover{color:var(--gold-hi)}
-.signed{font-size:.9rem;letter-spacing:.2em;color:rgba(244,234,214,.45);font-style:italic}
+.signed{font-size:.9rem;letter-spacing:.2em;color:rgba(244,234,214,.62);font-style:italic}
 
 /* HUD */
 .hint{position:fixed;left:50%;bottom:max(3.2vh,18px);transform:translateX(-50%);z-index:12;display:flex;flex-direction:column;align-items:center;gap:8px;
-  font-size:.72rem;letter-spacing:.34em;text-transform:uppercase;color:rgba(244,234,214,.55);opacity:0;pointer-events:none;padding-left:.34em;white-space:nowrap}
+  font-size:.72rem;letter-spacing:.34em;text-transform:uppercase;color:rgba(244,234,214,.66);opacity:0;pointer-events:none;padding-left:.34em;white-space:nowrap}
 .hint i{display:block;width:1px;height:26px;background:linear-gradient(180deg,var(--gold),transparent);animation:drip 1.8s ease-in-out infinite;transform-origin:top}
 @keyframes drip{0%{transform:scaleY(0);opacity:1}60%{transform:scaleY(1);opacity:1}100%{transform:scaleY(1);opacity:0}}
 .progress{position:fixed;left:max(2.2vw,14px);top:50%;transform:translateY(-50%);z-index:12;display:flex;flex-direction:column;gap:12px}
@@ -360,7 +360,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
       <p class="locket-cap" id="locketCap"></p>
     </div>
 
-    <div class="envelope" id="envelope" aria-label="Захидлыг нээх" role="button">
+    <div class="envelope" id="envelope" aria-label="Захидлыг нээх" role="button" tabindex="0">
       <div class="env-tip" id="envTip">чамд захидал ирлээ</div>
       <div class="env-back"></div>
       <div class="env-letter" id="envLetter"></div>
@@ -899,7 +899,9 @@ addEventListener('wheel', e => {
   wheelLock = now + 1400;
   if (e.deltaY > 0) advance(); else if (!busy && current > 1 && current !== 6) go(current - 1);
 }, { passive: true });
+$('#envelope').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); e.currentTarget.click(); } });
 addEventListener('keydown', e => {
+  if (e.target.closest && e.target.closest('#envelope')) return;
   if (e.key === 'Escape' && $('#modal').style.visibility === 'visible') return closeLetter();
   if ($('#modal').style.visibility === 'visible') return;
   if ([' ', 'Enter', 'ArrowRight', 'ArrowDown', 'PageDown'].includes(e.key)) { e.preventDefault(); if (current === 0) begin(); else advance(); }

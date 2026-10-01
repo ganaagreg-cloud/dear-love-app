@@ -47,9 +47,9 @@ export default function Browse({ data, copy, onPlay }: ScreenProps & { onPlay: (
         <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
           <div className="lf-logo" data-field="accent">LoveFlix</div>
           <div className="lf-nav-links">
-            <span onClick={() => scrollTo('.lf-hero')} style={{ cursor: 'pointer' }}>Нүүр</span>
-            <span onClick={() => scrollTo('.lf-rows')} style={{ cursor: 'pointer' }}>Бид</span>
-            <span onClick={() => scrollTo('.lf-row-cta')} style={{ cursor: 'pointer' }}>Миний жагсаалт</span>
+            <button type="button" onClick={() => scrollTo('.lf-hero')}>Нүүр</button>
+            <button type="button" onClick={() => scrollTo('.lf-rows')}>Бид</button>
+            <button type="button" onClick={() => scrollTo('.lf-row-cta')}>Миний жагсаалт</button>
           </div>
         </div>
         <div className="lf-nav-avatar" data-field="partnerName">{initial(name)}</div>

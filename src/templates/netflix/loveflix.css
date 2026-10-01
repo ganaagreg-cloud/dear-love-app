@@ -53,6 +53,9 @@
 /* ── 3. BROWSE: NAV ── */
 .loveflix .lf-nav { position: absolute; top: 0; left: 0; right: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; padding: 18px clamp(16px, 4vw, 48px); background: linear-gradient(180deg, rgba(0,0,0,0.85), transparent); }
 .loveflix .lf-nav .lf-logo { font-size: clamp(1.5rem, 5vw, 2.2rem); }
+.loveflix .lf-nav-links button { background: none; border: 0; padding: 12px 4px; color: inherit; font: inherit; cursor: pointer; }
+.loveflix .lf-nav-links button:hover { color: #fff; }
+.loveflix .lf-nav-links button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; border-radius: 3px; }
 .loveflix .lf-nav-links { display: none; gap: 20px; color: #e5e5e5; font-size: 0.9rem; }
 .loveflix .lf-nav-avatar { width: 34px; height: 34px; border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-family: 'Oswald', Impact, sans-serif; text-transform: uppercase; font-weight: 600; font-size: 1.1rem; background: linear-gradient(135deg, var(--lf-accent), #b1060f); }
 @media (min-width: 700px) { .loveflix .lf-nav-links { display: flex; } }

@@ -195,7 +195,7 @@ function DepartureBoard({ data, onSkip }: { data: FlightData; onSkip: () => void
     { t: '11:40', f: 'LV 404', to: 'ГАНЦААРАА', s: 'ЦУЦЛАВ' },
   ];
   return (
-    <div className="fl-board" onClick={onSkip}>
+    <div className="fl-board" role="button" tabIndex={0} aria-label="Үргэлжлүүлэх" onClick={onSkip} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSkip(); } }}>
       <div className="fl-board-head"><span>✈︎ ХӨӨРӨХ</span><Clock /></div>
       <div className="fl-board-table">
         <div className="fl-board-row th"><span>ЦАГ</span><span>НИСЛЭГ</span><span>ЧИГЛЭЛ</span><span>ТӨЛӨВ</span></div>
