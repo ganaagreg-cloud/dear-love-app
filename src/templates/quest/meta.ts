@@ -60,11 +60,6 @@ export const questMeta: TemplateMeta = {
         { type: 'textarea', key: 'ending', label: 'Төгсгөлийн мессеж', max: 220, rows: 4, tokens: true, previewPage: 'ending', example: 'Миний 2-р тоглогч болсонд баярлалаа. Хайртай, {npc}' },
       ],
     },
-    {
-      id: 'music', title: 'Хөгжим', summary: 'Тоглоом тоглож байх үеийн хөгжим.', short: 'Хөгжим', previewPage: 'music',
-      description: 'Тоглоомын чиптюн хөгжим өөрөө эгшиглэнэ. Нэмж өөрийн дууг ♫ товчоор сонсгож болно.',
-      fields: [{ type: 'spotify', key: 'song', label: 'Бидний дуу — Spotify холбоос (заавал биш)', placeholder: 'https://open.spotify.com/track/…', help: 'Spotify дээр дууны «Share → Copy song link» дарж буулгана. Хүлээн авагч ♫ товч дарж сонсоно.' }],
-    },
   ],
   tour: ['title', 'characters', 'chest:0', 'chest:2', 'dialog:question', 'ending'],
   defaults: {

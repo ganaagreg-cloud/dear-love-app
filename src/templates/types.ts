@@ -19,7 +19,7 @@ export type Field =
   | (Base & { type: 'textarea'; max?: number; rows?: number; placeholder?: string })
   | (Base & { type: 'image' })
   | (Base & { type: 'images'; max: number })
-  | (Base & { type: 'audio'; maxMB?: number })
+  | (Base & { type: 'audio'; maxMB?: number; /** Library track ids this template offers (src/lib/music.json); all if omitted. */ tracks?: string[] })
   | (Base & { type: 'color'; presets?: string[] })
   | (Base & { type: 'date' })
   | (Base & { type: 'select'; options: { value: string; label: string }[] })

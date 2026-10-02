@@ -1,3 +1,8 @@
 {
-  "tracks": []
+  "tracks": [
+    { "id": "hooptie", "title": "Хөгжилтэй lo-fi", "mood": "Хөнгөн · хөгжилтэй", "file": "hooptie.mp3" },
+    { "id": "aria", "title": "Зөөлөн төгөлдөр хуур", "mood": "Удаан · намуухан", "file": "aria.mp3" },
+    { "id": "uyanga", "title": "Уянгалаг төгөлдөр хуур", "mood": "Удаан · дулаахан", "file": "uyanga.mp3" },
+    { "id": "nandin", "title": "Нандин төгөлдөр хуур", "mood": "Удаан · бодолтой", "file": "nandin.mp3" }
+  ]
 }

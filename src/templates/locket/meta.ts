@@ -70,8 +70,8 @@ export const locketMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'music', title: 'Хөгжим', summary: 'Түүх үзэх үед хүлээн авагч ♫ товч дарж сонсох таны дуу.',
-      fields: [{ type: 'spotify', key: 'song', label: 'Бидний дуу — Spotify холбоос (заавал биш)', placeholder: 'https://open.spotify.com/track/…', help: 'Spotify дээр дууны «Share → Copy song link» дарж буулгана. Хүлээн авагч ♫ товч дарж сонсоно.' }],
+      id: 'music', title: 'Хөгжим', summary: 'Түүх үзэх үеийн арын хөгжим.',
+      fields: [{ type: 'audio', key: 'music', label: 'Арын хөгжим (заавал биш)', tracks: ['aria', 'uyanga', 'nandin'] }],
     },
   ],
   defaults: {

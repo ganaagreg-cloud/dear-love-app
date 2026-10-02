@@ -123,7 +123,7 @@ function Control({ field: f, value, onChange, upload, tokens }: Props) {
     case 'images':
       return <ImageGrid fkey={f.key} urls={asArr(value)} max={f.max} onChange={(u) => onChange(u)} upload={upload} />;
     case 'audio':
-      return <MusicPicker url={asStr(value)} onChange={(u) => onChange(u)} />;
+      return <MusicPicker url={asStr(value)} onChange={(u) => onChange(u)} only={f.tracks} />;
   }
 }
 
@@ -356,7 +356,8 @@ function ImageGrid({ fkey, urls, max, onChange, upload }: { fkey: string; urls: 
 }
 
 /** Pick the gift's music from our library — nothing is uploaded. ▶ previews a track. */
-function MusicPicker({ url, onChange }: { url: string; onChange: (u: string) => void }) {
+function MusicPicker({ url, onChange, only }: { url: string; onChange: (u: string) => void; only?: string[] }) {
+  const tracks = only ? MUSIC.filter((t) => only.includes(t.id)) : MUSIC;
   const audio = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState<string | null>(null);
   useEffect(() => () => { audio.current?.pause(); }, []);
@@ -368,13 +369,13 @@ function MusicPicker({ url, onChange }: { url: string; onChange: (u: string) => 
     audio.current.play().catch(() => setPlaying(null));
     setPlaying(t.id);
   };
-  if (!MUSIC.length) return <p className="ed-help">Хөгжмийн сан удахгүй нэмэгдэнэ.</p>;
+  if (!tracks.length) return <p className="ed-help">Хөгжмийн сан удахгүй нэмэгдэнэ.</p>;
   return (
     <div className="ed-music" role="radiogroup">
       <button type="button" role="radio" aria-checked={!url} className={`ed-track ${!url ? 'on' : ''}`} onClick={() => onChange('')}>
         <span className="ed-track-name">Хөгжимгүй</span>
       </button>
-      {MUSIC.map((t) => (
+      {tracks.map((t) => (
         <div key={t.id} className={`ed-track ${url === musicUrl(t) ? 'on' : ''}`}>
           <button type="button" className="ed-track-play" onClick={() => preview(t)} aria-label={`${t.title} — ${playing === t.id ? 'зогсоох' : 'сонсох'}`}>{playing === t.id ? '■' : '▶'}</button>
           <button type="button" role="radio" aria-checked={url === musicUrl(t)} className="ed-track-name" onClick={() => onChange(musicUrl(t))}>
