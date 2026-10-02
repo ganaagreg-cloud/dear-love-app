@@ -13,7 +13,15 @@ export const dynamic = 'force-dynamic';
 export default async function Dashboard() {
   const user = await getUser();
   if (!user) redirect('/login?next=/dashboard');
-  const pages = await store().listPages(user.id);
+  const all = await store().listPages(user.id);
+  // Abandoned checkouts: show only the newest unpaid page per template (listPages is newest-first).
+  const seenUnpaid = new Set<string>();
+  const pages = all.filter((p) => {
+    if (p.paid_at) return true;
+    if (seenUnpaid.has(p.template_id)) return false;
+    seenUnpaid.add(p.template_id);
+    return true;
+  });
 
   return (
     <div className="container" style={{ paddingBottom: 80 }}>
@@ -39,6 +47,8 @@ export default async function Dashboard() {
                 <div>
                   <h3>{t?.name ?? p.title}</h3>
                   <span className={`pill ${p.status === 'pending_payment' ? 'pending' : p.status}`}>{label}</span>
+                  {p.status === 'pending_payment' && <p className="small muted" style={{ margin: '6px 0 0' }}>Төлбөр төлсний дараа засаж, нийтлэх боломжтой</p>}
+                  {p.status === 'paid' && <p className="small muted" style={{ margin: '6px 0 0' }}>Засаж дуусаад «Нийтлэх» дарж холбоосоо аваарай</p>}
                   {p.status === 'published' && link && <p className="small muted" style={{ margin: '6px 0 0', wordBreak: 'break-all' }}>{link.replace(/^https?:\/\//, '')}</p>}
                   <p className="small muted" style={{ margin: '4px 0 0' }}>Шинэчилсэн: {new Date(p.updated_at).toLocaleDateString('en-CA')}</p>
                 </div>
@@ -46,7 +56,9 @@ export default async function Dashboard() {
                   {p.paid_at ? (
                     <>
                       <Link href={`/edit/${p.id}`} className="btn btn-sm btn-primary">Засах</Link>
-                      {p.status === 'published' && link && <><a href={link} target="_blank" rel="noreferrer" className="btn btn-sm">Үзэх</a><CopyLink url={link} /></>}
+                      {p.status === 'pending_payment' && <p className="small muted" style={{ margin: '6px 0 0' }}>Төлбөр төлсний дараа засаж, нийтлэх боломжтой</p>}
+                  {p.status === 'paid' && <p className="small muted" style={{ margin: '6px 0 0' }}>Засаж дуусаад «Нийтлэх» дарж холбоосоо аваарай</p>}
+                  {p.status === 'published' && link && <><a href={link} target="_blank" rel="noreferrer" className="btn btn-sm">Үзэх</a><CopyLink url={link} /></>}
                     </>
                   ) : (
                     <PayButton pageId={p.id} label="Төлөх" size="sm" />

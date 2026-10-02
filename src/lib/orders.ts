@@ -24,6 +24,8 @@ export async function createOrder(userId: string, input: { templateId?: string; 
   const provider = wireConfigured() ? 'wire' : 'mock';
   if (provider === 'mock' && !mockPaymentsAllowed()) throw new HttpError(503, 'Төлбөрийн систем тохируулагдаагүй байна');
 
+  // Re-use the buyer's unpaid page for this template so abandoned checkouts don't pile up as duplicates.
+  if (!pageId) pageId = (await db.listPages(userId)).find((p) => p.template_id === meta.id && !p.paid_at && p.status === 'pending_payment')?.id;
   if (!pageId) pageId = (await db.createPage(userId, meta.id, meta.name)).id;
   const order = await db.createOrder({ user_id: userId, page_id: pageId, template_id: meta.id, amount: meta.price, provider });
 
