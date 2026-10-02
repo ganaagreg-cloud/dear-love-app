@@ -40,7 +40,7 @@ export const flightMeta: TemplateMeta = {
       ],
     },
     {
-      id: 'stops', title: 'Замын буудлууд', summary: 'Газрын зураг дээрх буудлууд — буудал бүр зураг, тэмдэглэлтэй ил захидал.', previewPage: 'fly',
+      id: 'stops', title: 'Замын буудлууд', summary: 'Газрын зураг дээрх буудлууд — буудал бүр зураг, тэмдэглэлтэй ил захидал.', previewPage: 'fly', perItem: { count: 6, label: 'Буудал' },
       description: 'Та хоёрын түүхийн 6 хүртэл газар. Нэрийг нь хоосон орхивол тэр буудлыг алгасна.',
       fields: [
         { type: 'list', key: 'stopNames', label: 'Газрын нэр', count: 6, max: 26, itemLabel: 'Газар', itemPreview: 'stop:', example: 'Анхны болзоо' },

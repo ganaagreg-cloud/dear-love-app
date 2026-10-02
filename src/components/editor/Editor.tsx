@@ -5,9 +5,9 @@ import './editor.css';
 import { allFields, type Content, type ContentValue, type Field, type Section, type TemplateMeta } from '@/templates/types';
 import { FieldControl, ImageSlot, TextBox, asArr } from './Fields';
 import { Cards } from './Cards';
+import { ItemStep, buildSteps, itemFields, stepKeyFor, stepPin, stepTitle } from './Steps';
 import { uploadMedia } from '@/lib/upload';
 import { PreviewFrame, type Device } from './PreviewFrame';
-import { Quick } from './Quick';
 import { QUICK } from '@/templates/quickRegistry';
 import { IntroModal, RecipientView, ShareScreen, introSeenLocally, markIntroSeen } from './Guide';
 import { suggestSlug } from '@/lib/slug';
@@ -50,7 +50,7 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   useEffect(() => { if (!introSeen && !introSeenLocally()) setIntro(true); }, [introSeen]);
   const closeIntro = useCallback(() => { setIntro(false); markIntroSeen(); }, []);
   const [recipientView, setRecipientView] = useState(false);
-  const [open, setOpen] = useState<string>(meta.schema[0]?.id ?? '');
+  const [open, setOpen] = useState<string>(meta.schema[0] ? stepKeyFor(meta.schema[0], null) : '');
   // the preview scene of whatever field/card has focus; falls back to the step's own scene
   const [focusPin, setFocusPin] = useState<string | number | null>(null);
   // A jump from the preview / «Анхаарах зүйл» opens a step with a specific scene already set —
@@ -59,11 +59,6 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   const pinLock = useRef<{ base: string } | null>(null);
   useEffect(() => { if (keepPin.current) { keepPin.current = false; return; } setFocusPin(null); }, [open]);
   const [device, setDevice] = useState<Device>('desktop');
-  // Quick create (names → photos → tone → publish) is the default for a gift that isn't
-  // published yet; «Дэлгэрэнгүй засах» opens the full step editor. ?mode=advanced forces it.
-  const quick = QUICK[meta.id];
-  const [mode, setMode] = useState<'quick' | 'advanced'>(quick && initialStatus !== 'published' ? 'quick' : 'advanced');
-  useEffect(() => { if (new URLSearchParams(location.search).get('mode') === 'advanced') setMode('advanced'); }, []);
   const [tab, setTab] = useState<'edit' | 'preview'>('edit');
   const [share, setShare] = useState(false);
   const [publishing, setPublishing] = useState(false);
@@ -73,11 +68,14 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   /* ── live preview ── */
   const latest = useRef(content); latest.current = content;
   const [previewingFull, setPreviewingFull] = useState(false);
-  const openIndex = meta.schema.findIndex((s) => s.id === open);
-  const currentSection = meta.schema[openIndex] ?? meta.schema[0];
-  const prevSection = openIndex > 0 ? meta.schema[openIndex - 1] : undefined;
-  const nextSection = openIndex >= 0 && openIndex < meta.schema.length - 1 ? meta.schema[openIndex + 1] : undefined;
-  const pin = previewingFull ? null : (focusPin ?? currentSection?.previewPage ?? null);
+  // the walk-through: one step per page (a section with many items gives one step per item)
+  const steps = useMemo(() => buildSteps(meta, content, open), [meta, content, open]);
+  const openIndex = Math.max(0, steps.findIndex((x) => x.key === open));
+  const step = steps[openIndex];
+  const currentSection = step?.sec;
+  const prevStep = openIndex > 0 ? steps[openIndex - 1] : undefined;
+  const nextStep = openIndex < steps.length - 1 ? steps[openIndex + 1] : undefined;
+  const pin = previewingFull ? null : (focusPin ?? (step ? stepPin(step) : null));
   const debounce = meta.previewDebounceMs ?? 700;
 
   /* ── autosave ── */
@@ -211,7 +209,7 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
       el.removeEventListener('focusin', fin); el.removeEventListener('focusout', fout);
       el.removeEventListener('pointerover', over); el.removeEventListener('pointerleave', leave);
     };
-  }, [mode]);
+  }, []);
   const current = sheet ?? active;
   useEffect(() => {
     broadcast({ type: 'dear:focus-field', field: current, label: current ? labelFor(current) : '' });
@@ -238,8 +236,9 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   const openField = useRef((id: string) => {});
   openField.current = (id: string) => {
     const r = fieldOf(id); if (!r) return;
-    if (r.sec.id !== open) keepPin.current = true;
-    setOpen(r.sec.id);
+    const key = stepKeyFor(r.sec, r.idx);
+    if (key !== open) keepPin.current = true;
+    setOpen(key);
     const p = pinFor(id);
     if (p != null) { setFocusPin(p); pinLock.current = { base: r.f.key }; }
     if (tab === 'preview' && window.innerWidth < 900) { setSheet(id); return; }
@@ -314,19 +313,6 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
     </>
   );
 
-  if (mode === 'quick' && quick) {
-    return (
-      <>
-        <Quick
-          meta={meta} spec={quick} content={content} onPatch={patch} upload={upload}
-          saveLabel={saveLabel} save={save} status={status} publishing={publishing} publishErr={publishErr}
-          onPublish={publish} onShare={() => setShare(true)} onAdvanced={() => setMode('advanced')} onHelp={() => setIntro(true)}
-        />
-        {shareModal}
-      </>
-    );
-  }
-
   return (
     <div className="ed" data-tab={tab}>
       <header className="ed-top">
@@ -347,9 +333,6 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
         <div className="row">
             <button className="btn btn-sm ed-icon-btn" onClick={() => setIntro(true)} aria-label="Хэрхэн ашиглах вэ?" title="Хэрхэн ашиглах вэ?">?</button>
           <button className="btn btn-sm ed-recipient-btn" onClick={() => setRecipientView(true)} title="Утсан дээр яг ингэж нээгдэнэ">👁<span className="ed-lbl"> Хүлээн авагч юу харах вэ?</span></button>
-          {quick && (
-            <button className="btn btn-sm btn-ghost ed-quick-back" onClick={() => setMode('quick')} title="Нэр, зураг, өнгө аясаа 4 алхмаар">⚡<span className="ed-lbl"> Хялбар</span></button>
-          )}
           <div className="ed-devices">
             <button className={device === 'desktop' ? 'on' : ''} onClick={() => setDevice('desktop')} title="Компьютер">🖥</button>
             <button className={device === 'mobile' ? 'on' : ''} onClick={() => setDevice('mobile')} title="Утас">📱</button>
@@ -389,26 +372,29 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
             )}
           </div>
         )}
+        <p className="ed-steps-hint"><span aria-hidden>👇</span> Хуудас солихдоо доорх дугааруудыг дарна. Бэлэг дээрх дэлгэцийг дарснаар хуудас эргэхгүй.</p>
         <nav className="ed-steps" aria-label="Хэсгүүд">
-          {meta.schema.map((s, i) => {
+          {steps.map((st, i) => {
             // Page-based templates (Book: numeric previewPage) label each step with the page
             // number the preview's counter shows for it; sections that aren't tied to one
-            // page (Book's bulk photo upload) get an icon. Scene-based templates keep 1..n.
-            const pageNo = typeof s.previewPage === 'number' ? s.previewPage + 1 : null;
+            // page (Book's bulk photo upload) get an icon. Everything else is numbered 1..n in walk order.
+            const s = st.sec;
+            const pageNo = st.item == null && typeof s.previewPage === 'number' ? s.previewPage + 1 : null;
             const paged = meta.schema.some((x) => typeof x.previewPage === 'number');
-            const label = s.short ?? (paged ? (pageNo ?? '▦') : i + 1);
+            const label = st.item != null ? i + 1 : (s.short ?? (paged ? (pageNo ?? '▦') : i + 1));
             // ⚠ = something required is still empty; ✓ = nothing required is missing
-            const state = !tracksRequired ? null : missing(s, content) ? 'todo' : 'done';
+            const state = !tracksRequired || st.item != null ? null : missing(s, content) ? 'todo' : 'done';
             const stateLabel = state === 'todo' ? ' · дутуу' : state === 'done' ? ' · бэлэн' : '';
+            const name = (pageNo ? `${pageNo}-р хуудас · ` : `${i + 1}. `) + stepTitle(st);
             return (
               <button
-                key={s.id}
+                key={st.key}
                 type="button"
-                className={`ed-step ${s.short ? 'wide' : ''} ${open === s.id ? 'on' : ''} ${state ?? ''}`}
-                aria-current={open === s.id ? 'step' : undefined}
-                aria-label={(pageNo ? `${pageNo}-р хуудас · ${s.title}` : s.title) + stateLabel}
-                title={(pageNo ? `${pageNo}-р хуудас · ${s.title}` : s.title) + stateLabel}
-                onClick={() => setOpen(s.id)}
+                className={`ed-step ${s.short && st.item == null ? 'wide' : ''} ${open === st.key ? 'on' : ''} ${state ?? ''}`}
+                aria-current={open === st.key ? 'step' : undefined}
+                aria-label={name + stateLabel}
+                title={name + stateLabel}
+                onClick={() => setOpen(st.key)}
               >
                 {label}
                 {state && <i aria-hidden>{state === 'todo' ? '⚠' : '✓'}</i>}
@@ -419,19 +405,21 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
         {currentSection && (
           <section className="ed-sec open">
             <h2 className="ed-sec-title">
-              <span>{currentSection.title}</span>
+              <span><small className="ed-progress">Алхам {openIndex + 1}/{steps.length}</small>{stepTitle(step)}</span>
               {/* mini-map: the page/scene this step controls, with the focused element marked */}
               <PreviewFrame
-                inert thumb className="ed-minimap" title={`${currentSection.title} — бяцхан зураг`}
+                inert thumb className="ed-minimap" title={`${stepTitle(step)} — бяцхан зураг`}
                 templateId={meta.id} content={content} pin={pin} device="mobile" pad={0} debounceMs={1500}
               />
             </h2>
             <div className="ed-sec-body">
               {currentSection.summary && <p className="ed-summary">{currentSection.summary}</p>}
               {currentSection.description && <p className="ed-help" style={{ marginTop: 0 }}>{currentSection.description}</p>}
+              {step.item != null && <ItemStep step={step} content={content} onPatch={patch} upload={upload} tokens={meta.tokens} />}
               {(() => {
-                const cards = currentSection.cards;
-                const inCards = (k: string) => !!cards && (k === cards.image || k === cards.title || k === cards.text);
+                const cards = step.item != null ? undefined : currentSection.cards;
+                const itemKeys = new Set(step.item != null ? itemFields(currentSection).map((f) => f.key) : []);
+                const inCards = (k: string) => itemKeys.has(k) || (!!cards && (k === cards.image || k === cards.title || k === cards.text));
                 const maxOf = (k: string) => { const f = currentSection.fields.find((x) => x.key === k); return f && 'max' in f ? f.max : undefined; };
                 const tokensFor = (k: string) => (currentSection.fields.find((x) => x.key === k)?.tokens ? meta.tokens : undefined);
                 return (
@@ -454,14 +442,16 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
                 );
               })()}
               <div className="ed-step-nav">
-                {prevSection
-                  ? <button className="btn btn-sm" onClick={() => setOpen(prevSection.id)}>← Өмнөх</button>
+                {prevStep
+                  ? <button className="btn" onClick={() => setOpen(prevStep.key)} title={stepTitle(prevStep)}>← Өмнөх</button>
                   : <span />}
-                {nextSection && (
-                  <button className="btn btn-sm btn-primary" onClick={() => setOpen(nextSection.id)} title={nextSection.title}>
-                    Дараах →
+                {nextStep ? (
+                  <button className="btn btn-primary" onClick={() => setOpen(nextStep.key)} title={stepTitle(nextStep)}>
+                    Дараах: {stepTitle(nextStep)} →
                   </button>
-                )}
+                ) : status !== 'published' ? (
+                  <button className="btn btn-rose" onClick={publish} disabled={publishing}>{publishing ? 'Нийтэлж байна…' : 'Нийтлэх 💌'}</button>
+                ) : null}
               </div>
             </div>
           </section>

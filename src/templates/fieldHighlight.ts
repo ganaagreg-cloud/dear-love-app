@@ -185,16 +185,23 @@ export function useFieldHighlight(edit: boolean) {
       const target = (e: Event) => (e.target instanceof d.defaultView!.Element ? e.target.closest('[data-field]') : null);
       const over = (e: Event) => { hover = target(e); };
       const out = (e: Event) => { if (target(e) === hover) hover = null; };
+      // In the editor the preview never navigates on its own: only the step numbers on the left change
+      // the page (and «▶ Бүтнээр» plays it). So every tap is swallowed; a tap on a field opens it.
       const block = (e: Event) => {
-        const el = target(e);
-        if (!el || el.closest('[data-pick]')) return; // Book photo tiles open the file picker themselves
+        const t = e.target instanceof d.defaultView!.Element ? e.target : null;
+        if (t?.closest('[data-pick]')) return; // Book photo tiles open the file picker themselves
         e.preventDefault(); e.stopPropagation();
-        if (e.type === 'click') parent.postMessage({ type: 'dear:field-click', field: el.getAttribute('data-field') }, origin);
+        const el = target(e);
+        if (el && e.type === 'click') parent.postMessage({ type: 'dear:field-click', field: el.getAttribute('data-field') }, origin);
       };
+      const NAV_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', ' ', 'Enter']);
+      const key = (e: Event) => { if (NAV_KEYS.has((e as KeyboardEvent).key)) { e.preventDefault(); e.stopPropagation(); } };
+      d.addEventListener('keydown', key, true);
       d.addEventListener('pointerover', over, true); d.addEventListener('pointerout', out, true);
       for (const t of ['pointerdown', 'mousedown', 'touchstart', 'click']) d.addEventListener(t, block, { capture: true, passive: false });
       cleanups.push(() => {
         d.documentElement.classList.remove('dear-edit');
+        d.removeEventListener('keydown', key, true);
         d.removeEventListener('pointerover', over, true); d.removeEventListener('pointerout', out, true);
         for (const t of ['pointerdown', 'mousedown', 'touchstart', 'click']) d.removeEventListener(t, block, true);
       });

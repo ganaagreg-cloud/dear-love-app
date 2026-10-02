@@ -10,13 +10,14 @@ import QrCode from '@/components/QrCode';
 
 const SLIDES = [
   { art: 'live', title: 'Бөглөхөд баруун талд шууд харагдана', text: 'Нэр, үг, зураг оруулах бүрт бэлэг тань тэр дороо шинэчлэгдэнэ. Утсан дээр «Харах» дээр дарж үзнэ.' },
-  { art: 'tap', title: 'Зураг дээр дарж шууд засна', text: 'Бэлэг дээрх бичиг, зураг дээр дарахад тэр хэсгийн талбар нээгдэнэ. «📍» товч юу хаана байгааг дугаарлаж харуулна.' },
+  { art: 'tap', title: 'Зураг дээр дарж шууд засна', text: 'Бэлэг дээрх бичиг, зураг дээр дарахад тэр хэсгийн талбар нээгдэнэ. Зүүн талын 1, 2, 3… дугаараар хуудсаа сольно. «📍» товч юу хаана байгааг дугаарлаж харуулна.' },
   { art: 'save', title: 'Бүгд автоматаар хадгалагдана — бэлэн бол «Нийтлэх»', text: 'Хадгалах товч хэрэггүй. Нийтэлсний дараа линкээ илгээхэд л болно, дараа нь ч засаж болно.' },
 ] as const;
 
 export function IntroModal({ onClose }: { onClose: () => void }) {
   const [i, setI] = useState(0);
-  const s = SLIDES[i], last = i === SLIDES.length - 1;
+  const slides = SLIDES;
+  const s = slides[i], last = i === slides.length - 1;
   useEffect(() => {
     const k = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); if (e.key === 'ArrowRight' && !last) setI(i + 1); if (e.key === 'ArrowLeft' && i) setI(i - 1); };
     window.addEventListener('keydown', k);
@@ -34,7 +35,7 @@ export function IntroModal({ onClose }: { onClose: () => void }) {
         <h2>{s.title}</h2>
         <p>{s.text}</p>
         <div className="gd-dots" role="tablist" aria-label="Слайд">
-          {SLIDES.map((_, k) => <button key={k} type="button" role="tab" aria-selected={k === i} aria-label={`${k + 1}-р слайд`} className={k === i ? 'on' : ''} onClick={() => setI(k)} />)}
+          {slides.map((_, k) => <button key={k} type="button" role="tab" aria-selected={k === i} aria-label={`${k + 1}-р слайд`} className={k === i ? 'on' : ''} onClick={() => setI(k)} />)}
         </div>
         <div className="gd-actions">
           {i > 0 && <button type="button" className="btn" onClick={() => setI(i - 1)}>← Өмнөх</button>}

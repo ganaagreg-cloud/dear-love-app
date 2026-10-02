@@ -123,7 +123,7 @@ export function Cards({ cfg, content, onPatch, upload, tokens, titleMax, textMax
   );
 }
 
-function CardPhoto({ src, upload, onChange }: { src: string; upload: Uploader; onChange: (u: string) => void }) {
+export function CardPhoto({ src, upload, onChange }: { src: string; upload: Uploader; onChange: (u: string) => void }) {
   const input = useRef<HTMLInputElement>(null);
   const { busy, err, run } = useUpload(upload);
   const pick = async (files: FileList | null) => { if (!files?.length) return; const [u] = await run([files[0]], 'image'); if (u) onChange(u); };
@@ -145,5 +145,30 @@ function CardPhoto({ src, upload, onChange }: { src: string; upload: Uploader; o
       <input ref={input} type="file" accept="image/*" hidden onChange={(e) => { void pick(e.target.files); e.target.value = ''; }} />
       {err && <p className="ed-help err">{err}</p>}
     </div>
+  );
+}
+
+/** A single card on its own step: photo, title and note of item `i`. */
+export function CardOne({ cfg, i, content, onPatch, upload, tokens, titleMax, textMax }: {
+  cfg: Cfg; i: number; content: Content; onPatch: (patch: Content) => void; upload: Uploader;
+  tokens?: Tokens; titleMax?: number; textMax?: number;
+}) {
+  const at = (key: string) => asArr(content[key])[i] ?? '';
+  const setAt = (key: string, v: string) => {
+    const cur = asArr(content[key]);
+    const next = Array.from({ length: Math.max(cfg.count, cur.length) }, (_, k) => cur[k] ?? '');
+    next[i] = v; onPatch({ [key]: next });
+  };
+  return (
+    <>
+      <PhotoHint />
+      <div className="ed-card-body">
+        <div data-edit-field={`${cfg.image}.${i}`}><CardPhoto src={at(cfg.image)} upload={upload} onChange={(u) => setAt(cfg.image, u)} /></div>
+        <div className="ed-card-text">
+          <div data-edit-field={`${cfg.title}.${i}`}><TextBox value={at(cfg.title)} max={titleMax} placeholder="Гарчиг" label={`${cfg.itemLabel} ${i + 1} — гарчиг`} onChange={(v) => setAt(cfg.title, v)} /></div>
+          <div data-edit-field={`${cfg.text}.${i}`}><TextBox multiline value={at(cfg.text)} max={textMax} rows={3} placeholder="Тэмдэглэл" tokens={tokens} label={`${cfg.itemLabel} ${i + 1} — тэмдэглэл`} onChange={(v) => setAt(cfg.text, v)} /></div>
+        </div>
+      </div>
+    </>
   );
 }

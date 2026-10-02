@@ -42,6 +42,8 @@ export type Section = {
    * dragged to reorder. The stored shape stays three separate arrays; the keys must also be
    * declared in `fields` so the sanitizer keeps them. Focusing card i previews `${previewPrefix}${i}`.
    */
+  /** Walk through this section one item per step (item i of every list/images field), e.g. Flight's stops. */
+  perItem?: { count: number; label: string };
   cards?: { count: number; image: string; title: string; text: string; itemLabel: string; previewPrefix?: string };
 };
 
