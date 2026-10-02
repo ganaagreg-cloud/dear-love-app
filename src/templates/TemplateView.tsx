@@ -1,6 +1,9 @@
 'use client';
 import dynamic from 'next/dynamic';
 import type { Content } from './types';
+import SongDock from './SongDock';
+import './songdock.css';
+import { spotifyId } from './sanitize';
 
 const VIEWS = {
   locket: dynamic(() => import('./locket/View'), { ssr: false }),
@@ -16,5 +19,12 @@ export default function TemplateView({ templateId, content, pin, editable }: {
 }) {
   const View = VIEWS[templateId as keyof typeof VIEWS];
   if (!View) return null;
-  return <div style={{ display: 'contents', overflowWrap: 'anywhere' }}><View content={content} pin={pin ?? null} editable={editable} /></div>;
+  // Book has its own Spotify card; every other template gets the shared ♫ button when the buyer added a song
+  const song = templateId === 'book' ? '' : spotifyId(typeof content.song === 'string' ? content.song : '');
+  return (
+    <div style={{ display: 'contents', overflowWrap: 'anywhere' }}>
+      <View content={content} pin={pin ?? null} editable={editable} />
+      {song && <SongDock id={song} />}
+    </div>
+  );
 }

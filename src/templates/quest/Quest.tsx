@@ -545,7 +545,7 @@ export default function Quest({ data, previewScene = null, editing = false }: { 
                 <div className="qs-for" data-field="playerName">гол дүрд: {data.playerName || 'чи'}</div>
                 <div className="qs-press">START ДАРНА УУ</div>
                 {scene === 'music' && (
-                  <button className="qs-music" data-field="music" onPointerDown={(e) => e.stopPropagation()} onClick={startAudio}>
+                  <button className="qs-music" onPointerDown={(e) => e.stopPropagation()} onClick={startAudio}>
                     ♫ {data.music ? 'ТАНЫ ДУУ' : 'ЧИПТЮН'} ТОГЛОЖ БАЙНА
                   </button>
                 )}

@@ -40,7 +40,7 @@ export const wrappedMeta: TemplateMeta = {
       fields: [
         { type: 'list', key: 'songTitles', label: 'Дууны нэр', count: 5, max: 40, itemLabel: 'Дуу', example: 'Perfect' },
         { type: 'list', key: 'songArtists', label: 'Дуучин', count: 5, max: 40, itemLabel: 'Дуучин' },
-        { type: 'audio', key: 'music', label: 'Стори үзэх үед тоглох хөгжим (заавал биш)' },
+        { type: 'spotify', key: 'song', label: 'Бидний дуу — Spotify холбоос (заавал биш)', placeholder: 'https://open.spotify.com/track/…', help: 'Spotify дээр дууны «Share → Copy song link» дарж буулгана. Хүлээн авагч ♫ товч дарж сонсоно.' },
       ],
     },
     {

@@ -15,7 +15,7 @@ export const formatMnt = (n: number) => `${n.toLocaleString('en-US')}₮`;
 /** What the viewer renders: defaults ← (demo when previewing) ← the buyer's saved content. */
 export function resolveContent(meta: TemplateMeta, content: Content | null, demo = false): Content {
   const out = { ...meta.defaults, ...(demo ? meta.demo : {}), ...(content ?? {}) };
-  // songs buyers uploaded before the music library existed no longer play
-  for (const f of allFields(meta)) if (f.type === 'audio' && out[f.key] && !isLibraryUrl(out[f.key])) out[f.key] = '';
+  // uploaded songs are gone for good (see src/lib/music.ts): nothing may play from the old `music` key
+  if ('music' in out) out.music = '';
   return out;
 }

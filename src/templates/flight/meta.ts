@@ -57,7 +57,7 @@ export const flightMeta: TemplateMeta = {
       fields: [
         { type: 'text', key: 'finalTitle', label: 'Газардах үеийн гарчиг', max: 36, example: 'Үүрдэд тавтай морил' },
         { type: 'textarea', key: 'finalMessage', label: 'Таны захидал', max: 500, rows: 5, example: 'Надтай хамт нисч байгаад баярлалаа.' },
-        { type: 'audio', key: 'music', label: 'Нислэгийн үеийн хөгжим (заавал биш)' },
+        { type: 'spotify', key: 'song', label: 'Бидний дуу — Spotify холбоос (заавал биш)', placeholder: 'https://open.spotify.com/track/…', help: 'Spotify дээр дууны «Share → Copy song link» дарж буулгана. Хүлээн авагч ♫ товч дарж сонсоно.' },
       ],
     },
   ],
