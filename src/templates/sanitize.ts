@@ -1,3 +1,4 @@
+import { isLibraryUrl } from '@/lib/music';
 import { allFields, type Content, type Field, type TemplateMeta } from './types';
 
 const COLOR = /^#[0-9a-fA-F]{6}$/;
@@ -23,7 +24,9 @@ export function sanitizeContent(meta: TemplateMeta, input: unknown, mediaPrefix:
     const v = src[f.key];
     switch (f.type) {
       case 'text': case 'textarea': out[f.key] = clip(v, f.max ?? 2000); break;
-      case 'image': case 'audio': out[f.key] = okMedia(v); break;
+      case 'image': out[f.key] = okMedia(v); break;
+      // music is never uploaded — only a track from our library (src/lib/music.ts) is accepted
+      case 'audio': out[f.key] = isLibraryUrl(v) ? v : ''; break;
       // No .filter(Boolean): some templates (Book) index this array by fixed position —
       // dropping empty slots would shift every later URL into the wrong slot on save.
       // Nothing currently sends empty entries except Book's own deliberate placeholders,

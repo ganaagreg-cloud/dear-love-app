@@ -7,7 +7,7 @@ import { getUser } from '@/lib/supabase/server';
 import { ownedPage } from '@/lib/pages';
 import { DEMO_DIR } from '@/lib/store';
 
-const TYPES: Record<string, string> = { 'image/webp': 'webp', 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'audio/mpeg': 'mp3', 'audio/mp4': 'm4a', 'audio/x-m4a': 'm4a', 'audio/aac': 'aac', 'audio/ogg': 'ogg', 'audio/wav': 'wav' };
+const TYPES: Record<string, string> = { 'image/webp': 'webp', 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif' };
 
 /** Demo mode only — in production files go straight to Supabase Storage from the browser. */
 export async function POST(req: Request) {

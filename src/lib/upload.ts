@@ -25,8 +25,8 @@ export async function uploadMedia(file: File, userId: string, pageId: string, ki
     if (!file.type.startsWith('image/')) throw new Error('Зургийн файл сонгоно уу.');
     body = await compressImage(file);
     if (body !== file) { ext = 'webp'; type = 'image/webp'; }
-  } else if (!file.type.startsWith('audio/')) {
-    throw new Error('Аудио файл (mp3) сонгоно уу.');
+  } else {
+    throw new Error('Хөгжлийг манай сангаас сонгоно.');
   }
   if (body.size > maxMB * 1024 * 1024) throw new Error(`Файл хэт том байна (${maxMB} MB хүртэл).`);
 

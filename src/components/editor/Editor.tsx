@@ -58,13 +58,20 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
   const keepPin = useRef(false);
   const pinLock = useRef<{ base: string } | null>(null);
   useEffect(() => { if (keepPin.current) { keepPin.current = false; return; } setFocusPin(null); }, [open]);
-  const [device, setDevice] = useState<Device>('desktop');
+  const [device, setDevice] = useState<Device>('mobile');
   const [tab, setTab] = useState<'edit' | 'preview'>('edit');
+  // Phone/tablet: the form is the editor; the preview tab is a view-only look at the page (no tap-to-edit, no accidental page flips).
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 900px)');
+    const f = () => setNarrow(mq.matches);
+    f(); mq.addEventListener('change', f);
+    return () => mq.removeEventListener('change', f);
+  }, []);
   const [share, setShare] = useState(false);
   const [publishing, setPublishing] = useState(false);
 
-  useEffect(() => { if (window.innerWidth < 900) setDevice('mobile'); }, []);
-
+  
   /* ── live preview ── */
   const latest = useRef(content); latest.current = content;
   const [previewingFull, setPreviewingFull] = useState(false);
@@ -220,16 +227,10 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
     const p = pinFor(current); if (p != null) setFocusPin(p);
   }, [current, labelFor, pinFor]);
 
-  // «Хаана юу байна»: the same number on each field and on its element in the preview
-  const [where, setWhere] = useState(false);
-  const numbers = useMemo(() => Object.fromEntries(allFields(meta).map((f, i) => [f.key, i + 1])), [meta]);
-  useEffect(() => { broadcast({ type: 'dear:badges', map: where ? numbers : null }); }, [where, numbers]);
-
-  // a preview that (re)loads gets the current highlight/badges too
+  // a preview that (re)loads gets the current highlight too
   const sync = useRef(() => {});
   sync.current = () => {
     broadcast({ type: 'dear:focus-field', field: current, label: current ? labelFor(current) : '' });
-    broadcast({ type: 'dear:badges', map: where ? numbers : null });
   };
   // preview → field: open its step, scroll to it, focus it, flash it (phone: a bottom sheet)
   const [pending, setPending] = useState<string | null>(null);
@@ -344,12 +345,6 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
           >
             ▶<span className="ed-lbl"> Бүтнээр</span>
           </button>
-          <button
-            className={`btn btn-sm ${where ? 'btn-primary' : ''}`} aria-pressed={where} onClick={() => setWhere((w) => !w)}
-            title="Засаж болох хэсэг бүрийг дугаарлаж, талбартай нь холбож харуулна"
-          >
-            📍<span className="ed-lbl"> Хаана юу байна</span>
-          </button>
           {status === 'published'
             ? <button className="btn btn-sm btn-rose" onClick={() => setShare(true)}>Хуваалцах</button>
             : <button className="btn btn-sm btn-rose" onClick={publish} disabled={publishing}>{publishing ? 'Нийтэлж байна…' : 'Нийтлэх'}</button>}
@@ -428,14 +423,13 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
                       <Cards
                         key={currentSection.id} cfg={cards} content={content} onPatch={patch} upload={upload}
                         tokens={tokensFor(cards.text)} titleMax={maxOf(cards.title)} textMax={maxOf(cards.text)}
-                        onFocusCard={(i) => cards.previewPrefix && setFocusPin(`${cards.previewPrefix}${i}`)} badges={where ? numbers : undefined}
+                        onFocusCard={(i) => cards.previewPrefix && setFocusPin(`${cards.previewPrefix}${i}`)}
                       />
                     )}
                     {currentSection.fields.filter((f) => !inCards(f.key)).map((f) => (
                       <FieldControl
                         key={f.key} field={f} value={content[f.key]} onChange={(v) => set(f.key, v)} upload={upload}
                         tokens={f.tokens ? meta.tokens : undefined}
-                        badge={where ? numbers[f.key] : undefined}
                       />
                     ))}
                   </>
@@ -450,9 +444,12 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
                     Дараах: {stepTitle(nextStep)} →
                   </button>
                 ) : status !== 'published' ? (
-                  <button className="btn btn-rose" onClick={publish} disabled={publishing}>{publishing ? 'Нийтэлж байна…' : 'Нийтлэх 💌'}</button>
-                ) : null}
+                  <button className="btn btn-rose" onClick={publish} disabled={publishing}>{publishing ? 'Нийтэлж байна…' : 'Дуусгах · Нийтлэх 💌'}</button>
+                ) : (
+                  <button className="btn btn-rose" onClick={() => setShare(true)}>Дуусгах · Хуваалцах 🔗</button>
+                )}
               </div>
+              {publishErr && <p className="err" role="alert" style={{ margin: '10px 0 0' }}>{publishErr}</p>}
             </div>
           </section>
         )}
@@ -463,9 +460,12 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
 
       <section className="ed-stage">
         <PreviewFrame
-          key={previewingFull ? 'full' : 'pinned'} className="ed-stage-frame" edit={!previewingFull}
+          key={previewingFull ? 'full' : 'pinned'} className="ed-stage-frame" edit={!previewingFull && !narrow} inert={narrow && !previewingFull}
           templateId={meta.id} content={content} pin={pin} device={device} debounceMs={debounce}
         />
+        {narrow && tab === 'preview' && (
+          <button type="button" className="ed-float-edit" onClick={() => setTab('edit')}>✎ Засах</button>
+        )}
         <input
           ref={pickPhotoInput} type="file" accept="image/*" hidden
           onChange={(e) => { void onPickPhotoFile(e.target.files?.[0]); e.target.value = ''; }}

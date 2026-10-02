@@ -2,6 +2,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { ContentValue, Field, TemplateMeta } from '@/templates/types';
 import { spotifyId } from '@/templates/sanitize';
+import { MUSIC, musicUrl, type Track } from '@/lib/music';
 
 export type Uploader = (file: File, kind: 'image' | 'audio', maxMB?: number) => Promise<string>;
 
@@ -122,7 +123,7 @@ function Control({ field: f, value, onChange, upload, tokens }: Props) {
     case 'images':
       return <ImageGrid fkey={f.key} urls={asArr(value)} max={f.max} onChange={(u) => onChange(u)} upload={upload} />;
     case 'audio':
-      return <AudioSlot url={asStr(value)} maxMB={f.maxMB ?? 10} onChange={(u) => onChange(u)} upload={upload} />;
+      return <MusicPicker url={asStr(value)} onChange={(u) => onChange(u)} />;
   }
 }
 
@@ -354,27 +355,44 @@ function ImageGrid({ fkey, urls, max, onChange, upload }: { fkey: string; urls: 
   );
 }
 
-function AudioSlot({ url, maxMB, onChange, upload }: { url: string; maxMB: number; onChange: (u: string) => void; upload: Uploader }) {
-  const input = useRef<HTMLInputElement>(null);
-  const { busy, err, run } = useUpload(upload);
-  const pick = async (files: FileList | null) => { if (!files?.length) return; const [u] = await run([files[0]], 'audio', maxMB); if (u) onChange(u); };
+/** Pick the gift's music from our library — nothing is uploaded. ▶ previews a track. */
+function MusicPicker({ url, onChange }: { url: string; onChange: (u: string) => void }) {
+  const audio = useRef<HTMLAudioElement | null>(null);
+  const [playing, setPlaying] = useState<string | null>(null);
+  useEffect(() => () => { audio.current?.pause(); }, []);
+  const preview = (t: Track) => {
+    if (playing === t.id) { audio.current?.pause(); setPlaying(null); return; }
+    audio.current?.pause();
+    audio.current = Object.assign(new Audio(musicUrl(t)), { volume: 0.7 });
+    audio.current.onended = () => setPlaying(null);
+    audio.current.play().catch(() => setPlaying(null));
+    setPlaying(t.id);
+  };
+  if (!MUSIC.length) return <p className="ed-help">Хөгжмийн сан удахгүй нэмэгдэнэ.</p>;
   return (
-    <>
-      {url ? (
-        <div className="ed-audio">
-          <audio src={url} controls preload="none" />
-          <div className="row">
-            <button type="button" className="btn btn-sm" onClick={() => input.current?.click()}>Солих</button>
-            <button type="button" className="btn btn-sm btn-ghost" onClick={() => onChange('')}>Устгах</button>
-          </div>
+    <div className="ed-music" role="radiogroup">
+      <button type="button" role="radio" aria-checked={!url} className={`ed-track ${!url ? 'on' : ''}`} onClick={() => onChange('')}>
+        <span className="ed-track-name">Хөгжимгүй</span>
+      </button>
+      {MUSIC.map((t) => (
+        <div key={t.id} className={`ed-track ${url === musicUrl(t) ? 'on' : ''}`}>
+          <button type="button" className="ed-track-play" onClick={() => preview(t)} aria-label={`${t.title} — ${playing === t.id ? 'зогсоох' : 'сонсох'}`}>{playing === t.id ? '■' : '▶'}</button>
+          <button type="button" role="radio" aria-checked={url === musicUrl(t)} className="ed-track-name" onClick={() => onChange(musicUrl(t))}>
+            {t.title}<small>{t.mood}</small>
+          </button>
         </div>
-      ) : (
-        <button type="button" className="ed-add wide" onClick={() => input.current?.click()} disabled={busy > 0}>
-          {busy ? <span className="ed-spin" /> : <><b>♫</b><span>Дуу оруулах (mp3 · {maxMB} MB хүртэл)</span></>}
-        </button>
-      )}
-      <input ref={input} type="file" accept="audio/*" hidden onChange={(e) => { pick(e.target.files); e.target.value = ''; }} />
-      {err && <p className="ed-help err">{err}</p>}
-    </>
+      ))}
+    </div>
+  );
+}
+
+/** One-tap emoji palette: tap to pick, tap the picked one again to clear. */
+export function EmojiPicker({ value, options, onChange }: { value: string; options: string[]; onChange: (v: string) => void }) {
+  return (
+    <div className="ed-emojis" role="radiogroup">
+      {options.map((e) => (
+        <button key={e} type="button" role="radio" aria-checked={value === e} aria-label={e} className={value === e ? 'on' : ''} onClick={() => onChange(value === e ? '' : e)}>{e}</button>
+      ))}
+    </div>
   );
 }

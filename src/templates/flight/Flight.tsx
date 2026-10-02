@@ -88,13 +88,23 @@ function Land() {
   );
 }
 
+/** The big route codes shrink for longer words so they always fit the boarding pass. */
+const codeSize = (c: string): CSSProperties | undefined => {
+  const px = [0, 0, 0, 0, 0, 32, 28, 24, 22][c.length];
+  return px ? { fontSize: px } : c.length > 8 ? { fontSize: 20 } : undefined;
+};
+
 export default function Flight({ data, pin }: { data: FlightData; pin?: string | number | null }) {
   const isScene = (v: unknown): v is Scene => v === 'board' || v === 'pass' || v === 'fly' || v === 'land';
   // editor pin 'stop:<i>' = the fly scene, parked at stop i's postcard
   const stopPin = typeof pin === 'string' && /^stop:\d+$/.test(pin) ? Number(pin.slice(5)) : null;
   const [scene, setScene] = useState<Scene>(isScene(pin) ? pin : stopPin != null ? 'fly' : 'board');
   const [torn, setTorn] = useState(false);
-  const stops = data.stops.filter((s) => s.name.trim());
+  // The editor can pin a stop that has no name yet — keep it in the journey (with a stand-in name) so the
+  // preview parks there instead of falling back to stop 0. The recipient has no pin, so empty stops stay skipped.
+  const stops = data.stops
+    .filter((s) => s.name.trim() || s.i === stopPin)
+    .map((s) => (s.name.trim() ? s : { ...s, name: `Буудал ${s.i + 1}` }));
   const pts = useMemo(() => stopPositions(stops.length), [stops.length]);
   const d = useMemo(() => routePath(pts), [pts]);
   const audio = useRef<HTMLAudioElement | null>(null);
@@ -138,9 +148,9 @@ export default function Flight({ data, pin }: { data: FlightData; pin?: string |
                 <span className="fl-class" data-field="cabin">{data.cabin}</span>
               </header>
               <div className="fl-route">
-                <div><b data-field="fromCode">{data.fromCode}</b><small data-field="fromCity">{data.fromCity}</small></div>
+                <div><b data-field="fromCode" style={codeSize(data.fromCode)}>{data.fromCode}</b><small data-field="fromCity">{data.fromCity}</small></div>
                 <div className="fl-plane"><i />✈<i /></div>
-                <div className="r"><b data-field="toCode">{data.toCode}</b><small data-field="toCity">{data.toCity}</small></div>
+                <div className="r"><b data-field="toCode" style={codeSize(data.toCode)}>{data.toCode}</b><small data-field="toCity">{data.toCity}</small></div>
               </div>
               <div className="fl-fields">
                 <div data-field="passenger"><small>Зорчигч</small><strong>{data.passenger}</strong></div>
@@ -276,14 +286,15 @@ function Journey({ data, stops, pts, d, onLand, parkAt = null }: { data: FlightD
 
   // camera: keep plane centred, zoomed so the map feels big
   const scale = Math.max(vp.w / 900, vp.h / 620);
-  const tx = vp.w / 2 - plane.x * scale, ty = vp.h / 2 - plane.y * scale;
-  const cx = Math.min(0, Math.max(vp.w - MAP_W * scale, tx)), cy = Math.min(0, Math.max(vp.h - MAP_H * scale, ty));
+  // with a postcard open it covers the lower half — lift the stop into the free map above it, so its pin isn't hidden
+  const tx = vp.w / 2 - plane.x * scale, ty = vp.h * (atStop !== null ? 0.26 : 0.5) - plane.y * scale;
+  const cx = Math.min(0, Math.max(vp.w - MAP_W * scale, tx)), cy = atStop !== null ? ty : Math.min(0, Math.max(vp.h - MAP_H * scale, ty));
   const total = path.current?.getTotalLength() ?? 1;
   const s = atStop !== null ? stops[atStop] : null;
 
   return (
     <div className="fl-journey">
-      <svg className="fl-map" width={MAP_W * scale} height={MAP_H * scale} viewBox={`0 0 ${MAP_W} ${MAP_H}`} style={{ transform: `translate(${cx}px, ${cy}px)` }}>
+      <svg className="fl-map" width={MAP_W * scale} height={MAP_H * scale} viewBox={`0 0 ${MAP_W} ${MAP_H}`} style={{ transform: `translate(${cx}px, ${cy}px)`, transition: atStop !== null ? 'transform .5s ease' : undefined }}>
         <defs>
           <pattern id="flGrid" width="80" height="80" patternUnits="userSpaceOnUse"><path d="M80 0H0V80" fill="none" stroke="rgba(40,70,110,.08)" strokeWidth="2" /></pattern>
           <filter id="flRough"><feTurbulence baseFrequency=".02" numOctaves="3" seed="4" /><feDisplacementMap in="SourceGraphic" scale="14" /></filter>
@@ -323,7 +334,7 @@ function Journey({ data, stops, pts, d, onLand, parkAt = null }: { data: FlightD
           <div className={`fl-postcard ${s.photo ? '' : 'no-photo'}`} key={atStop}>
             {s.photo && <div className="fl-pc-photo" data-field={`stopPhotos.${s.i}`}><PhotoImg src={s.photo} alt={s.name} /></div>}
             <div className="fl-pc-body">
-              <div className="fl-pc-stamp" data-field={`stopCodes.${s.i}`}>{(s.code || s.name.slice(0, 3)).toUpperCase()}</div>
+              <div className={`fl-pc-stamp ${/\p{L}/u.test(s.code) || !s.code ? '' : 'emo'}`} data-field={`stopCodes.${s.i}`}>{(s.code || s.name.slice(0, 3)).toUpperCase()}</div>
               <small>{atStop! + 1}-р буудал{s.date && <> · <span data-field={`stopDates.${s.i}`}>{s.date}</span></>}</small>
               <h2 data-field={`stopNames.${s.i}`}>{s.name}</h2>
               <p data-field={`stopNotes.${s.i}`}>{s.note}</p>

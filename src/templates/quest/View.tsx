@@ -16,7 +16,7 @@ export function memoryCount(...cols: string[][]) {
   return Math.max(1, n);
 }
 
-export function toQuest(c: Content): QuestData {
+export function toQuest(c: Content, minChests = 1): QuestData {
   const photos = arr(c.memoryPhotos), titles = arr(c.memoryTitles), texts = arr(c.memoryTexts);
   return {
     title: str(c.title, 'ХАЙРЫН АЯЛАЛ'), subtitle: str(c.subtitle, 'Зүрх рүү чинь хүрэх зам'),
@@ -25,7 +25,7 @@ export function toQuest(c: Content): QuestData {
     consoleColor: str(c.consoleColor, '#ff8fb8'), startDate: str(c.startDate),
     intro: str(c.intro, 'Сайн уу, {player}!'),
     // One chest per memory that has anything in it (photo, title or note), in order.
-    memories: Array.from({ length: memoryCount(photos, titles, texts) }, (_, i) => ({ src: photos[i] || '', title: titles[i] || `Дурсамж ${i + 1}`, text: texts[i] || '♥' })),
+    memories: Array.from({ length: Math.max(memoryCount(photos, titles, texts), Math.min(minChests, MAX_CHESTS)) }, (_, i) => ({ src: photos[i] || '', title: titles[i] || `Дурсамж ${i + 1}`, text: texts[i] || '♥' })),
     npcGreeting: str(c.npcGreeting), question: str(c.question, 'Минийх болох уу?'),
     yesA: str(c.yesA, 'ТИЙМ'), yesB: str(c.yesB, 'ТИЙМ!!'),
     ending: str(c.ending), music: str(c.music),
@@ -35,8 +35,11 @@ export function toQuest(c: Content): QuestData {
 const SCENE = /^(title|characters|chest:\d+|dialog:(intro|greeting|question)|ending|music)$/;
 
 export default function QuestView({ content, pin, editable = false }: { content: Content; pin?: string | number | null; editable?: boolean }) {
-  const data = useMemo(() => toQuest(content), [content]);
   // The editor pins a scene per step; content edits update that scene in place (no remount).
   const scene = typeof pin === 'string' && SCENE.test(pin) ? (pin as PreviewScene) : null;
+  // editing an empty chest: show it as a chest (not clamped onto the previous one)
+  const pinned = scene && editable ? /^chest:(\d+)$/.exec(scene) : null;
+  const minChests = pinned ? +pinned[1] + 1 : 1;
+  const data = useMemo(() => toQuest(content, minChests), [content, minChests]);
   return <Quest data={data} previewScene={scene} editing={editable} />;
 }

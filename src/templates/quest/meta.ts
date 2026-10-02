@@ -63,7 +63,7 @@ export const questMeta: TemplateMeta = {
     {
       id: 'music', title: 'Хөгжим', summary: 'Тоглоом тоглож байх үеийн хөгжим.', short: 'Хөгжим', previewPage: 'music',
       description: 'Хоосон орхивол тоглоомын чиптюн хөгжим эгшиглэнэ.',
-      fields: [{ type: 'audio', key: 'music', label: 'Оронд нь өөрийн дуу (mp3, заавал биш)', maxMB: 10 }],
+      fields: [{ type: 'audio', key: 'music', label: 'Оронд нь манай сангаас хөгжим сонгох (заавал биш)' }],
     },
   ],
   tour: ['title', 'characters', 'chest:0', 'chest:2', 'dialog:question', 'ending'],

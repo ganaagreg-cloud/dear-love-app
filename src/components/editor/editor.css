@@ -121,6 +121,8 @@
 
 .ed-stage { grid-area: stage; position: relative; display: grid; place-items: center; overflow: hidden;
   background: radial-gradient(circle at 50% 30%, #fff 0%, #f1e8ef 70%); }
+/* the preview fills the stage; PreviewFrame scales the device to fit this box */
+.ed-stage .pf { position: absolute; inset: 0; display: grid; place-items: center; }
 
 .ed-modal { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgba(30, 15, 30, .45); backdrop-filter: blur(4px); }
 .ed-modal-card { width: min(460px, 100%); background: #fff; border-radius: 24px; padding: 28px; text-align: center; box-shadow: 0 40px 80px -20px rgba(0, 0, 0, .4); }
@@ -183,3 +185,17 @@
 .ed-issues ul { list-style: none; margin: 0; padding: 0 6px 8px; display: grid; gap: 2px; }
 .ed-issues li button { width: 100%; text-align: left; border: 0; background: none; border-radius: 8px; padding: 8px 8px; min-height: 40px; font-size: .82rem; color: var(--ink); }
 .ed-issues li button:hover { background: #fff; color: var(--rose); }
+
+.ed-float-edit { position: absolute; left: 50%; bottom: max(16px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 5; min-height: 48px; padding: 0 26px; border: 0; border-radius: 999px;
+  background: var(--ink); color: #fff; font-weight: 700; font-size: 1rem; box-shadow: 0 10px 26px -6px rgba(0, 0, 0, .45); }
+
+.ed-emojis { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 6px; }
+.ed-emojis button { min-height: 44px; border-radius: 12px; border: 1px solid var(--line); background: #fff; font-size: 24px; line-height: 1; }
+.ed-emojis button.on { border-color: var(--ink); background: #fff4f8; box-shadow: 0 0 0 2px var(--ink); }
+
+.ed-music { display: grid; gap: 6px; }
+.ed-track { display: flex; align-items: center; gap: 8px; min-height: 48px; border: 1px solid var(--line); border-radius: 12px; background: #fff; padding: 0 6px; }
+.ed-track.on { border-color: var(--ink); background: #fff4f8; box-shadow: 0 0 0 2px var(--ink); }
+.ed-track-play { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--ink); color: #fff; font-size: 14px; flex: none; }
+.ed-track-name { flex: 1; min-height: 44px; border: 0; background: transparent; text-align: left; font-weight: 600; font-size: .92rem; padding: 0 6px; display: flex; flex-direction: column; justify-content: center; }
+.ed-track-name small { font-weight: 500; opacity: .6; font-size: .75rem; }

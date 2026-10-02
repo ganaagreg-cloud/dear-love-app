@@ -1,6 +1,6 @@
 'use client';
 import type { Content, Field, Section, TemplateMeta } from '@/templates/types';
-import { ImageSlot, PhotoHint, TextBox, asArr, type Tokens, type Uploader } from './Fields';
+import { EmojiPicker, ImageSlot, PhotoHint, TextBox, asArr, type Tokens, type Uploader } from './Fields';
 import { CardOne } from './Cards';
 
 /**
@@ -78,7 +78,9 @@ export function ItemStep({ step, content, onPatch, upload, tokens }: {
             <label className="ed-label"><span>{f.type === 'images' ? 'Зураг' : f.label}</span></label>
             {f.type === 'images'
               ? <><ImageSlot url={arr[i] ?? ''} onChange={set} upload={upload} /><PhotoHint /></>
+              : f.type === 'list' && f.emojis ? <EmojiPicker value={arr[i] ?? ''} options={f.emojis} onChange={set} />
               : <TextBox multiline={(max ?? 200) > 40} value={arr[i] ?? ''} max={max} rows={(max ?? 0) > 100 ? 4 : 2} placeholder={f.label} tokens={f.tokens ? tokens : undefined} onChange={set} />}
+            {f.help && f.type === 'list' && f.emojis && <p className="ed-help">{f.help}</p>}
             {f.example && !arr[i] && <button type="button" className="ed-example" onClick={() => set(f.example!)}>Жишээ: «{f.example}» ← дарж оруулах</button>}
           </div>
         );

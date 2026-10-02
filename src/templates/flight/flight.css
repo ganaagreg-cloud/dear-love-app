@@ -107,6 +107,7 @@
 .fl-pc-body p { margin: 0; font-size: 15px; line-height: 1.55; color: #3b4252; }
 .fl-pc-stamp { position: absolute; right: 16px; top: 16px; width: 64px; height: 64px; border-radius: 50%; border: 3px double var(--brand); color: var(--brand); display: grid; place-items: center;
   font: 900 15px/1 'JetBrains Mono', monospace; transform: rotate(-14deg); opacity: .85; animation: flStamp .5s .5s cubic-bezier(.16,1,.3,1) both; }
+.fl-pc-stamp.emo { font-size: 30px; }
 @keyframes flStamp { from { transform: scale(2.4) rotate(-14deg); opacity: 0; } }
 @media (max-width: 600px) { .fl-postcard { grid-template-columns: 1fr; } .fl-pc-photo { min-height: 0; height: min(34dvh, 240px); } }
 
@@ -119,8 +120,8 @@
 .fl-passport h1 { font-size: clamp(28px, 6vw, 40px); margin: 8px 0 12px; letter-spacing: -.03em; font-weight: 900; }
 .fl-passport p { margin: 0; font-size: 16px; line-height: 1.6; color: #3b4252; white-space: pre-wrap; }
 .fl-passport .fl-sign { margin-top: 18px; font-weight: 800; color: var(--brand); }
-.fl-stamp { position: absolute; right: -14px; top: -30px; width: 128px; height: 128px; border-radius: 50%; border: 4px solid #d6336c; color: #d6336c; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 4px; transform: rotate(14deg); background: rgba(255,255,255,.6); animation: flStamp .55s 1.2s cubic-bezier(.16,1,.3,1) both; font-family: 'JetBrains Mono', monospace; text-align: center; }
+.fl-stamp { position: absolute; right: -14px; top: -30px; width: 128px; height: 128px; border-radius: 50%; border: 4px solid rgba(214,51,108,.45); color: #d6336c; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; transform: rotate(14deg); background: transparent; animation: flStamp .55s 1.2s cubic-bezier(.16,1,.3,1) both; font-family: 'JetBrains Mono', monospace; text-align: center; }
 .fl-stamp span { font-weight: 800; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; max-width: 100px; overflow: hidden; }
 .fl-stamp b { font-size: 13px; } .fl-stamp small { font-size: 10px; }
 

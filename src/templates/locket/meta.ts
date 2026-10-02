@@ -71,7 +71,7 @@ export const locketMeta: TemplateMeta = {
     },
     {
       id: 'music', title: 'Хөгжим', summary: 'Түүх үзэх үеийн арын дуу.',
-      fields: [{ type: 'audio', key: 'music', label: 'Арын дуу (mp3, 10 MB хүртэл)', maxMB: 10 }],
+      fields: [{ type: 'audio', key: 'music', label: 'Арын хөгжим (заавал биш)' }],
     },
   ],
   defaults: {

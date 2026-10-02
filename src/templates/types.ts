@@ -24,7 +24,7 @@ export type Field =
   | (Base & { type: 'date' })
   | (Base & { type: 'select'; options: { value: string; label: string }[] })
   | (Base & { type: 'toggle' })
-  | (Base & { type: 'list'; count: number; max?: number; itemLabel?: string })
+  | (Base & { type: 'list'; count: number; max?: number; itemLabel?: string; /** Edit each item by picking one of these (tap again to clear) instead of typing. */ emojis?: string[] })
   | (Base & { type: 'spotify'; placeholder?: string });
 
 export type FieldType = Field['type'];
