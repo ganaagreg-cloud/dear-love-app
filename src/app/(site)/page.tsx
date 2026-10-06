@@ -22,7 +22,7 @@ export default function Home() {
           <div className="step"><b>1</b><strong>Үзэх</strong><span>Загвар бүрийг яг хүлээн авагч шиг нь тоглуулж үзнэ.</span></div>
           <div className="step"><b>2</b><strong>QPay-ээр төлөх</strong><span>Нэг удаагийн тогтмол үнэ. Банкны аппаараа QR уншуулна.</span></div>
           <div className="step"><b>3</b><strong>Өөрийнхөөрөө болгох</strong><span>Зураг, дуу, нэр, үг бүрийг зөвхөн та л засна.</span></div>
-          <div className="step"><b>4</b><strong>Линкээ илгээх</strong><span>anu-bat.dearlove.mn шиг өөрийн нэртэй линкээр илгээнэ.</span></div>
+          <div className="step"><b>4</b><strong>Линкээ илгээх</strong><span>dearlove.mn/p/anu-bat шиг өөрийн нэртэй линкээр илгээнэ.</span></div>
         </div>
       </section>
 

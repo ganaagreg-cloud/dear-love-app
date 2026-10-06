@@ -61,7 +61,7 @@ export default async function GiftPage({ params }: { params: Promise<{ id: strin
           </li>
           <li>
             <div className="how-art how-send" aria-hidden>
-              <div className="how-bubble">💌 anu-bat.dearlove.mn</div>
+              <div className="how-bubble">💌 dearlove.mn/p/anu-bat</div>
               <div className="how-bubble them">Ууу 😍 дуугаа асаагаад нээлээ!</div>
             </div>
             <b>3</b><strong>Линкээ илгээ</strong><span>Хайртдаа линк илгээхэд утсан дээр нь нээгдэнэ.</span>
