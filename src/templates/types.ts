@@ -21,10 +21,15 @@ export type Field =
   | (Base & { type: 'images'; max: number })
   | (Base & { type: 'audio'; maxMB?: number; /** Library track ids this template offers (src/lib/music.json); all if omitted. */ tracks?: string[] })
   | (Base & { type: 'color'; presets?: string[] })
-  | (Base & { type: 'date' })
-  | (Base & { type: 'select'; options: { value: string; label: string }[] })
+  | (Base & { type: 'date'; /** An anniversary, not a plan — the calendar and the server both refuse days after today. */ notFuture?: boolean; /** No typing: the date is chosen in the calendar only. */ pickOnly?: boolean })
+  | (Base & {
+      type: 'select';
+      /** `days`: a count-of-days goal. With `daysSince` (a date field's key) goals already reached by that date are greyed out. */
+      options: { value: string; label: string; days?: number }[];
+      daysSince?: string;
+    })
   | (Base & { type: 'toggle' })
-  | (Base & { type: 'list'; count: number; max?: number; itemLabel?: string; /** Edit each item by picking one of these (tap again to clear) instead of typing. */ emojis?: string[] })
+  | (Base & { type: 'list'; count: number; max?: number; itemLabel?: string; /** Edit each item by picking one of these (tap again to clear) instead of typing. */ emojis?: string[]; /** Grey sample text per item (shown while the item is empty) — examples the buyer replaces, never saved content. */ placeholders?: string[] })
   | (Base & { type: 'spotify'; placeholder?: string });
 
 export type FieldType = Field['type'];
@@ -44,7 +49,7 @@ export type Section = {
    */
   /** Walk through this section one item per step (item i of every list/images field), e.g. Flight's stops. */
   perItem?: { count: number; label: string };
-  cards?: { count: number; image: string; title: string; text: string; itemLabel: string; previewPrefix?: string };
+  cards?: { count: number; image: string; title: string; text: string; itemLabel: string; previewPrefix?: string; /** Grey sample text for each card's note while empty. */ placeholders?: string[] };
 };
 
 /** Flat map: field key → value. Stored as jsonb in pages.content. */

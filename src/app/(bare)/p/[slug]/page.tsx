@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import TemplateView from '@/templates/TemplateView';
+import FullscreenGate from '@/components/FullscreenGate';
 import { getTemplate, resolveContent } from '@/templates/registry';
 import { getPublicPage } from '@/lib/publicPage';
 import type { Content } from '@/templates/types';
@@ -31,5 +32,5 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
   const page = await load((await params).slug);
   const t = page && getTemplate(page.template_id);
   if (!page || !t) notFound();
-  return <TemplateView templateId={t.id} content={resolveContent(t, page.content as Content)} />;
+  return <FullscreenGate><TemplateView templateId={t.id} content={resolveContent(t, page.content as Content)} /></FullscreenGate>;
 }

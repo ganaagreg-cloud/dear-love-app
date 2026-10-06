@@ -31,5 +31,6 @@ export function toWrapped(c: Content): WrappedData {
 
 export default function WrappedView({ content, pin }: { content: Content; pin?: string | number | null; editable?: boolean }) {
   const data = useMemo(() => toWrapped(content), [content]);
-  return <Wrapped key={JSON.stringify(data).length} data={data} pin={pin} />;
+  // no remount key: edits update the pinned slide in place instead of replaying its entrance
+  return <Wrapped data={data} pin={pin} />;
 }

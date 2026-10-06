@@ -12,6 +12,7 @@ import { QUICK } from '@/templates/quickRegistry';
 import { IntroModal, RecipientView, ShareScreen, introSeenLocally, markIntroSeen } from './Guide';
 import { suggestSlug } from '@/lib/slug';
 import { dative } from '@/lib/mn';
+import { daysTogether } from '@/lib/dates';
 
 type Props = {
   meta: TemplateMeta;
@@ -38,8 +39,25 @@ const filled = (f: Field, v: ContentValue | undefined) =>
   : typeof v === 'string' ? v.trim() !== '' : v != null;
 const missing = (s: Section, c: Content) => s.fields.some((f) => f.required && !filled(f, c[f.key]));
 
+/**
+ * A count-of-days goal (Locket's «Тоолох зорилго») must stay ahead of the couple: when the start date moves, a goal they have
+ * already passed jumps to the next one that is still to come (or the biggest, if they are past them all).
+ */
+function reconcile(meta: TemplateMeta, c: Content): Content {
+  let out = c;
+  for (const f of allFields(meta)) {
+    if (f.type !== 'select' || !f.daysSince) continue;
+    const elapsed = daysTogether(typeof c[f.daysSince] === 'string' ? (c[f.daysSince] as string) : '');
+    const cur = f.options.find((o) => o.value === c[f.key]);
+    if (cur && (cur.days == null || cur.days > elapsed)) continue;
+    const next = f.options.find((o) => o.days != null && o.days > elapsed) ?? f.options[f.options.length - 1];
+    if (next.value !== c[f.key]) out = { ...out, [f.key]: next.value };
+  }
+  return out;
+}
+
 export default function Editor({ meta, pageId, userId, initialContent, initialStatus, initialSlug, initialUrl, linkBase, subdomain, introSeen }: Props) {
-  const [content, setContent] = useState<Content>(initialContent);
+  const [content, setContent] = useState<Content>(() => reconcile(meta, initialContent));
   const [save, setSave] = useState<SaveState>('saved');
   const [status, setStatus] = useState(initialStatus);
   const [slug, setSlug] = useState(initialSlug);
@@ -104,8 +122,8 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
     return () => window.removeEventListener('beforeunload', warn);
   }, [save]);
 
-  const set = (key: string, v: ContentValue) => setContent((c) => ({ ...c, [key]: v }));
-  const patch = (p: Content) => setContent((c) => ({ ...c, ...p }));
+  const set = (key: string, v: ContentValue) => setContent((c) => reconcile(meta, { ...c, [key]: v }));
+  const patch = (p: Content) => setContent((c) => reconcile(meta, { ...c, ...p }));
   const tracksRequired = meta.schema.some((s) => s.fields.some((f) => f.required));
   const upload = useCallback((file: File, kind: 'image' | 'audio', maxMB?: number) => uploadMedia(file, userId, pageId, kind, maxMB), [userId, pageId]);
 
@@ -429,7 +447,7 @@ export default function Editor({ meta, pageId, userId, initialContent, initialSt
                     {currentSection.fields.filter((f) => !inCards(f.key)).map((f) => (
                       <FieldControl
                         key={f.key} field={f} value={content[f.key]} onChange={(v) => set(f.key, v)} upload={upload}
-                        tokens={f.tokens ? meta.tokens : undefined}
+                        tokens={f.tokens ? meta.tokens : undefined} content={content}
                       />
                     ))}
                   </>

@@ -1,65 +1,29 @@
 'use client';
 import { useState } from 'react';
-import { FINALE } from '../copy';
-import type { ScreenProps } from './types';
+import type { LoveData } from '../data';
 
-export default function Credits({ data, copy, onRestart }: ScreenProps & { onRestart: () => void }) {
-  const [finished, setFinished] = useState(false);
-  const [rollKey, setRollKey] = useState(0);
-  const partner = data.partnerName || 'Чи';
-  const me = data.yourName?.trim();
-
-  if (finished) {
-    const h1 = data.occasion === 'ask_out' ? 'Бидний дараагийн улирал одоо эхэлж байна.' : FINALE[data.occasion].tag;
-    return (
-      <section className="lf-screen lf-credits lf-credits-finished">
-        <div className="lf-credits-endcard">
-          <div className="lf-logo">LoveFlix</div>
-          <p>ТӨГСГӨЛ</p>
-          <h1>{h1}</h1>
-          <div className="lf-credits-actions">
-            <button onClick={() => { setRollKey((k) => k + 1); setFinished(false); }}>Титрийг дахин үзэх</button>
-            <button onClick={onRestart}>Эхнээс нь үзэх</button>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  const credits = [
-    ['Гол дүрд', me ? `${partner} & ${me}` : partner],
-    ['Найруулагч', me || 'Бага зэрэг зориг'],
-    ['Зохиолч', 'Бидний илгээсэн мессеж бүр'],
-    ['Кино хөгжим', data.songName?.trim() || 'Бидний дуу'],
-    ['Шилдэг хэсэг', copy.cw[0] || 'Хараахан болоогүй тэр хэсэг'],
-    ['Шалтгаан', copy.reasons[0] || 'Тоглуулах товч дарсан чи'],
-  ];
-
+/** 6b · Quiet end credits that roll, then «Та одоо ч үзэж байна уу?» → back to the menu. `still` = all at once (editor). */
+export default function Credits({ data, still, onBack }: { data: LoveData; still: boolean; onBack: () => void }) {
+  const [done, setDone] = useState(false);
+  const stars = [data.name1, data.name2].filter(Boolean);
+  const show = still || done;
   return (
-    <section className="lf-screen lf-credits">
-      <div className="lf-credits-controls">
-        <button onClick={() => setFinished(true)}>Титр алгасах</button>
-        <button onClick={onRestart}>Эхнээс нь</button>
+    <section className={`lf-screen lf-credits ${still ? 'still' : ''}`}>
+      <div className="lf-roll" onAnimationEnd={() => setDone(true)}>
+        <div className="lf-credit"><small>Гол дүрд</small>{stars.map((n, i) => <b key={i} data-field={i ? 'name2' : 'name1'}>{n}</b>)}</div>
+        {data.credits.director && <div className="lf-credit"><small>Найруулсан</small><b data-field="credits.director">{data.credits.director}</b></div>}
+        {data.credits.thanks.length > 0 && (
+          <div className="lf-credit"><small>Тусгай талархал</small>{data.credits.thanks.map((t, i) => <b key={i}>{t}</b>)}</div>
+        )}
+        {data.songName && <div className="lf-credit"><small>Дуу</small><b data-field="songName">{data.songName}</b></div>}
+        <div className="lf-credit lf-credit-end"><span className="lf-wordmark">LOVEFLIX</span><small>Оригинал · {data.year}</small></div>
       </div>
-      <div key={rollKey} className="lf-credits-roll" onAnimationEnd={() => setFinished(true)}>
-        <div className="lf-credits-kicker">{copy.badge}</div>
-        <h1 className="lf-credits-title">{copy.heroTitle}</h1>
-        <p className="lf-credits-note">{copy.synopsis}</p>
-        <div className="lf-credits-list">
-          {credits.map(([role, name], i) => (
-            <div key={i}>
-              <div className="lf-credit-role">{role}</div>
-              <div className="lf-credit-name">{name}</div>
-            </div>
-          ))}
+      {show && (
+        <div className="lf-still-watching">
+          <p>Та одоо ч үзэж байна уу?</p>
+          <button type="button" className="lf-btn lf-btn-play" onClick={onBack}>Тийм, үргэлжлүүлэх</button>
         </div>
-        <div className="lf-credits-dedication">
-          <div>Зориулав</div>
-          <p>{partner}</p>
-        </div>
-        <div className="lf-credits-last-line">{copy.climaxSub || 'Юу ч болсон би чамайг сонгоно.'}</div>
-        <div className="lf-credits-heart">♥</div>
-      </div>
+      )}
     </section>
   );
 }

@@ -104,7 +104,7 @@ export function Cards({ cfg, content, onPatch, upload, tokens, titleMax, textMax
             <div className="ed-card-text">
               <div data-edit-field={`${cfg.title}.${i}`}><TextBox value={titles[i]} max={titleMax} placeholder="Гарчиг" label={`${cfg.itemLabel} ${i + 1} — гарчиг`}
                 onChange={(v) => setAt(cfg.title, titles, i, v)} /></div>
-              <div data-edit-field={`${cfg.text}.${i}`}><TextBox multiline value={texts[i]} max={textMax} rows={3} placeholder="Тэмдэглэл" tokens={tokens} label={`${cfg.itemLabel} ${i + 1} — тэмдэглэл`}
+              <div data-edit-field={`${cfg.text}.${i}`}><TextBox multiline value={texts[i]} max={textMax} rows={3} placeholder={cfg.placeholders?.[i] ?? 'Тэмдэглэл'} tokens={tokens} label={`${cfg.itemLabel} ${i + 1} — тэмдэглэл`}
                 onChange={(v) => setAt(cfg.text, texts, i, v)} /></div>
               {textMax && <small className={`ed-card-count ${texts[i].length > textMax * 0.9 ? 'warn' : ''}`}>{texts[i].length}/{textMax}</small>}
             </div>
@@ -166,7 +166,7 @@ export function CardOne({ cfg, i, content, onPatch, upload, tokens, titleMax, te
         <div data-edit-field={`${cfg.image}.${i}`}><CardPhoto src={at(cfg.image)} upload={upload} onChange={(u) => setAt(cfg.image, u)} /></div>
         <div className="ed-card-text">
           <div data-edit-field={`${cfg.title}.${i}`}><TextBox value={at(cfg.title)} max={titleMax} placeholder="Гарчиг" label={`${cfg.itemLabel} ${i + 1} — гарчиг`} onChange={(v) => setAt(cfg.title, v)} /></div>
-          <div data-edit-field={`${cfg.text}.${i}`}><TextBox multiline value={at(cfg.text)} max={textMax} rows={3} placeholder="Тэмдэглэл" tokens={tokens} label={`${cfg.itemLabel} ${i + 1} — тэмдэглэл`} onChange={(v) => setAt(cfg.text, v)} /></div>
+          <div data-edit-field={`${cfg.text}.${i}`}><TextBox multiline value={at(cfg.text)} max={textMax} rows={3} placeholder={cfg.placeholders?.[i] ?? 'Тэмдэглэл'} tokens={tokens} label={`${cfg.itemLabel} ${i + 1} — тэмдэглэл`} onChange={(v) => setAt(cfg.text, v)} /></div>
         </div>
       </div>
     </>

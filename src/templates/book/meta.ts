@@ -3,7 +3,7 @@ import { COUPLES, PHOTOS } from '../photos';
 
 const texts = {
   coverEyebrow: 'хайрын захидал',
-  coverSub: 'миний дуртай хуудас бол бид',
+  coverSub: 'миний хамгийн дуртай хуудас — бид',
   recordLabel: 'бидний дуу',
   recordWords: 'үргэлж хоёр удаа сонсдог тэр дуу',
   lucky: 'АЗТАЙ\nАЗТАЙ',
@@ -28,7 +28,7 @@ const texts = {
   cassette: 'оройн дуунууд',
   finalList: 'өглөөний кофе\nтөлөвлөгөөгүй алхалт\nбидний хошигнол\nшөнийн урт яриа\nчиний инээд',
   pocketTitle: 'дурсамжаа цуглуулсаар',
-  tomorrow: 'маргаашид бага зэрэг зай үлдээе',
+  tomorrow: 'маргаашдаа жаахан зай үлдээе',
   backTitle: 'цуглуулсаар',
   backTicket: 'ҮҮРД',
   backLine: 'гараар хийж, зүрхээрээ хадгалав.',
@@ -51,11 +51,11 @@ export const bookMeta: TemplateMeta = {
     {
       id: 'basics', title: 'Нүүр ба үндсэн', summary: 'Номын нүүр хавтас — түүний нэр, дурсгалын огноо, зүрхний гэрэл.', previewPage: 0,
       fields: [
-        { type: 'text', key: 'partnerName', label: 'Түүний нэр (нүүрэн дээр)', max: 30, placeholder: 'хайрт минь', example: 'Ану' },
+        { type: 'text', key: 'partnerName', label: 'Түүний нэр (нүүрэн дээр)', max: 30, placeholder: 'хайрт минь' },
         { type: 'text', key: 'texts.coverEyebrow', label: 'Нүүрний дээд бичвэр', max: 30 },
         { type: 'text', key: 'texts.coverSub', label: 'Нүүрний доод бичвэр', max: 50 },
         { type: 'color', key: 'heartColor', label: 'Зүрхний гэрлийн өнгө', presets: ['#FFF7E8', '#F1A7B7', '#E94F64', '#F6C86B', '#B9E3C6'] },
-        { type: 'text', key: 'keepsakeDate', label: 'Дурсгалын огноо', max: 20, placeholder: '15 · 11 · 21', example: '10 · 01 · 24' },
+        { type: 'text', key: 'keepsakeDate', label: 'Дурсгалын огноо', max: 20, placeholder: '15 · 11 · 21' },
       ],
     },
     {
@@ -71,7 +71,7 @@ export const bookMeta: TemplateMeta = {
       id: 'song', title: 'Таны дуу', summary: 'Пянз, кассет, Spotify тоглуулагчтай «бидний дуу» хуудсууд.', previewPage: 1,
       fields: [
         { type: 'spotify', key: 'spotify', label: 'Spotify дууны холбоос', placeholder: 'https://open.spotify.com/track/…' },
-        { type: 'text', key: 'songName', label: 'Дууны нэр (Spotify холбоосгүй бол)', max: 60, example: 'бидний дуу' },
+        { type: 'text', key: 'songName', label: 'Дууны нэр (Spotify холбоосгүй бол)', max: 60 },
         { type: 'text', key: 'songNote', label: 'Дууны доорх бичвэр', max: 60 },
         { type: 'text', key: 'texts.recordLabel', label: 'Пянзны шошго', max: 20 },
         { type: 'text', key: 'texts.recordWords', label: 'Пянзны хажуугийн бичвэр', max: 60 },
@@ -86,7 +86,7 @@ export const bookMeta: TemplateMeta = {
       id: 'lucky', title: 'Азтай', summary: '3-р хуудас: том «АЗТАЙ» бичиг ба жижиг тэмдэглэл.', previewPage: 2,
       fields: [
         { type: 'textarea', key: 'texts.lucky', label: 'Том үг (3-р хуудас)', max: 30, rows: 2 },
-        { type: 'textarea', key: 'texts.luckyNote', label: 'Тэмдэглэл (3-р хуудас)', max: 120, rows: 2, example: 'олон хүний дундаас чамтай таарсан нь миний аз.' },
+        { type: 'textarea', key: 'texts.luckyNote', label: 'Тэмдэглэл (3-р хуудас)', max: 120, rows: 2 },
       ],
     },
     {
@@ -94,7 +94,7 @@ export const bookMeta: TemplateMeta = {
       fields: [
         { type: 'text', key: 'texts.letterEyebrow', label: 'Захидлын дээд бичвэр', max: 30 },
         { type: 'text', key: 'texts.letterTitle', label: 'Захидлын гарчиг', max: 30 },
-        { type: 'textarea', key: 'texts.letterBody', label: 'Захидлын бичвэр', max: 160, rows: 3, example: 'тэр өдрөөс хойш би чамайг л сонгосоор.' },
+        { type: 'textarea', key: 'texts.letterBody', label: 'Захидлын бичвэр', max: 160, rows: 3 },
         { type: 'text', key: 'texts.ticket', label: 'Тасалбар дээрх үг', max: 10 },
       ],
     },
@@ -142,7 +142,7 @@ export const bookMeta: TemplateMeta = {
       fields: [
         { type: 'text', key: 'texts.backTitle', label: 'Арын гарчиг', max: 24 },
         { type: 'text', key: 'texts.backTicket', label: 'Тасалбар дээрх үг', max: 12 },
-        { type: 'text', key: 'texts.backLine', label: 'Сүүлийн мөр', max: 60, example: 'Хайртай, Бат' },
+        { type: 'text', key: 'texts.backLine', label: 'Сүүлийн мөр', max: 60 },
       ],
     },
   ],

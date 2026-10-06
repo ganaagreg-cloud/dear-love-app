@@ -6,6 +6,7 @@ import type { Content, TemplateMeta } from '@/templates/types';
 import { TONES, str, type QuickInput, type QuickSpec, type Tone } from '@/templates/quick';
 import { DateInput, TextBox, type Uploader } from './Fields';
 import { PreviewFrame } from './PreviewFrame';
+import { todayIso } from '@/lib/dates';
 import type { SaveState } from './Editor';
 
 type Props = {
@@ -138,7 +139,7 @@ export function Quick({ meta, spec, content, onPatch, upload, save, saveLabel, s
               </label>
               <div className="qk-field">
                 <span>Танилцсан өдөр <small>заавал биш</small></span>
-                <DateInput value={date} onChange={pickDate} />
+                <DateInput value={date} onChange={pickDate} max={todayIso()} />
                 <small className="qk-hint">Хамт байгаа өдрүүдээ тоолоход ашиглана.</small>
               </div>
               {nameErr && <p className="qk-err" role="alert">{!them.trim() ? 'Түүний нэрийг бичээрэй 🙂' : 'Өөрийнхөө нэрийг бичээрэй 🙂'}</p>}

@@ -30,5 +30,6 @@ export function toFlight(c: Content): FlightData {
 
 export default function FlightView({ content, pin }: { content: Content; pin?: string | number | null; editable?: boolean }) {
   const data = useMemo(() => toFlight(content), [content]);
-  return <Flight key={JSON.stringify(data).length} data={data} pin={pin} />;
+  // no remount key: edits update the scene in place instead of replaying the flight from the start
+  return <Flight data={data} pin={pin} />;
 }

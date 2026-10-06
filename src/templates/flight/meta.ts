@@ -3,6 +3,16 @@ import { COUPLES, PHOTOS } from '../photos';
 
 const STAMPS = ['❤️', '💕', '💍', '💋', '🥰', '😍', '🌹', '🎁', '🎂', '🎉', '🍜', '🍕', '☕', '🍷', '🍰', '🍦', '🌅', '🌄', '🏔️', '🏖️', '🌊', '🌲', '⛺', '🏠', '🏙️', '🚗', '✈️', '🚂', '🎬', '🎵', '🎤', '🎮', '📸', '🌙', '⭐', '✨', '🔥', '🌸', '🌻', '🐶', '🐱', '🐻', '🎡', '⛷️', '🎓', '💬', '👋', '🤝'];
 
+/** Sample postcard notes: grey placeholders in the editor and the demo's content — the buyer writes their own. */
+const NOTES = [
+  'Найз маань «та хоёр танилцаач» гэсэн. Тэр цагаас хойш цээжинд минь жаахан салхи ширүүсчихсэн.',
+  'Чам руу харсаар байгаад юу захиалснаа мартчихсан.',
+  'Хүйтэн шөнө, дулаахан гэр, хамгийн олон од.',
+  'Чи хүсэл шивнэсэн. Би л байсан байлгүй дээ.',
+  'Доор хотын гэрэл, хажууд минь чи. Хамгийн гоё үзэмж шүү.',
+  '',
+];
+
 export const flightMeta: TemplateMeta = {
   id: 'flight',
   name: 'Хайрын нислэг',
@@ -20,9 +30,9 @@ export const flightMeta: TemplateMeta = {
     {
       id: 'route', title: 'Нислэгийн самбар', summary: 'Эхний дэлгэц: нислэгийн самбар дээр түүний нислэг «СУУЖ БАЙНА» гэж анивчина.', previewPage: 'board',
       fields: [
-        { type: 'text', key: 'passenger', label: 'Зорчигч (түүний нэр)', max: 22, example: 'Ану' },
-        { type: 'text', key: 'toCity', label: 'Очих газар', max: 20, example: 'Үүрд' },
-        { type: 'text', key: 'flightNo', label: 'Нислэгийн дугаар', max: 8, help: 'Санаа: ойн өдрөө ашиглаарай, ж: LV 1005.', example: 'LV 1005' },
+        { type: 'text', key: 'passenger', label: 'Зорчигч (түүний нэр)', max: 22 },
+        { type: 'text', key: 'toCity', label: 'Очих газар', max: 20 },
+        { type: 'text', key: 'flightNo', label: 'Нислэгийн дугаар', max: 8, help: 'Санаа: ойн өдрөө ашиглаарай, ж: LV 1005.' },
         { type: 'text', key: 'boarding', label: 'Суух цаг', max: 5 },
         { type: 'text', key: 'gate', label: 'Хаалга', max: 4 },
       ],
@@ -30,13 +40,13 @@ export const flightMeta: TemplateMeta = {
     {
       id: 'ticket', title: 'Тасалбар', summary: 'Урж авдаг суух тасалбар — хаанаас хаашаа, нисгэгч, суудал.', previewPage: 'pass',
       fields: [
-        { type: 'text', key: 'fromCode', label: 'Хөөрөх газрын товч нэр', max: 8, help: 'Тасалбар дээр том үсгээр гарна (8 хүртэл тэмдэгт). ж: ULN, ГЭР', example: 'ULN' },
-        { type: 'text', key: 'fromCity', label: 'Хөөрөх хот', max: 20, example: 'Улаанбаатар' },
-        { type: 'text', key: 'toCode', label: 'Очих газрын товч нэр', max: 8, help: 'Тасалбар дээр том үсгээр гарна (8 хүртэл тэмдэгт). ж: ҮҮРД, ХАЙР, САНСАР', example: 'ҮҮРД' },
-        { type: 'text', key: 'captain', label: 'Нисгэгч (таны нэр)', max: 22, example: 'Бат' },
+        { type: 'text', key: 'fromCode', label: 'Хөөрөх газрын товч нэр', max: 8, help: 'Тасалбар дээр том үсгээр гарна (8 хүртэл тэмдэгт). ж: ULN, ГЭР' },
+        { type: 'text', key: 'fromCity', label: 'Хөөрөх хот', max: 20 },
+        { type: 'text', key: 'toCode', label: 'Очих газрын товч нэр', max: 8, help: 'Тасалбар дээр том үсгээр гарна (8 хүртэл тэмдэгт). ж: ҮҮРД, ХАЙР, САНСАР' },
+        { type: 'text', key: 'captain', label: 'Нисгэгч (таны нэр)', max: 22 },
         { type: 'text', key: 'airline', label: 'Агаарын тээврийн нэр', max: 18, placeholder: 'Love Air' },
         { type: 'text', key: 'date', label: 'Тасалбар дээрх огноо', max: 16 },
-        { type: 'text', key: 'seat', label: 'Суудал', max: 14, example: 'Миний хажууд' },
+        { type: 'text', key: 'seat', label: 'Суудал', max: 14 },
         { type: 'text', key: 'cabin', label: 'Зэрэглэл', max: 16 },
         { type: 'color', key: 'color', label: 'Компанийн өнгө', presets: ['#1F4FD1', '#D6336C', '#0F766E', '#7C3AED', '#C2410C', '#111827'] },
       ],
@@ -45,18 +55,18 @@ export const flightMeta: TemplateMeta = {
       id: 'stops', title: 'Замын буудлууд', summary: 'Газрын зураг дээрх буудлууд — буудал бүр зураг, тэмдэглэлтэй ил захидал.', previewPage: 'fly', perItem: { count: 6, label: 'Буудал' },
       description: 'Та хоёрын түүхийн 6 хүртэл газар. Нэрийг нь хоосон орхивол тэр буудлыг алгасна.',
       fields: [
-        { type: 'list', key: 'stopNames', label: 'Газрын нэр', count: 6, max: 26, itemLabel: 'Газар', itemPreview: 'stop:', example: 'Анхны болзоо' },
+        { type: 'list', key: 'stopNames', label: 'Газрын нэр', count: 6, max: 26, itemLabel: 'Газар', itemPreview: 'stop:' },
         { type: 'list', key: 'stopCodes', label: 'Тамга (заавал биш)', count: 6, max: 4, itemLabel: 'Тамга', itemPreview: 'stop:', emojis: STAMPS, help: 'Ил захидал дээр дарагдах тамга — нэгийг сонгоно. Сонгохгүй бол газрын нэрийн эхний 3 үсэг гарна.' },
         { type: 'list', key: 'stopDates', label: 'Огноо', count: 6, max: 18, itemLabel: 'Огноо', itemPreview: 'stop:' },
         { type: 'images', key: 'stopPhotos', label: 'Зургууд (ижил дарааллаар)', max: 6, itemPreview: 'stop:' },
-        { type: 'list', key: 'stopNotes', label: 'Ил захидлын бичвэр', count: 6, max: 180, itemLabel: 'Бичвэр', itemPreview: 'stop:' },
+        { type: 'list', key: 'stopNotes', label: 'Ил захидлын бичвэр', count: 6, max: 180, itemLabel: 'Бичвэр', itemPreview: 'stop:', placeholders: NOTES },
       ],
     },
     {
       id: 'landing', title: 'Газардалт', summary: 'Газардсаны дараах паспортын тамга ба таны захидал.', previewPage: 'land',
       fields: [
-        { type: 'text', key: 'finalTitle', label: 'Газардах үеийн гарчиг', max: 36, example: 'Үүрдэд тавтай морил' },
-        { type: 'textarea', key: 'finalMessage', label: 'Таны захидал', max: 500, rows: 5, example: 'Надтай хамт нисч байгаад баярлалаа.' },
+        { type: 'text', key: 'finalTitle', label: 'Газардах үеийн гарчиг', max: 36 },
+        { type: 'textarea', key: 'finalMessage', label: 'Таны захидал', max: 500, rows: 5 },
         { type: 'audio', key: 'music', label: 'Нислэгийн арын хөгжим (заавал биш)', help: 'Тасалбар урахад эхэлнэ.', tracks: ['aria', 'uyanga', 'nandin'] },
       ],
     },
@@ -70,17 +80,10 @@ export const flightMeta: TemplateMeta = {
     stopCodes: ['👋', '🍜', '🏔️', '🎂', '🌅', ''],
     stopDates: ['2024.01', '2024.02', '2024.07', '2024.11', '2025.08', ''],
     stopPhotos: [],
-    stopNotes: [
-      'Нэг найз «та хоёр танилцаач» гэлээ. Тэр цагаас хойш цээжинд минь агаарын хуйлрал.',
-      'Чам руу харсаар байгаад юу захиалснаа мартчихсан.',
-      'Хүйтэн шөнө, дулаахан гэр, амьдралдаа үзсэн хамгийн олон од.',
-      'Чи хүсэл шивнэсэн. Би л байсан гэж бодож байна. (Батлана уу.)',
-      'Доор хотын гэрэл, хажууд минь чи — Улаанбаатарын хамгийн гоё үзэмж.',
-      '',
-    ],
+    stopNotes: ['', '', '', '', '', ''],
     finalTitle: 'Үүрдэд тавтай морил',
-    finalMessage: 'Надтай хамт нисч байгаад баярлалаа.\nДамжин өнгөрөх буудал ч, буцах тасалбар ч үгүй — хаана ч газардсан зөвхөн чи бид хоёр.',
+    finalMessage: 'Надтай хамт нисч байгаад баярлалаа.\nБуцах тасалбар ч, дамжин өнгөрөх буудал ч байхгүй. Хаана газардсан ч бид хоёулаа.',
     music: '',
   },
-  demo: { stopPhotos: [COUPLES[0], COUPLES[2], PHOTOS.mnGer2, COUPLES[5], PHOTOS.ubNight] },
+  demo: { stopNotes: NOTES, stopPhotos: [COUPLES[0], COUPLES[2], PHOTOS.mnGer2, COUPLES[5], PHOTOS.ubNight] },
 };

@@ -116,10 +116,8 @@ export default function Flight({ data, pin }: { data: FlightData; pin?: string |
   };
   useEffect(() => () => audio.current?.pause(), []);
 
-  // Switching sections in the editor changes `pin` without editing any field, so
-  // `content` (and therefore FlightView's remount key) doesn't change — the
-  // initializer above only covers the first mount. Re-apply `pin` reactively so pure
-  // section-switching works too (same fix as Wrapped.tsx's equivalent effect).
+  // The editor changes `pin` when the buyer switches section — the initializer above only covers the
+  // first mount, so re-apply `pin` reactively. Content edits don't remount (FlightView has no key).
   useEffect(() => {
     if (isScene(pin)) setScene(pin);
     else if (stopPin != null) setScene('fly');
@@ -178,7 +176,7 @@ export default function Flight({ data, pin }: { data: FlightData; pin?: string |
       )}
       {scene === 'fly' && (
         <Journey
-          key={stopPin ?? 'fly'} data={data} stops={stops} pts={pts} d={d} onLand={() => setScene('land')}
+          key={`${stopPin ?? 'fly'}:${stops.length}`} data={data} stops={stops} pts={pts} d={d} onLand={() => setScene('land')}
           parkAt={stopPin == null ? null : Math.max(0, stops.findIndex((s) => s.i === stopPin))}
         />
       )}

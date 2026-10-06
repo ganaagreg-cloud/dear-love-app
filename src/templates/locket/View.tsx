@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useReveal } from '../fieldHighlight';
 import type { Content } from '../types';
 
@@ -30,21 +30,45 @@ export function toLocketConfig(c: Content, editable = false) {
       locketCap: T('locketCap'), finale: T('finale'), question: T('question'), answer: T('answer'),
     },
     letterTitle: str(c.letterTitle),
-    letter: [str(c.letterGreeting), ...paras, ...(str(c.letterSignoff) ? ['@' + str(c.letterSignoff)] : []), '@{from}'].filter(Boolean),
+    letter: [...paras, ...(str(c.letterSignoff) ? ['@' + str(c.letterSignoff)] : []), '@{from}'].filter(Boolean),
   };
 }
 
 /** JSON that is safe to drop inside a <script> tag. */
 const scriptJson = (o: unknown) => JSON.stringify(o).replace(/</g, '\\u003c').replace(/\u2028|\u2029/g, '');
 
-export default function LocketView({ content, editable = false }: { content: Content; pin?: string | number | null; editable?: boolean }) {
+/**
+ * The story lives in its own page (an iframe). It is loaded ONCE with the first content; after that every
+ * edit — and the editor's «show this chapter» pin — is posted into it, so typing never reloads or restarts
+ * the story (see `dearApply` in public/tpl/locket/template.html).
+ */
+export default function LocketView({ content, pin = null, editable = false }: { content: Content; pin?: string | number | null; editable?: boolean }) {
   const [html, setHtml] = useState<string | null>(null);
   useEffect(() => { loadHtml().then(setHtml); }, []);
-  const doc = useMemo(
-    () => (html ? html.replace('/*__CONFIG__*/null', scriptJson(toLocketConfig(content, editable))) : null),
-    [html, content, editable],
-  );
-  // click-to-edit: the story lives in its own iframe — ask it to show the field's scene
+  const frame = useRef<HTMLIFrameElement>(null);
+  const ready = useRef(false);
+  const config = useMemo(() => toLocketConfig(content, editable), [content, editable]);
+  const latest = useRef({ config, pin: typeof pin === 'string' ? pin : null });
+  latest.current = { config, pin: typeof pin === 'string' ? pin : null };
+
+  // the first config is baked into the page; later ones are posted
+  const first = useRef(config);
+  const doc = useMemo(() => (html ? html.replace('/*__CONFIG__*/null', scriptJson(first.current)) : null), [html]);
+
+  const send = useCallback(() => {
+    if (!ready.current) return;
+    frame.current?.contentWindow?.postMessage({ type: 'dear:locket', ...latest.current }, window.location.origin);
+  }, []);
+  useEffect(() => {
+    const onMsg = (e: MessageEvent) => {
+      if (e.data?.type === 'dear:locket-ready' && e.source === frame.current?.contentWindow) { ready.current = true; send(); }
+    };
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
+  }, [send]);
+  useEffect(send, [send, config, pin]);
+
+  // click-to-edit: ask the story to show the field's scene
   useReveal(useCallback((el: Element | null) => {
     const w = el?.ownerDocument.defaultView as (Window & { dearReveal?: (e: Element) => void }) | null | undefined;
     w?.dearReveal?.(el!);
@@ -52,6 +76,7 @@ export default function LocketView({ content, editable = false }: { content: Con
   if (!doc) return <div style={{ position: 'fixed', inset: 0, background: '#07060d' }} />;
   return (
     <iframe
+      ref={frame}
       title="Locket story"
       srcDoc={doc}
       allow="autoplay; fullscreen"

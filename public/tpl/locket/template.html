@@ -252,7 +252,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 </head>
 <body>
 
-<script>const CONFIG = /*__CONFIG__*/null;</script>
+<script>let CONFIG = /*__CONFIG__*/null;</script>
 
 <canvas id="sky"></canvas>
 
@@ -434,7 +434,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 <canvas id="fx"></canvas>
 
 <div class="modal" id="modal">
-  <article class="paper" id="paper">
+  <article class="paper" id="paper" data-hl-label="outside">
     <button class="x" id="closeLetter" aria-label="Хаах">×</button>
     <h3 id="letterTitle"></h3>
     <div class="date" id="letterDate"></div>
@@ -459,9 +459,9 @@ if (reduce) gsap.globalTimeline.timeScale(1.8);
 
 /* ---------- data ---------- */
 const DAY = 864e5;
-const start = new Date(CONFIG.startDate + 'T00:00:00');
+let start = new Date(CONFIG.startDate + 'T00:00:00');
 const dayCount = () => Math.max(1, Math.floor((Date.now() - start) / DAY) + 1);
-const DAYS = dayCount();
+let DAYS = dayCount();
 const fill = s => s.replace(/\{days\}/g, DAYS.toLocaleString('en-US')).replace(/\{to\}/g, CONFIG.to).replace(/\{from\}/g, CONFIG.from);
 
 /* ---------- text setup ---------- */
@@ -476,14 +476,17 @@ function buildLines(el, text) {
     el.appendChild(ln);
   });
 }
+function applyText() {
 $$('[data-fill]').forEach(el => { el.dataset.field = 'text.' + el.dataset.fill; buildLines(el, CONFIG.text[el.dataset.fill] || ''); });
 $$('[data-ch]').forEach(el => { el.dataset.field = 'chapters.' + el.dataset.ch; el.textContent = fill(CONFIG.chapters[+el.dataset.ch] || ''); });
 /* editor click-to-edit ids (data-field = the editor's field key) */
 [['#dearTitle', 'to'], ['#signed', 'from'], ['#locketCap', 'text.locketCap'], ['#answer', 'text.answer'], ['#grid', 'milestone'], ['#daysNum', 'startDate'], ['#sound', 'music'],
- ['#lp1', 'locketPhotos.0'], ['#lp2', 'locketPhotos.1'], ['#envLetter', 'letterBody'], ['#letterTitle', 'letterTitle'], ['#letterBody', 'letterBody']]
+ ['#lp1', 'locketPhotos.0'], ['#lp2', 'locketPhotos.1'], ['#letterTitle', 'letterTitle']]
   .forEach(([sel, f]) => { const el = $(sel); if (el) el.setAttribute('data-field', f); });
 $('#dearTitle').textContent = CONFIG.to + ',';
 $('#signed').textContent = '— ' + CONFIG.from + ', ' + DAYS.toLocaleString('en-US') + ' дахь өдөр';
+}
+applyText();
 
 const revealLines = (el, stagger = .05) => gsap.fromTo($$('.w', el),
   { opacity: 0, y: 16, filter: 'blur(8px)' },
@@ -501,8 +504,11 @@ function placeholder(label, hue) {
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 function loadImg(src, fb, cb) { if (!src) return cb(fb); const im = new Image(); im.onload = () => cb(src); im.onerror = () => cb(fb); im.src = src; }
-loadImg(CONFIG.locketPhotos[0], placeholder(CONFIG.to || 'чи', 345), u => $('#lp1').setAttribute('href', u));
-loadImg(CONFIG.locketPhotos[1], placeholder(CONFIG.from || 'би', 20), u => $('#lp2').setAttribute('href', u));
+function applyImages() {
+  loadImg(CONFIG.locketPhotos[0], placeholder(CONFIG.to || 'чи', 345), u => $('#lp1').setAttribute('href', u));
+  loadImg(CONFIG.locketPhotos[1], placeholder(CONFIG.from || 'би', 20), u => $('#lp2').setAttribute('href', u));
+}
+applyImages();
 
 /* ---------- sky canvas ---------- */
 const sky = $('#sky'), sctx = sky.getContext('2d');
@@ -602,15 +608,20 @@ function waveTile(fillC, foam, tile) {
 
 /* ---------- memories constellation ---------- */
 const cons = $('#constellation'), lineSvg = $('#constLines');
-const memEls = CONFIG.memories.map((m, i) => {
+let memEls = [], memLines = [];
+function buildMemories() {
+  memEls.forEach(d => d.remove()); lineSvg.innerHTML = '';
+  memEls = CONFIG.memories.map((m, i) => {
   const d = document.createElement('div'); d.className = 'memory';
   d.innerHTML = `<div class="polaroid" style="transform:rotate(${[-5, 4, -2, 5, -3][i % 5]}deg)"><img alt=""><div class="cap"></div></div><div class="orb dot"></div>`;
   $('.cap', d).textContent = m.caption;
   $('img', d).setAttribute('data-field', 'memoryPhotos.' + m.i); $('.cap', d).setAttribute('data-field', 'memoryCaptions.' + m.i);
   loadImg(m.src, placeholder(m.caption, [340, 15, 30, 280, 350][i % 5]), u => $('img', d).src = u);
   cons.appendChild(d); return d;
-});
-const memLines = memEls.slice(1).map(() => { const l = document.createElementNS('http://www.w3.org/2000/svg', 'line'); lineSvg.appendChild(l); return l; });
+  });
+  memLines = memEls.slice(1).map(() => { const l = document.createElementNS('http://www.w3.org/2000/svg', 'line'); lineSvg.appendChild(l); return l; });
+  layoutMemories();
+}
 function layoutMemories() {
   const portrait = innerHeight > innerWidth * 1.05;
   const P = portrait
@@ -625,9 +636,17 @@ function layoutMemories() {
   $('#threadPath').setAttribute('d', `M${.38 * mw} ${.5 * mh} C${.43 * mw} ${.64 * mh} ${.57 * mw} ${.64 * mh} ${.62 * mw} ${.5 * mh}`);
 }
 
+buildMemories();
+
 /* ---------- days grid ---------- */
-const grid = $('#grid'), M = CONFIG.milestone;
-const dots = Array.from({ length: M }, () => { const i = document.createElement('i'); grid.appendChild(i); return i; });
+const grid = $('#grid');
+let M = CONFIG.milestone, dots = [];
+// at most 1000 cells — a bigger goal just makes each cell stand for several days
+function buildGrid() {
+  M = CONFIG.milestone; grid.innerHTML = '';
+  dots = Array.from({ length: Math.min(M, 1000) }, () => { const i = document.createElement('i'); grid.appendChild(i); return i; });
+}
+buildGrid();
 
 /* ---------- pendulum / locket ---------- */
 const pend = $('#pend'), locket = $('#locket'), cover = $('#cover');
@@ -691,7 +710,8 @@ $('#openBtn').addEventListener('click', e => { e.stopPropagation(); openLocket()
 
 /* ---------- envelope + letter ---------- */
 let envOpened = false, typing = null;
-$('#envLetter').textContent = fill(CONFIG.letter[0] + ' ' + CONFIG.letter[1]);
+const fillEnvLetter = () => { $('#envLetter').textContent = fill(CONFIG.letter.filter(p => !p.startsWith('@')).slice(0, 2).join(' ')); };
+fillEnvLetter();
 $('#envelope').addEventListener('click', e => {
   e.stopPropagation();
   if (!P.opened) return;
@@ -707,7 +727,8 @@ $('#envelope').addEventListener('click', e => {
     .to('#envLetter', { y: '-62%', duration: 1, ease: 'power3.out' }, '-=.2')
     .add(() => showLetter(true), '-=.3');
 });
-function showLetter(type) {
+// instant = the editor re-drawing the letter as the buyer types: no fade-in, keep the scroll position
+function showLetter(type, instant) {
   const body = $('#letterBody');
   $('#letterTitle').textContent = CONFIG.letterTitle;
   const _d = new Date(); $('#letterDate').textContent = DAYS.toLocaleString('en-US') + ' дахь өдөр бичив · ' + _d.getFullYear() + ' оны ' + (_d.getMonth() + 1) + '-р сарын ' + _d.getDate();
@@ -716,15 +737,23 @@ function showLetter(type) {
   const els = paras.map((p, k) => {
     const el = document.createElement('p'); if (p.sig) el.className = 'sig';
     // letter = [greeting, ...body, @signoff, @{from}] — tag each paragraph with its editor field
-    el.setAttribute('data-field', k === 0 && !p.sig ? 'letterGreeting' : !p.sig ? 'letterBody' : k === paras.length - 1 ? 'from' : 'letterSignoff');
+    if (p.sig) el.setAttribute('data-field', k === paras.length - 1 ? 'from' : 'letterSignoff');
     return el;
   });
+  const wrap = document.createElement('div'); wrap.setAttribute('data-field', 'letterBody');
+  const put = (el, k) => {
+    if (!paras[k].sig) { if (!wrap.isConnected) body.appendChild(wrap); wrap.appendChild(el); } else body.appendChild(el);
+  };
+  const keepTop = $('#paper').scrollTop;
   gsap.set('#modal', { visibility: 'visible' });
-  gsap.to('#modal', { opacity: 1, duration: .6 });
-  gsap.fromTo('#paper', { y: 40, scale: .94, opacity: 0, rotation: -1.5 }, { y: 0, scale: 1, opacity: 1, rotation: 0, duration: 1, ease: 'power3.out' });
-  $('#paper').scrollTop = 0;
+  if (instant) { gsap.killTweensOf(['#modal', '#paper']); gsap.set('#modal', { opacity: 1 }); gsap.set('#paper', { y: 0, scale: 1, opacity: 1, rotation: 0 }); }
+  else {
+    gsap.to('#modal', { opacity: 1, duration: .6 });
+    gsap.fromTo('#paper', { y: 40, scale: .94, opacity: 0, rotation: -1.5 }, { y: 0, scale: 1, opacity: 1, rotation: 0, duration: 1, ease: 'power3.out' });
+  }
+  $('#paper').scrollTop = instant ? keepTop : 0;
   $('#skipBtn').style.display = type ? '' : 'none';
-  const showAll = () => els.forEach((el, i) => { el.textContent = paras[i].text; body.appendChild(el); });
+  const showAll = () => els.forEach((el, i) => { el.textContent = paras[i].text; put(el, i); });
   if (!type) { showAll(); return; }
   // typewriter
   let pi = 0, ci = 0, stop = false; const caret = document.createElement('span'); caret.className = 'caret';
@@ -733,7 +762,7 @@ function showLetter(type) {
     if (stop) return;
     if (pi >= els.length) { caret.remove(); $('#skipBtn').style.display = 'none'; return; }
     const txt = paras[pi].text, el = els[pi];
-    if (ci === 0) body.appendChild(el);
+    if (ci === 0) put(el, pi);
     ci++; el.textContent = txt.slice(0, ci); el.appendChild(caret);
     const ch = txt[ci - 1];
     if (paper.scrollHeight > paper.clientHeight && paper.scrollHeight - paper.scrollTop - paper.clientHeight < 140) paper.scrollTop = paper.scrollHeight;
@@ -756,7 +785,7 @@ $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeL
 
 /* ---------- scenes ---------- */
 const scenes = $$('.scene');
-let current = -1, busy = false, canAdvance = false;
+let current = -1, busy = false, canAdvance = false, pinned = null;
 const progress = $('#progress');
 scenes.forEach(() => progress.appendChild(document.createElement('b')));
 
@@ -816,7 +845,7 @@ const ENTER = [
   // 4 counting
   sc => {
     const t = gsap.timeline().add(revealChapter(sc));
-    const lit = Math.min(DAYS, M), n = { v: 0 };
+    const lit = Math.max(1, Math.round(Math.min(DAYS, M) / M * dots.length)), n = { v: 0 };
     dots.forEach(d => d.className = '');
     t.fromTo('#grid', { opacity: 0 }, { opacity: 1, duration: 1 }, .5)
      .to(n, { v: DAYS, duration: 3.4, ease: 'power2.inOut', onUpdate: () => $('#daysNum').textContent = Math.round(n.v).toLocaleString('en-US') }, .8)
@@ -868,10 +897,12 @@ window.dearReveal = el => {
   if (!el) return;
   if (el.closest('#modal')) { if ($('#modal').style.visibility !== 'visible') showLetter(false); return; }
   const i = scenes.indexOf(el.closest('.scene'));
-  if (i >= 0 && i !== current) { busy = false; go(i); }
+  if (i < 0 || i === current) return;
+  const name = Object.keys(PIN).find(k => PIN[k] === i && k !== 'letter' && k !== 'answer');
+  if (name) settle(name);
 };
 function go(i) {
-  if (busy || i < 0 || i >= scenes.length || i === current) return;
+  if (pinned || busy || i < 0 || i >= scenes.length || i === current) return;
   busy = true; canAdvance = false; setHint(null, false);
   const prev = scenes[current], next = scenes[i];
   if (current === 5 && i !== 5) P.active = false;
@@ -889,7 +920,7 @@ function go(i) {
   });
 }
 const isTouch = matchMedia('(pointer:coarse)').matches;
-function advance() { if (!busy && canAdvance) go(current + 1); }
+function advance() { if (!pinned && !busy && canAdvance) go(current + 1); }
 
 $('#stage').addEventListener('click', e => { if (e.target.closest('button,.envelope,.locket,.polaroid')) return; advance(); });
 let wheelLock = 0;
@@ -953,8 +984,77 @@ if (matchMedia('(pointer:fine)').matches) {
 
 /* ---------- boot ---------- */
 resize();
-const boot = () => { busy = false; go(0); };
+const boot = () => { if (pinned || current !== -1) return; busy = false; go(0); };
 (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => setTimeout(boot, 200));
+
+/* ---------- editor API: update in place, show one scene frozen ---------- */
+// The editor never reloads this page: it posts the new config (and which scene to show) and we patch the DOM,
+// so typing doesn't restart the story. pin = null -> play normally from the start.
+const PIN = { prologue: 0, before: 1, meet: 2, moments: 3, count: 4, locket: 5, letter: 5, final: 6, answer: 6 };
+const CH_PIN = ['before', 'meet', 'moments', 'count'];
+function refresh() {
+  start = new Date(CONFIG.startDate + 'T00:00:00'); DAYS = dayCount();
+  applyText(); applyImages(); buildMemories(); buildGrid(); fillEnvLetter();
+  if (CONFIG.music && bgm.getAttribute('src') !== CONFIG.music) { bgm.src = CONFIG.music; musicOK = false; }
+  if ($('#modal').style.visibility === 'visible') showLetter(false, true);
+}
+function killAll() {
+  gsap.globalTimeline.getChildren(true, true, true).forEach(t => {
+    const tg = t.targets ? t.targets() : [];
+    if (!tg.some(x => x && (x.id === 'cur' || x.id === 'curRing'))) t.kill();
+  });
+}
+/** Show scene `name` instantly in its finished state (no transition, no replay). */
+function settle(name) {
+  const i = PIN[name]; if (i == null) return;
+  pinned = name; clearTimeout(typing); killAll(); busy = false; canAdvance = false; current = i; fireflies = false;
+  gsap.set('#hint', { opacity: 0 });
+  gsap.set('#modal', { opacity: 0, visibility: 'hidden' });
+  scenes.forEach((sc, k) => { sc.classList.toggle('active', k === i); gsap.set(sc, { opacity: k === i ? 1 : 0, filter: 'none', scale: 1 }); });
+  $$('b', progress).forEach((b, k) => b.classList.toggle('on', k === i));
+  const tl = ENTER[i](scenes[i]); tl.seek(30);
+  if (i === 4) {
+    $('#daysNum').textContent = DAYS.toLocaleString('en-US');
+    const lit = Math.max(1, Math.round(Math.min(DAYS, M) / M * dots.length));
+    dots.forEach((d, k) => { d.className = k < lit ? 'on' : ''; }); dots[lit - 1].className = 'today';
+  }
+  if (i === 5) {
+    // the opened locket with its caption and the envelope; the pendulum holds still so the photos are easy to read
+    P.active = false; P.th = 0; P.om = 0; P.opened = true; P.damp = 2.4; gsap.set(pend, { rotation: 0, yPercent: 0 });
+    gsap.set(cover, { rotationY: -180 }); gsap.set(locket, { x: locket.offsetWidth * .47 });
+    gsap.set('#locketGlow', { opacity: .45 }); skyState.bright = 1.1;
+    gsap.set(['#openBtn', '#dragHint'], { display: 'none' });
+    gsap.set('#locketCap', { opacity: 1, y: 0, filter: 'none' });
+    gsap.set('#envelope', { visibility: 'visible', y: 0, rotation: 0, opacity: 1 }); gsap.set('#envTip', { opacity: .9 });
+    if (name === 'letter') {
+      envOpened = true; gsap.set('#seal', { scale: 0, opacity: 0 }); gsap.set('#envFlap', { rotationX: 180, zIndex: 0 }); gsap.set('#envLetter', { y: '-62%' });
+      showLetter(false, true);
+    }
+  }
+  if (i === 6) {
+    gsap.set('#choices', { display: 'flex', opacity: 1 }); gsap.set('#replay', { opacity: 0 }); fireflies = true;
+    if (name === 'answer') { buildLines($('#answer'), CONFIG.text.answer); gsap.set('#choices', { display: 'none' }); gsap.set('#replay', { opacity: 1 }); }
+  }
+}
+function unpin() {
+  pinned = null; killAll(); clearTimeout(typing);
+  gsap.set('#modal', { opacity: 0, visibility: 'hidden' });
+  scenes.forEach(sc => { sc.classList.remove('active'); gsap.set(sc, { opacity: 0 }); });
+  P.active = false; P.opened = false; envOpened = false; current = -1; busy = false; go(0);
+}
+window.dearApply = (cfg, pin) => {
+  const same = !!cfg && JSON.stringify(cfg) === JSON.stringify(CONFIG);
+  if (cfg && !same) { CONFIG = cfg; refresh(); }
+  let name = typeof pin === 'string' ? (/^ch:\d$/.test(pin) ? (CH_PIN[+pin[3]] || 'locket') : pin) : null;
+  if (name != null && PIN[name] == null) name = null;
+  if (name) { if (name !== pinned || !same) settle(name); }
+  else if (pinned) unpin();
+};
+addEventListener('message', e => {
+  if (e.source !== parent || e.data?.type !== 'dear:locket') return;
+  window.dearApply(e.data.config, e.data.pin);
+});
+parent.postMessage({ type: 'dear:locket-ready' }, '*');
 })();
 </script>
 </body>

@@ -127,9 +127,13 @@ export function useFieldHighlight(edit: boolean) {
         const r = rectOf(targets[0]);
         nodes.lb.textContent = `✎ ${focus.label}`;
         if (!nodes.lb.isConnected) fx.appendChild(nodes.lb);
-        const above = r.top > 34;
-        nodes.lb.style.left = `${Math.max(6, Math.min(r.left - 4, innerWidth - nodes.lb.offsetWidth - 6))}px`;
-        nodes.lb.style.top = `${above ? r.top - 32 : r.bottom + 8}px`;
+        // dense text (Locket's letter paper) marks its box data-hl-label="outside": the label goes above/below
+        // that whole box instead of sitting on top of the line the buyer is reading
+        const host = targets[0].closest('[data-hl-label="outside"]');
+        const hr = host ? rectOf(host) : r;
+        const above = hr.top > 34;
+        nodes.lb.style.left = `${Math.max(6, Math.min(hr.left - 4, innerWidth - nodes.lb.offsetWidth - 6))}px`;
+        nodes.lb.style.top = `${above ? hr.top - 32 : hr.bottom + 8}px`;
       } else nodes.lb.remove();
 
       /* hover outline (edit mode) */

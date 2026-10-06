@@ -1,24 +1,18 @@
 'use client';
-import type { ScreenProps } from './types';
+import { useEffect } from 'react';
 
-export default function Intro({ data }: ScreenProps) {
+/** 2 · The logo, letter by letter, with the «та-дам» (≤ 2.5s). `still` = the editor's frozen frame. */
+export default function Intro({ onDone, still = false }: { onDone: () => void; still?: boolean }) {
+  useEffect(() => {
+    if (still) return;
+    const t = window.setTimeout(onDone, 2500);
+    return () => window.clearTimeout(t);
+  }, [onDone, still]);
   return (
-    <section className="lf-screen lf-intro">
-      <div className="lf-n-wrap">
-        <svg viewBox="0 0 120 200" className="lf-n-svg" aria-label="LoveFlix эхлэл">
-          <defs>
-            <linearGradient id="lfN" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#ff5b6a" />
-              <stop offset="100%" stopColor={data.accent} />
-            </linearGradient>
-          </defs>
-          <rect className="lf-n-bar lf-n-left" x="14" y="10" width="26" height="180" fill="url(#lfN)" />
-          <rect className="lf-n-bar lf-n-right" x="80" y="10" width="26" height="180" fill="url(#lfN)" />
-          <polygon className="lf-n-diag" points="14,10 40,10 106,190 80,190" fill="url(#lfN)" />
-        </svg>
-        <div className="lf-n-heart">♥</div>
+    <section className={`lf-screen lf-intro ${still ? 'still' : ''}`} aria-label="LoveFlix">
+      <div className="lf-intro-logo" aria-hidden>
+        {[...'LOVEFLIX'].map((ch, i) => <span key={i} style={{ animationDelay: `${0.25 + i * 0.09}s` }}>{ch}</span>)}
       </div>
-      <div className="lf-intro-word">LoveFlix</div>
     </section>
   );
 }

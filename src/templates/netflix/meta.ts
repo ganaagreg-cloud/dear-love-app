@@ -1,96 +1,157 @@
-import type { TemplateMeta } from '../types';
-import { COUPLES, PHOTOS } from '../photos';
+import type { Content, Section, TemplateMeta } from '../types';
+import { COUPLES } from '../photos';
+import { BRANCH_EP, MAX_EPISODES, MAX_SLIDES, TOP_COUNT, TRAILER_MAX } from './data';
 
-const blankOverride = 'Хоосон орхивол сонгосон үйл явдлын үндсэн бичвэр гарна.';
+/** Default chapters. The subtitle lines are SAMPLES — grey placeholders in the editor and the demo's content, never saved for the buyer. The 6th chapter is empty (an empty chapter is skipped). */
+const EPISODES: { title: string; date: string; captions: string[] }[] = [
+  { title: 'Анхны «сайн уу»', date: '2024-01-12', captions: ['Найз маань «та хоёр танилцаач» гэсэн.', 'Тэр өдөр зүрх минь жаахан хурдан цохилсон.'] },
+  { title: 'Анхны болзоо', date: '2024-02-14', captions: ['Чам руу харсаар байгаад юу захиалснаа мартчихсан.', 'Тэр оройн яриа дуусахгүй байгаасай гэж бодсон.'] },
+  { title: 'Тэрэлжийн амралт', date: '2024-07-20', captions: ['Хүйтэн шөнө, дулаахан гэр.', 'Амьдралдаа үзсэн хамгийн олон од.'] },
+  { title: 'Чиний төрсөн өдөр', date: '2024-11-08', captions: ['Чи хүсэл шивнэсэн. Би л байсан байлгүй дээ.', 'Бялуу бага, инээд их.'] },
+  { title: 'Өнөөдөр', date: '2025-08-15', captions: ['Доор хотын гэрэл, хажууд минь чи.', 'Хамгийн гоё үзэмж — чи.'] },
+  { title: '', date: '', captions: [] },
+];
+
+const BRANCH_A = 'Бид шөнө дунд хүртэл тэнгэр ширтсэн.';
+const BRANCH_B = 'Гал, цай, чимээгүй яриа — өөр юу ч хэрэггүй.';
+const TOP = ['Чиний инээд', 'Чиний «идсэн үү?» гэдэг асуулт', 'Хамт идсэн хоол', 'Дулаахан тэврэлт', 'Зүгээр л чи'];
+const THANKS = ['Бидний хамгийн анхны найз', 'Тэрэлжийн одод', 'Чиний тэвчээр'];
+
+const pad = (xs: string[], n: number) => Array.from({ length: n }, (_, i) => xs[i] ?? '');
+
+/** One step per episode: its title/date, up to 4 slides (photo + subtitle). Slide i previews `ep:<n>:<i>`. */
+const episodeSection = (n: number): Section => ({
+  id: `ep${n}`, title: `Бүлэг ${n}`, previewPage: `ep:${n}:0`,
+  summary: `Бүлэг ${n}: гарчиг, огноо, 1–4 слайд. Слайд бүр нэг зураг, доор нь киноны хадмал шиг нэг мөр үгтэй. Хоосон орхивол бүлэг алгасагдана.`,
+  fields: [
+    { type: 'text', key: `ep${n}.title`, label: 'Бүлгийн нэр', max: 30, previewPage: `ep:${n}:0` },
+    { type: 'date', key: `ep${n}.date`, label: 'Огноо', notFuture: true, pickOnly: true, previewPage: `ep:${n}:0` },
+    { type: 'images', key: `ep${n}.photos`, label: 'Зургууд (слайд бүрд нэг)', max: MAX_SLIDES, itemPreview: `ep:${n}:` },
+    { type: 'list', key: `ep${n}.captions`, label: 'Хадмал үг (зураг бүрийн доор)', count: MAX_SLIDES, max: 90, itemLabel: 'Слайд', itemPreview: `ep:${n}:`, placeholders: EPISODES[n - 1]?.captions },
+  ],
+});
+
+const epDefaults = (): Content => {
+  const out: Content = {};
+  EPISODES.forEach((e, i) => {
+    out[`ep${i + 1}.title`] = e.title; out[`ep${i + 1}.date`] = e.date;
+    out[`ep${i + 1}.photos`] = []; out[`ep${i + 1}.captions`] = pad([], MAX_SLIDES);
+  });
+  return out;
+};
+
+/** Demo photos are all couples (no landscapes) so the preview sells the template. */
+const [P0, P1, P2, P3, P4, P5, P6, P7] = COUPLES;
+const epDemo = (): Content => ({
+  'ep1.photos': [P1, P2], 'ep2.photos': [P3, P4], 'ep3.photos': [P5, P0], 'ep4.photos': [P6, P7], 'ep5.photos': [P2, P4],
+  ...Object.fromEntries(EPISODES.map((e, i) => [`ep${i + 1}.captions`, pad(e.captions, MAX_SLIDES)])),
+});
 
 export const netflixMeta: TemplateMeta = {
   id: 'netflix',
   name: 'LoveFlix',
   nameMn: 'LoveFlix',
-  tagline: 'Та хоёрын гол дүрд тоглосон стриминг апп — сонголттой интерактив ангитай.',
+  tagline: 'Та хоёрын түүхээр бүтсэн Netflix маягийн цуврал — трейлер, бүлэг бүр зурагтай, төгсгөлд нь асуулт.',
   description:
-    '«Хэн үзэж байна?», «та-дам» эхлэл, та хоёрын зурагтай мөрүүд, Топ-5 шалтгаан, замаа өөрөө сонгох анги, эцэст нь «ТИЙМ» дардаг финал. 4 төрөл: болзоонд урих, төрсөн өдөр, ой, хайрын захидал.',
+    '«Хэн үзэж байна?» гэж асаж, «та-дам» дуугаар эхэлнэ. Таны зургуудаас трейлер өөрөө бүтнэ, түүх нь бүлэг бүлгээр тоглоно — зураг бүрийн доор киноны хадмал. Нэг бүлэгд сонголт хийхэд түүх салаалж өөр зураг гарна. Төгсгөлд нь «Тийм»-д дарахад хойно нь кино титр гүйнэ.',
   category: 'Болзоонд урих',
   badge: 'ШИНЭ',
   price: 400,
   cover: '/covers/netflix.jpg',
   accent: '#e50914',
-  features: ['4 төрөл', '11 хүртэл зураг', 'Интерактив анги', 'Зугтдаг «Үгүй» товч', 'Кино титр'],
+  features: ['Автомат трейлер', '6 хүртэл бүлэг', 'Салаалах сонголт', 'Зугтдаг «Үгүй» товч', 'Кино титр'],
   schema: [
     {
-      id: 'basics', title: 'Төрөл ба нэрс', summary: '«Хэн үзэж байна?» дэлгэц, нэрс, өнгө, үйл явдлын төрөл.', previewPage: 'browse',
+      id: 'gate', title: 'Профайл', previewPage: 'gate',
+      summary: 'Эхний дэлгэц «Хэн үзэж байна?» — түүний зураг ба нэр.',
       fields: [
-        {
-          type: 'select', key: 'occasion', label: 'Ямар үйл явдал вэ?',
-          options: [
-            { value: 'ask_out', label: 'Болзоонд урих' }, { value: 'birthday', label: 'Төрсөн өдөр' },
-            { value: 'anniversary', label: 'Ой' }, { value: 'love_message', label: 'Хайрын захидал' },
-          ],
-        },
-        { type: 'text', key: 'partnerName', label: 'Түүний нэр', max: 24, example: 'Ану' },
-        { type: 'text', key: 'yourName', label: 'Таны нэр', max: 24, example: 'Бат' },
-        { type: 'color', key: 'accent', label: 'Үндсэн өнгө', presets: ['#E50914', '#FF4D8D', '#8B5CF6', '#F59E0B', '#10B981'] },
-        { type: 'toggle', key: 'funnyNoButton', label: 'Зугтдаг «Үгүй» товч (болзоонд урихад)', previewPage: 'episode:2' },
-        { type: 'text', key: 'songName', label: 'Таны дуу (титрт гарна)', max: 60 },
+        { type: 'image', key: 'profilePhoto', label: 'Түүний профайл зураг' },
+        { type: 'text', key: 'name1', label: 'Түүний нэр', max: 22 },
       ],
     },
     {
-      id: 'photos', title: 'Зургууд', summary: 'Цувралын нүүр, мөрүүд, ангийн ар зургууд.', previewPage: 'browse',
+      id: 'cast', title: 'Цуврал', previewPage: 'home',
+      summary: 'Нүүр дэлгэц: цувралын нэр, таны нэр, товч агуулга.',
       fields: [
-        { type: 'image', key: 'profilePhoto', label: 'Профайл зураг («Хэн үзэж байна?»)', previewPage: 'profiles' },
-        { type: 'image', key: 'heroPhoto', label: 'Том нүүр зураг' },
-        { type: 'images', key: 'cwPhotos', label: '«Үргэлжлүүлэх» мөр', max: 4 },
-        { type: 'images', key: 'hitPhotos', label: '«Тренд» мөр', max: 4 },
-        { type: 'image', key: 'ep1Bg', label: 'Ангийн 1-р хэсгийн ар зураг', previewPage: 'episode' },
-        { type: 'image', key: 'ep2Bg', label: 'Ангийн 2-р хэсгийн ар зураг', previewPage: 'episode:1' },
-        { type: 'image', key: 'climaxBg', label: 'Финалын ар зураг', previewPage: 'episode:2' },
+        { type: 'text', key: 'title', label: 'Цувралын нэр', max: 28 },
+        { type: 'text', key: 'name2', label: 'Таны нэр', max: 22 },
+        { type: 'text', key: 'year', label: 'Он', max: 4 },
+        { type: 'textarea', key: 'synopsis', label: 'Товч агуулга («Дэлгэрэнгүй» дээр гарна)', max: 220, rows: 3 },
       ],
     },
     {
-      id: 'show', title: 'Цуврал', summary: 'Цувралын нэр, товч агуулга, Топ 5 шалтгаан.', previewPage: 'browse',
-      description: blankOverride,
+      id: 'trailer', title: 'Трейлер', previewPage: 'home',
+      summary: 'Нүүр дэлгэцийн том хэсэгт таны зургууд өөрөө солигдон гүйнэ.',
+      fields: [{ type: 'images', key: 'trailerPhotos', label: 'Трейлерийн зургууд (6 хүртэл)', max: TRAILER_MAX }],
+    },
+    ...Array.from({ length: MAX_EPISODES }, (_, i) => episodeSection(i + 1)),
+    {
+      id: 'branch', title: 'Салаалах сонголт', previewPage: 'branch',
+      summary: `Бүлэг ${BRANCH_EP}-ын дунд үзэгч нэгийг сонгоно — сонголт бүр өөр зураг, өөр үг гаргана. Хоёр сонголтын нэрийг хоосон орхивол энэ хэсэг алгасагдана.`,
       fields: [
-        { type: 'text', key: 'ov.heroTitle', label: 'Цувралын нэр', max: 40, example: 'Бидний түүх' },
-        { type: 'textarea', key: 'ov.synopsis', label: 'Товч агуулга', max: 220, rows: 3, example: 'Хоёр хүн. Нэг санамсаргүй уулзалт. Дуусашгүй цуврал.' },
-        { type: 'text', key: 'ov.row1', label: '1-р мөрийн гарчиг', max: 40 },
-        { type: 'list', key: 'ov.cw', label: '1-р мөрийн картууд', count: 4, max: 30, itemLabel: 'Карт' },
-        { type: 'text', key: 'ov.row2', label: 'Топ 5-ын гарчиг', max: 40 },
-        { type: 'list', key: 'ov.reasons', label: 'Топ 5 шалтгаан', count: 5, max: 40, itemLabel: 'Шалтгаан', example: 'Чиний инээд' },
-        { type: 'text', key: 'ov.row3', label: '3-р мөрийн гарчиг', max: 40 },
-        { type: 'list', key: 'ov.hits', label: '3-р мөрийн картууд', count: 4, max: 30, itemLabel: 'Карт' },
+        { type: 'text', key: 'branch.prompt', label: 'Асуулт', max: 50, previewPage: 'branch' },
+        { type: 'text', key: 'branch.a.label', label: 'Сонголт А', max: 30, previewPage: 'branch:a' },
+        { type: 'image', key: 'branch.a.photo', label: 'Сонголт А · зураг', previewPage: 'branch:a' },
+        { type: 'text', key: 'branch.a.caption', label: 'Сонголт А · хадмал үг', max: 90, placeholder: BRANCH_A, previewPage: 'branch:a' },
+        { type: 'text', key: 'branch.b.label', label: 'Сонголт Б', max: 30, previewPage: 'branch:b' },
+        { type: 'image', key: 'branch.b.photo', label: 'Сонголт Б · зураг', previewPage: 'branch:b' },
+        { type: 'text', key: 'branch.b.caption', label: 'Сонголт Б · хадмал үг', max: 90, placeholder: BRANCH_B, previewPage: 'branch:b' },
       ],
     },
     {
-      id: 'episode', title: 'Интерактив анги', summary: 'Сонголттой анги ба «ТИЙМ» дардаг финал.', previewPage: 'episode',
-      description: blankOverride,
+      id: 'top', title: 'Топ 5 шалтгаан', previewPage: 'home',
+      summary: 'Нүүр дэлгэц дээрх «Топ 5» мөр — Netflix-ийн Топ 10 шиг том тоотой.',
       fields: [
-        { type: 'textarea', key: 'ov.ep1Narration', label: '1-р хэсгийн үг', max: 220, rows: 3 },
-        { type: 'text', key: 'ov.ep1a', label: '1-р хэсэг · сонголт А', max: 30 },
-        { type: 'text', key: 'ov.ep1b', label: '1-р хэсэг · сонголт Б', max: 30 },
-        { type: 'textarea', key: 'ov.ep2Narration', label: '2-р хэсгийн үг', max: 220, rows: 3, previewPage: 'episode:1' },
-        { type: 'text', key: 'ov.ep2a', label: '2-р хэсэг · сонголт А', max: 30, previewPage: 'episode:1' },
-        { type: 'text', key: 'ov.ep2b', label: '2-р хэсэг · сонголт Б', max: 30, previewPage: 'episode:1' },
-        { type: 'text', key: 'ov.climaxTitle', label: 'Финалын асуулт / гарчиг', max: 50, previewPage: 'episode:2', example: 'Надтай болзох уу?' },
-        { type: 'text', key: 'ov.climaxSub', label: 'Финалын доорх бичвэр', max: 80, previewPage: 'episode:2' },
+        { type: 'list', key: 'top.texts', label: 'Шалтгаан', count: TOP_COUNT, max: 40, itemLabel: 'Шалтгаан', placeholders: TOP },
+        { type: 'images', key: 'top.photos', label: 'Зургууд (ижил дарааллаар)', max: TOP_COUNT },
       ],
+    },
+    {
+      id: 'final', title: 'Финал', previewPage: 'finale',
+      summary: 'Сүүлийн бүлэг дуусахад гарах асуулт. «Тийм», «За... асуу» хоёулаа «тийм» гэсэн үг; жижиг «Үгүй» зугтана.',
+      fields: [
+        { type: 'text', key: 'final.question', label: 'Асуулт', max: 60 },
+        { type: 'text', key: 'final.yes', label: 'Товч 1', max: 24 },
+        { type: 'text', key: 'final.yes2', label: 'Товч 2', max: 24 },
+        { type: 'text', key: 'final.no', label: 'Зугтдаг «Үгүй» товч', max: 24 },
+        { type: 'text', key: 'final.no2', label: 'Зургаа зугтсаны дараах бичвэр (энэ нь бас «тийм»)', max: 30 },
+      ],
+    },
+    {
+      id: 'credits', title: 'Кино титр', previewPage: 'credits',
+      summary: 'Төгсгөлд гүйх титр: «Гол дүрд», «Найруулсан», «Тусгай талархал», дуу.',
+      fields: [
+        { type: 'text', key: 'credits.director', label: 'Найруулсан', max: 30 },
+        { type: 'list', key: 'credits.thanks', label: 'Тусгай талархал', count: 3, max: 36, itemLabel: 'Талархал', placeholders: THANKS },
+        { type: 'text', key: 'songName', label: 'Дуу (титрт гарна)', max: 60 },
+      ],
+    },
+    {
+      id: 'music', title: 'Хөгжим', previewPage: 'home',
+      summary: 'Нээлтийн дараа аажуухан гарч ирэх арын хөгжим.',
+      fields: [{ type: 'audio', key: 'music', label: 'Арын хөгжим (заавал биш)', tracks: ['aria', 'uyanga', 'nandin', 'hooptie'] }],
     },
   ],
-  tour: ['profiles', 'browse', 'episode', 'episode:2'],
+  tour: ['gate', 'home', 'ep:1:0', 'ep:3:1', 'branch', 'finale', 'credits'],
   defaults: {
-    occasion: 'anniversary',
-    pronoun: 'she',
-    partnerName: 'Ану',
-    yourName: '',
-    accent: '#E50914',
-    funnyNoButton: false,
-    songName: '',
-    profilePhoto: '', heroPhoto: '', ep1Bg: '', ep2Bg: '', climaxBg: '',
-    cwPhotos: [], hitPhotos: [],
+    title: 'Бидний түүх', name1: 'Ану', name2: 'Бат', year: String(new Date().getFullYear()),
+    synopsis: 'Хоёр хүн, нэг санамсаргүй уулзалт. Өдөр бүр шинэ бүлэг нэмэгддэг цуврал.',
+    profilePhoto: '', trailerPhotos: [],
+    ...epDefaults(),
+    'branch.prompt': 'Дараа нь юу хийх вэ?',
+    'branch.a.label': 'Одод харцгаая', 'branch.a.photo': '', 'branch.a.caption': '',
+    'branch.b.label': 'Галын дэргэд суая', 'branch.b.photo': '', 'branch.b.caption': '',
+    'top.texts': ['', '', '', '', ''], 'top.photos': [],
+    'final.question': '2-р улирал үргэлжлэх үү?', 'final.yes': 'Тийм', 'final.yes2': 'За... асуу', 'final.no': 'Үгүй', 'final.no2': '...за за, тийм 🙂',
+    'credits.director': '', 'credits.thanks': ['', '', ''], songName: '', music: '',
   },
   demo: {
-    occasion: 'ask_out', partnerName: 'Ану', yourName: 'Бат', funnyNoButton: true,
-    profilePhoto: COUPLES[3], heroPhoto: PHOTOS.mnYurtsSnow,
-    cwPhotos: [COUPLES[0], COUPLES[1], COUPLES[2], COUPLES[4]], hitPhotos: [COUPLES[5], PHOTOS.ubNight, COUPLES[6], PHOTOS.mnGer2],
-    ep1Bg: PHOTOS.ubNight, ep2Bg: PHOTOS.mnHills, climaxBg: COUPLES[7],
+    name1: 'Ану', name2: 'Бат', profilePhoto: P0,
+    trailerPhotos: [P0, P1, P2, P3, P4, P5],
+    ...epDemo(),
+    'branch.a.photo': P6, 'branch.b.photo': P7, 'branch.a.caption': BRANCH_A, 'branch.b.caption': BRANCH_B,
+    'top.photos': [P1, P3, P5, P7, P0], 'top.texts': TOP, 'credits.thanks': THANKS,
+    'credits.director': 'Бат', songName: 'Бидний дуу',
+    music: '/music/uyanga.mp3',
   },
 };

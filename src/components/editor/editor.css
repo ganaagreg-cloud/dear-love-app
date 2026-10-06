@@ -48,12 +48,6 @@
 .ed-chip { border: 1px dashed var(--rose-2); background: #fff7fa; color: var(--ink-2); border-radius: 999px; padding: 4px 10px; font-size: .74rem; font-weight: 600; min-height: 28px; }
 .ed-chip:hover:not(:disabled) { background: var(--rose-soft); border-style: solid; }
 .ed-chip:disabled { opacity: .4; }
-.ed-date { position: relative; display: flex; gap: 6px; }
-.ed-date .ed-input { flex: 1; font-variant-numeric: tabular-nums; }
-.ed-date .ed-input[aria-invalid] { border-color: var(--err); }
-.ed-date-btn { flex: none; width: 44px; border: 1px solid var(--line); background: #fff; border-radius: 12px; font-size: 1rem; }
-.ed-date-btn:hover { border-color: var(--rose-2); }
-.ed-date-native { position: absolute; right: 0; bottom: 0; width: 44px; height: 100%; opacity: 0; pointer-events: none; }
 
 .ed-cards { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 10px; }
 .ed-card { border: 1px solid var(--line); border-radius: 14px; background: #fff; padding: 8px 10px 10px; transition: box-shadow .15s, border-color .15s, transform .15s; }
@@ -80,6 +74,7 @@
 .ed-seg { display: flex; flex-wrap: wrap; gap: 6px; }
 .ed-seg button { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 7px 12px; font-size: .82rem; font-weight: 600; }
 .ed-seg button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.ed-seg button:disabled { opacity: .38; text-decoration: line-through; cursor: not-allowed; }
 .ed-colors { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .ed-colors > button { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line); }
 .ed-colors > button.on, .ed-color-custom.on { box-shadow: 0 0 0 2px var(--ink); }

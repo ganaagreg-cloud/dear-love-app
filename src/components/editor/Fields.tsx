@@ -1,6 +1,10 @@
 'use client';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import type { ContentValue, Field, TemplateMeta } from '@/templates/types';
+import type { Content, ContentValue, Field, TemplateMeta } from '@/templates/types';
+import { DateInput } from './DatePicker';
+import { daysTogether, todayIso } from '@/lib/dates';
+
+export { DateInput };
 import { spotifyId } from '@/templates/sanitize';
 import { MUSIC, musicUrl, type Track } from '@/lib/music';
 
@@ -15,6 +19,8 @@ type Props = {
   onFocus?: () => void;
   /** «Хаана юу байна» number, matching the badge on the preview element. */
   badge?: number;
+  /** Whole page content — only for fields that depend on another field (a goal that depends on a start date). */
+  content?: Content;
 };
 
 export const asStr = (v: unknown) => (typeof v === 'string' ? v : '');
@@ -40,7 +46,7 @@ function Example({ field: f, value, onChange }: { field: Field; value: ContentVa
 /** Anything a buyer might write more than a line of gets a growing box, never a one-line input. */
 const LONG = 40;
 
-export function FieldControl({ field: f, value, onChange, upload, tokens, onFocus, badge }: Props) {
+export function FieldControl({ field: f, value, onChange, upload, tokens, onFocus, badge, content }: Props) {
   // data-edit-field: how the editor maps focus/hover here ↔ the element in the preview
   return (
     <div className="ed-field" data-edit-field={f.key} onFocusCapture={onFocus}>
@@ -53,7 +59,7 @@ export function FieldControl({ field: f, value, onChange, upload, tokens, onFocu
           {f.type === 'images' && <small>{asArr(value).filter(Boolean).length}/{f.max}</small>}
         </label>
       )}
-      <Control field={f} value={value} onChange={onChange} upload={upload} tokens={tokens} />
+      <Control field={f} value={value} onChange={onChange} upload={upload} tokens={tokens} content={content} />
       {f.help && <p className="ed-help">{f.help}</p>}
       {(f.type === 'image' || f.type === 'images') && <PhotoHint />}
       {f.example && <Example field={f} value={value} onChange={onChange} />}
@@ -61,22 +67,31 @@ export function FieldControl({ field: f, value, onChange, upload, tokens, onFocu
   );
 }
 
-function Control({ field: f, value, onChange, upload, tokens }: Props) {
+function Control({ field: f, value, onChange, upload, tokens, content }: Props) {
   switch (f.type) {
     case 'text':
       return <TextBox value={asStr(value)} max={f.max} placeholder={f.placeholder} tokens={tokens} onChange={onChange} />;
     case 'textarea':
       return <TextBox multiline value={asStr(value)} max={f.max} rows={f.rows} placeholder={f.placeholder} tokens={tokens} onChange={onChange} />;
     case 'date':
-      return <DateInput value={asStr(value)} onChange={onChange} />;
-    case 'select':
+      return <DateInput value={asStr(value)} onChange={onChange} max={f.notFuture ? todayIso() : undefined} pickOnly={f.pickOnly} />;
+    case 'select': {
+      // a goal measured in days is closed once the couple has already passed it
+      const elapsed = f.daysSince && content ? daysTogether(asStr(content[f.daysSince])) : 0;
       return (
         <div className="ed-seg">
-          {f.options.map((o) => (
-            <button type="button" key={o.value} aria-pressed={asStr(value) === o.value} className={asStr(value) === o.value ? 'on' : ''} onClick={() => onChange(o.value)}>{o.label}</button>
-          ))}
+          {f.options.map((o) => {
+            const past = o.days != null && elapsed >= o.days;
+            return (
+              <button
+                type="button" key={o.value} disabled={past} title={past ? 'Та хоёр энэ хоногоос аль хэдийн давсан' : undefined}
+                aria-pressed={asStr(value) === o.value} className={asStr(value) === o.value ? 'on' : ''} onClick={() => onChange(o.value)}
+              >{o.label}</button>
+            );
+          })}
         </div>
       );
+    }
     case 'toggle':
       return (
         <label className="ed-toggle">
@@ -99,7 +114,7 @@ function Control({ field: f, value, onChange, upload, tokens }: Props) {
         <div className="ed-list">
           {arr.map((v, i) => (
             <div key={i} data-edit-field={`${f.key}.${i}`}>
-              <TextBox multiline={(f.max ?? 200) > LONG} value={v} max={f.max} rows={2} placeholder={`${f.itemLabel ?? 'Мөр'} ${i + 1}`} tokens={tokens}
+              <TextBox multiline={(f.max ?? 200) > LONG} value={v} max={f.max} rows={2} placeholder={f.placeholders?.[i] ?? `${f.itemLabel ?? 'Мөр'} ${i + 1}`} tokens={tokens}
                 onChange={(t) => { const next = [...arr]; next[i] = t; onChange(next); }} />
             </div>
           ))}
@@ -199,51 +214,6 @@ export function TextBox({ value, onChange, max, placeholder, rows = 2, multiline
         <input {...common} onChange={(e) => { change(e.target.value); remember(); }} />
       )}
     </div>
-  );
-}
-
-/* ── dates: shown and typed as YYYY.MM.DD (how dates are written in Mongolian), stored as ISO ── */
-const isoOk = (iso: string) => {
-  const d = new Date(`${iso}T00:00:00Z`);
-  return /^\d{4}-\d{2}-\d{2}$/.test(iso) && !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === iso;
-};
-const dotted = (iso: string) => (iso ? iso.replace(/-/g, '.') : '');
-
-export function DateInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const [text, setText] = useState(dotted(value));
-  const [bad, setBad] = useState(false);
-  const picker = useRef<HTMLInputElement>(null);
-  // follow outside changes (calendar pick, clear) without fighting a half-typed date
-  useEffect(() => { setText((t) => (t.replace(/\./g, '-') === value ? t : dotted(value))); setBad(false); }, [value]);
-
-  const type = (raw: string) => {
-    const d = raw.replace(/\D/g, '').slice(0, 8);
-    setText([d.slice(0, 4), d.slice(4, 6), d.slice(6, 8)].filter(Boolean).join('.'));
-    setBad(false);
-    if (!d) onChange('');
-    else if (d.length === 8) {
-      const iso = `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}`;
-      if (isoOk(iso)) onChange(iso); else setBad(true);
-    }
-  };
-  const openPicker = () => {
-    const el = picker.current;
-    if (!el) return;
-    try { el.showPicker(); } catch { el.focus(); el.click(); }
-  };
-  return (
-    <>
-      <div className="ed-date">
-        <input
-          className="ed-input" inputMode="numeric" placeholder="ЖЖЖЖ.СС.ӨӨ" value={text} aria-invalid={bad || undefined}
-          onChange={(e) => type(e.target.value)} onBlur={() => setBad(!!text && text.length < 10 ? true : bad)}
-        />
-        <button type="button" className="ed-date-btn" onClick={openPicker} aria-label="Хуанлиас сонгох" title="Хуанлиас сонгох">📅</button>
-        {value && <button type="button" className="ed-date-btn" onClick={() => { setText(''); onChange(''); }} aria-label="Арилгах" title="Арилгах">✕</button>}
-        <input ref={picker} type="date" className="ed-date-native" tabIndex={-1} aria-hidden value={value} onChange={(e) => onChange(e.target.value)} />
-      </div>
-      {bad && <p className="ed-help err">Огноог ЖЖЖЖ.СС.ӨӨ хэлбэрээр бичнэ үү. Жишээ нь: 2024.01.10</p>}
-    </>
   );
 }
 

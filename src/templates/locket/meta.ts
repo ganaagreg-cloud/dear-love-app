@@ -3,74 +3,100 @@ import { COUPLES, PHOTOS } from '../photos';
 
 export const locketMeta: TemplateMeta = {
   id: 'locket',
-  name: 'Медальон түүх',
-  nameMn: 'Медальон түүх',
-  tagline: 'Таван бүлэгтэй хайрын түүх — алтан медальон, өөрөө бичигдэх захидлаар төгсөнө.',
+  name: 'Оддын түүх',
+  nameMn: 'Оддын түүх',
+  tagline: 'Таван бүлэгтэй хайрын түүх.',
   description:
-    'Одод, хувь заяаны улаан утас, дурсамжуудын од эрхэс, амьд өдөр тоологч — эцэст нь найгах зүрхэн медальон нээгдэж хоёр зураг гарч ирээд, далайн давалгаанаас захидал хөвөн гарна.',
+    'Одод, хувь заяаны улаан утас, дурсамжуудын од эрхэс, өдөр тоологч',
   category: 'Ой',
   badge: 'ОНЦЛОХ',
   price: 600,
   cover: '/covers/locket.jpg',
   accent: '#d9b46a',
-  features: ['2 медальон зураг', '5 дурсамжийн зураг', 'Бичигдэх захидал', 'Өдөр тоологч', 'Өөрийн дуу (mp3)'],
+  features: ['2 зураг', '5 дурсамжийн зураг', 'Захидал ', 'Өдөр тоологч', 'Хөгжим'],
   schema: [
     {
-      id: 'names', title: 'Нэр ба анхны өдөр', summary: 'Түүхийн эхлэл ба «бидний өдрүүд» тоологч.',
+      id: 'names', title: 'Нэр', summary: 'Нээлтийн үг.', previewPage: 'prologue',
       fields: [
-        { type: 'text', key: 'to', label: 'Түүнийг юу гэж дууддаг вэ?', max: 40, placeholder: 'Хайрт минь', example: 'Хайрт минь' },
-        { type: 'text', key: 'from', label: 'Таны нэр / гарын үсэг', max: 40, example: 'Бат' },
-        { type: 'date', key: 'startDate', label: 'Анх үерхэж эхэлсэн өдөр', help: '«Бидний өдрүүд» тоологчид ашиглагдана.' },
+        { type: 'text', key: 'to', label: 'Түүний нэр', max: 40, placeholder: 'Хайрт минь' },
+        { type: 'text', key: 'from', label: 'Таны нэр', max: 40 },
+      ],
+    },
+    {
+      id: 'prologue', title: 'Эхлэлийн үг', summary: 'Мэндчилгээ үг', previewPage: 'prologue',
+      fields: [
+        { type: 'textarea', key: 'text.prologue', label: 'Эхлэлийн үг', max: 200, rows: 3 },
+      ],
+    },
+    {
+      id: 'titles', title: 'Бүлгүүдийн гарчиг', summary: 'Бүлэг бүрийн дээр гарах нэр.', previewPage: 'before',
+      fields: [
+        { type: 'list', key: 'chapters', label: 'Бүлгүүдийн гарчиг', count: 4, max: 40, itemLabel: 'Бүлэг', itemPreview: 'ch:' },
+      ],
+    },
+    {
+      id: 'ch1', title: 'I бүлэг · Чамаас өмнө', summary: 'Ганц од, харанхуй ертөнц чамтай танилцахаас өмнөх шөнүүд.', previewPage: 'before',
+      fields: [
+        { type: 'textarea', key: 'text.ch1', label: 'I бүлгийн бичвэр', max: 240, rows: 4 },
+      ],
+    },
+    {
+      id: 'ch2', title: 'II бүлэг · Яаж танилцсан', summary: 'Таницлсан түүхээ бичнэ', previewPage: 'meet',
+      fields: [
+        { type: 'textarea', key: 'text.ch2', label: 'II бүлгийн бичвэр', max: 240, rows: 4 },
+      ],
+    },
+    {
+      id: 'memories', title: 'III бүлэг · Бяцхан мөчүүд', summary: ' 5 зураг оруулна.', previewPage: 'moments',
+      fields: [
+        { type: 'images', key: 'memoryPhotos', label: 'Зургууд', max: 5 },
+        { type: 'list', key: 'memoryCaptions', label: 'Зураг доорх сэтгэлийн үг', count: 5, max: 32, itemLabel: 'Бичвэр' },
+        { type: 'textarea', key: 'text.ch3', label: 'III бүлгийн сэтгэлийн үг', max: 200, rows: 3 },
+      ],
+    },
+    {
+      id: 'count', title: 'IV бүлэг · Өдрүүдээ тоолох', summary: 'Амьд өдөр тоологч: хамтдаа өнгөрүүлсэн өдөр, дараагийн зорилго.', previewPage: 'count',
+      fields: [
+        { type: 'date', key: 'startDate', label: 'Анх үерхэж эхэлсэн өдөр', notFuture: true, help: '«Бидний өдрүүд» тоологчид ашиглагдана. Ирээдүйн өдөр сонгох боломжгүй.' },
         {
-          type: 'select', key: 'milestone', label: 'Тоолох зорилго',
+          type: 'select', key: 'milestone', label: 'Тоолох зорилго', daysSince: 'startDate',
+          help: 'Хамтдаа өнгөрүүлсэн хоногоос урагш байх зорилгыг сонгоно. Өнгөрсөн зорилго хаагдсан байна.',
           options: [
-            { value: '100', label: '100 хоног' }, { value: '365', label: '1 жил (365)' },
-            { value: '500', label: '500 хоног' }, { value: '1000', label: '1000 хоног' },
+            { value: '100', label: '100 хоног', days: 100 }, { value: '200', label: '200 хоног', days: 200 },
+            { value: '365', label: '1 жил', days: 365 }, { value: '500', label: '500 хоног', days: 500 },
+            { value: '730', label: '2 жил', days: 730 }, { value: '1000', label: '1000 хоног', days: 1000 },
+            { value: '1500', label: '1500 хоног', days: 1500 }, { value: '2000', label: '2000 хоног', days: 2000 },
+            { value: '3650', label: '10 жил', days: 3650 },
           ],
         },
+        { type: 'text', key: 'text.ch4', label: 'Тоологчийн доорх сэтгэлийн үг', max: 120 },
       ],
     },
     {
-      id: 'locket', title: 'Медальон', summary: 'Зүрхэн медальон нээгдэхэд доторх хоёр зураг.',
-      description: 'Зүрхэн медальон дотор нуугдах хоёр зураг.',
+      id: 'locket', title: 'V · Медальон', summary: 'Зүрхэн зүүлт доторх зураг.', previewPage: 'locket',
       fields: [
-        { type: 'images', key: 'locketPhotos', label: 'Медальоны зураг (зүүн, баруун)', max: 2 },
-        { type: 'text', key: 'text.locketCap', label: 'Нээгдсэн медальоны доорх үг', max: 60 },
+        { type: 'images', key: 'locketPhotos', label: 'Зүрхэн зүүлт зураг (зүүн, баруун)', max: 2 },
+        { type: 'text', key: 'text.locketCap', label: 'Нээгдсэн зүүлтийн доорх үг', max: 60 },
       ],
     },
     {
-      id: 'memories', title: 'III бүлэг · Бяцхан мөчүүд', summary: 'III бүлэг: одод шиг гялалзах дурсамжийн зургууд.',
+      id: 'letter', title: 'Захидал', summary: 'Зүүлтнээс гарсан дугтуйнаас нээгдэх захидал.', previewPage: 'letter',
       fields: [
-        { type: 'images', key: 'memoryPhotos', label: 'Дурсамжийн зургууд', max: 5 },
-        { type: 'list', key: 'memoryCaptions', label: 'Зураг доорх бичвэр', count: 5, max: 32, itemLabel: 'Бичвэр', example: 'анхны болзоо' },
+        { type: 'text', key: 'letterTitle', label: 'Захидлын гарчиг', max: 40 },
+        { type: 'textarea', key: 'letterBody', label: 'Захидал', max: 2000, rows: 12, help: 'Догол мөр бүрийн хооронд нэг хоосон мөр үлдээнэ.' },
+        { type: 'text', key: 'letterSignoff', label: 'Төгсгөлийн үг', max: 40 },
       ],
     },
     {
-      id: 'story', title: 'Түүхийн бичвэр', summary: 'Бүлэг бүрийн бичвэр, эцсийн асуулт ба хариулт.',
-      description: 'Шинэ мөр оруулахдаа Enter дарна. {days}, {to}, {from} автоматаар бөглөгдөнө.',
+      id: 'final', title: 'Төгсгөл · Асуулт', summary: 'Эцсийн дэлгэц: таны асуулт ба «Тийм» гэсний дараах хариу.', previewPage: 'final',
       fields: [
-        { type: 'list', key: 'chapters', label: 'Бүлгүүдийн гарчиг', count: 5, max: 40, itemLabel: 'Бүлэг' },
-        { type: 'textarea', key: 'text.prologue', label: 'Эхлэлийн үг', max: 200, rows: 2 },
-        { type: 'textarea', key: 'text.ch1', label: 'I бүлэг — чамаас өмнө', max: 240, rows: 3 },
-        { type: 'textarea', key: 'text.ch2', label: 'II бүлэг — хэрхэн танилцсан', max: 240, rows: 3 },
-        { type: 'textarea', key: 'text.ch3', label: 'III бүлэг — дурсамжууд', max: 200, rows: 2 },
-        { type: 'text', key: 'text.ch4', label: 'IV бүлэг — тоологчийн доорх үг', max: 120 },
-        { type: 'textarea', key: 'text.finale', label: 'Төгсгөлийн үг', max: 160, rows: 2 },
-        { type: 'text', key: 'text.question', label: 'Таны асуулт', max: 100, example: 'Дараагийн мянган өдрийг надтай бичих үү?' },
-        { type: 'text', key: 'text.answer', label: '«Тийм» гэсний дараах үг', max: 100 },
+        { type: 'textarea', key: 'text.finale', label: 'Төгсгөлийн үг', max: 160, rows: 3 },
+        { type: 'text', key: 'text.question', label: 'Таны асуулт', max: 100 },
+        { type: 'text', key: 'text.answer', label: '«Тийм» гэсний дараах үг', max: 100, previewPage: 'answer' },
       ],
     },
     {
-      id: 'letter', title: 'Захидал', summary: 'Төгсгөлд дугтуйнаас гарч ирэх захидал.',
-      fields: [
-        { type: 'text', key: 'letterTitle', label: 'Захидлын гарчиг', max: 40, example: 'Хайрт минь' },
-        { type: 'text', key: 'letterGreeting', label: 'Мэндчилгээ', max: 60 },
-        { type: 'textarea', key: 'letterBody', label: 'Захидал', max: 4000, rows: 12, help: 'Догол мөр бүрийн хооронд нэг хоосон мөр үлдээнэ.' },
-        { type: 'text', key: 'letterSignoff', label: 'Төгсгөлийн үг', max: 40, example: 'Үүрд чинийх,' },
-      ],
-    },
-    {
-      id: 'music', title: 'Хөгжим', summary: 'Түүх үзэх үеийн арын хөгжим.',
+      id: 'music', title: 'Хөгжим', summary: 'Түүх үзэх үеийн арын хөгжим.', previewPage: 'prologue',
       fields: [{ type: 'audio', key: 'music', label: 'Арын хөгжим (заавал биш)', tracks: ['aria', 'uyanga', 'nandin'] }],
     },
   ],
@@ -82,7 +108,7 @@ export const locketMeta: TemplateMeta = {
     locketPhotos: [],
     memoryPhotos: [],
     memoryCaptions: ['анхны «сайн уу»', 'анхны болзоо', 'тэр инээд чинь', 'зөвхөн бид хоёр', 'өнөөдрийн бид'],
-    chapters: ['Чамаас өмнө', 'Найзын бяцхан санаа', 'Бяцхан мөчүүд', 'Өдрүүдээ тоолохуй', 'Дурсгал'],
+    chapters: ['Чамаас өмнө', 'Найзын бяцхан санаа', 'Бяцхан мөчүүд', 'Өдрүүдээ тоолохуй'],
     'text.prologue': 'Зарим түүх одод дээр бичигддэг.\nХарин бидний түүхийг бид өдөр бүр өөрсдөө бичсэн.',
     'text.ch1': 'Чамаас өмнө миний шөнүүд энгийн байлаа.\nОдод зүгээр л одод байсан,\nюуг хүлээж байгаагаа ч мэддэггүй байлаа.',
     'text.ch2': 'Тэгтэл нэг найз маань «Та хоёр танилцаач» гэлээ.\nЕрөө л ганц өгүүлбэр.\nТэр надад бүхэл бүтэн ертөнцийг бэлэглэж байгаагаа мэдээгүй.',
@@ -93,11 +119,10 @@ export const locketMeta: TemplateMeta = {
     'text.question': 'Дараагийн мянган өдрийг надтай хамт бичих үү?',
     'text.answer': 'Тэгвэл эхэлцгээе. Мөнхийн түүх одоо эхэлж байна ♡',
     letterTitle: 'Хайрт минь',
-    letterGreeting: '{to},',
     letterBody: [
       'Заримдаа би чамтай огт танилцахгүй өнгөрч болох байсан гэж бодоод айдаг. Нэг найзын ганцхан өгүүлбэр миний амьдралын чиглэлийг чимээгүйхэн өөрчилсөн.',
       'Чамаас өмнө би аз жаргал гэж юу болохыг мэднэ гэж боддог байлаа. Гэтэл чи миний нэг муу хошигнолд инээхэд л би зөвхөн таамаглаж явсан юм байна гэдгээ ойлгосон.',
-      'Бид {days} өдрийг хамт өнгөрөөлөө. {days} өглөө чамайг бодсоор сэрсэн. Зарим өдөр амархан, зарим нь хэцүү байсан ч тэр өдөр бүрт би чамайг л сонгосон.',
+      'Бид олон өдрийг хамт өнгөрөөлөө. Өглөө бүр чамайг бодсоор сэрсэн. Зарим өдөр амархан, зарим нь хэцүү байсан ч тэр өдөр бүрт би чамайг л сонгосон.',
       'Намайг ойлгоход хэцүү байсан өдрүүдэд ч хажууд минь үлдсэнд баярлалаа. Чи өөрөө санахгүй байж мэдэх тэр жижигхэн зүйлс л надад хамгийн их санагддаг.',
       'Энэ медальонд хоёр зураг бий, гэхдээ үнэндээ ганц л зүйл хадгалагдаж байгаа — бид.',
       'Тиймээс би амлая. Чамайг таньж мэдсээр байна. Чамайг сонгосоор байна. Чи зөвшөөрсөн цагт энэ түүхийг чамтай хамт өдөр бүр үргэлжлүүлэн бичнэ.',

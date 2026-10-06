@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import TemplateView from '@/templates/TemplateView';
+import FullscreenGate from '@/components/FullscreenGate';
 import { formatMnt, getTemplate, resolveContent } from '@/templates/registry';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -13,7 +14,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ id: st
   if (!t) notFound();
   return (
     <>
-      <TemplateView templateId={t.id} content={resolveContent(t, null, true)} />
+      <FullscreenGate><TemplateView templateId={t.id} content={resolveContent(t, null, true)} /></FullscreenGate>
       <div className="pbar-demo">Жишээ</div>
       <div className="pbar">
         <Link href="/#templates" className="back">← <span>Бүх загвар</span></Link>

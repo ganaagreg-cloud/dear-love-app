@@ -1,6 +1,13 @@
 import type { TemplateMeta } from '../types';
 import { COUPLES, PHOTOS } from '../photos';
 
+/** Sample answers: grey placeholders in the editor and the demo's content — the buyer writes their own. */
+const SONGS = ['Perfect', 'Хайрын дуу', 'Давтаад л сонсдог дуу', 'Машинд тоглодог дуу', 'Шөнийн аялгуу'];
+const ARTISTS = ['Ed Sheeran', 'The Hu', 'чи мэднэ дээ', 'цонх онгорхой', 'lo-fi'];
+const PLACES = ['Бидний кофе шоп', 'Зайсан, нар жаргахад', 'Гал тогоо', 'Тэрэлжийн аялал', 'Гэр рүү харих урт зам'];
+const COUNTS = ['47 удаа', '12 нар жаргалт', 'олон оройн хоол', '1 төгс амралтын өдөр', '7 хоног бүр'];
+const TOP_CAPTION = 'Төөрөөд ч хамаагүй байсан тэр шөнө';
+
 export const wrappedMeta: TemplateMeta = {
   id: 'wrapped',
   name: 'Бидний жил · Wrapped',
@@ -18,10 +25,10 @@ export const wrappedMeta: TemplateMeta = {
     {
       id: 'basics', title: 'Үндсэн', summary: 'Нүүр слайд ба хамт өнгөрүүлсэн өдрийн тоологч.', previewPage: '__intro__',
       fields: [
-        { type: 'text', key: 'them', label: 'Түүний нэр', max: 20, example: 'Ану' },
-        { type: 'text', key: 'you', label: 'Таны нэр', max: 20, example: 'Бат' },
+        { type: 'text', key: 'them', label: 'Түүний нэр', max: 20 },
+        { type: 'text', key: 'you', label: 'Таны нэр', max: 20 },
         { type: 'text', key: 'year', label: 'Он / гарчиг', max: 12, placeholder: '2026' },
-        { type: 'date', key: 'startDate', label: 'Үерхэж эхэлсэн өдөр', help: '«Хамтдаа өнгөрүүлсэн өдөр» тоологчид ашиглагдана.' },
+        { type: 'date', notFuture: true, key: 'startDate', label: 'Үерхэж эхэлсэн өдөр', help: '«Хамтдаа өнгөрүүлсэн өдөр» тоологчид ашиглагдана.' },
         {
           type: 'select', key: 'theme', label: 'Өнгөний загвар',
           options: [{ value: 'neon', label: 'Неон' }, { value: 'sunset', label: 'Жаргах нар' }, { value: 'berry', label: 'Жимс' }, { value: 'midnight', label: 'Шөнө' }],
@@ -32,33 +39,33 @@ export const wrappedMeta: TemplateMeta = {
       id: 'moment', title: 'Таны №1 мөч', summary: '«№1 мөч» слайд — хамгийн гоё зураг, нэг мөр тайлбар.', previewPage: 'top',
       fields: [
         { type: 'image', key: 'topPhoto', label: 'Зураг' },
-        { type: 'text', key: 'topCaption', label: 'Тайлбар', max: 60, example: 'Төөрөөд ч хамаагүй байсан тэр шөнө' },
+        { type: 'text', key: 'topCaption', label: 'Тайлбар', max: 60, placeholder: TOP_CAPTION },
       ],
     },
     {
       id: 'songs', title: 'Топ 5 дуу', summary: '«Бидний саундтрек» — топ 5 дуу.', previewPage: 'songs',
       fields: [
-        { type: 'list', key: 'songTitles', label: 'Дууны нэр', count: 5, max: 40, itemLabel: 'Дуу', example: 'Perfect' },
-        { type: 'list', key: 'songArtists', label: 'Дуучин', count: 5, max: 40, itemLabel: 'Дуучин' },
+        { type: 'list', key: 'songTitles', label: 'Дууны нэр', count: 5, max: 40, itemLabel: 'Дуу', placeholders: SONGS },
+        { type: 'list', key: 'songArtists', label: 'Дуучин', count: 5, max: 40, itemLabel: 'Дуучин', placeholders: ARTISTS },
         { type: 'audio', key: 'music', label: 'Стори үзэх үед тоглох хөгжим (заавал биш)', tracks: ['hooptie', 'aria'] },
       ],
     },
     {
       id: 'places', title: 'Топ 5 газар', summary: '«Бид болсон газрууд» — топ 5 газар.', previewPage: 'places',
       fields: [
-        { type: 'list', key: 'places', label: 'Газрууд', count: 5, max: 36, itemLabel: 'Газар', example: 'Бидний кофе шоп' },
-        { type: 'list', key: 'placeCounts', label: 'Газар бүрийн доорх бичвэр', count: 5, max: 30, itemLabel: 'ж: 23 удаа' },
+        { type: 'list', key: 'places', label: 'Газрууд', count: 5, max: 36, itemLabel: 'Газар', placeholders: PLACES },
+        { type: 'list', key: 'placeCounts', label: 'Газар бүрийн доорх бичвэр', count: 5, max: 30, itemLabel: 'ж: 23 удаа', placeholders: COUNTS },
       ],
     },
     {
       id: 'words', title: 'Хамгийн их хэлдэг үгс', summary: 'Хамгийн их хэлдэг үгс — өнгөт наалт шиг хөвнө.', previewPage: 'words',
-      fields: [{ type: 'list', key: 'words', label: 'Үг / хэллэг', count: 8, max: 18, itemLabel: 'Үг', example: 'хайраа' }],
+      fields: [{ type: 'list', key: 'words', label: 'Үг / хэллэг', count: 8, max: 18, itemLabel: 'Үг' }],
     },
     {
       id: 'persona', title: 'Хайрын төрөл', summary: '«Чиний хайрын төрөл» — нэг инээдтэй тодорхойлолт.', previewPage: 'persona',
       fields: [
         { type: 'text', key: 'personaEmoji', label: 'Эможи', max: 4 },
-        { type: 'text', key: 'personaTitle', label: 'Нэр', max: 30, example: 'Алтан ретривер' },
+        { type: 'text', key: 'personaTitle', label: 'Нэр', max: 30 },
         { type: 'textarea', key: 'personaText', label: 'Тайлбар', max: 160, rows: 3 },
       ],
     },
@@ -68,23 +75,23 @@ export const wrappedMeta: TemplateMeta = {
     },
     {
       id: 'message', title: 'Мессеж', summary: 'Сүүлийн слайд: өөрөө бичигдэх таны мессеж.', previewPage: 'msg',
-      fields: [{ type: 'textarea', key: 'message', label: 'Таны мессеж', max: 600, rows: 6, example: 'Энэ жилийн хамгийн гоё өдрүүд чамтай байсан.' }],
+      fields: [{ type: 'textarea', key: 'message', label: 'Таны мессеж', max: 600, rows: 6 }],
     },
   ],
   tour: ['__intro__', 'days', 'top', 'songs', 'persona', 'summary'],
   defaults: {
     them: 'Ану', you: 'Бат', year: '2026', startDate: '2024-01-10', theme: 'neon',
-    topPhoto: '', topCaption: 'Төөрөөд ч хамаагүй байсан тэр шөнө',
-    songTitles: ['Perfect', 'Хайрын дуу', 'Давтаад л сонсдог дуу', 'Машинд тоглодог дуу', 'Шөнийн аялгуу'],
-    songArtists: ['Ed Sheeran', 'The Hu', 'чи мэднэ дээ', 'цонх онгорхой', 'lo-fi'],
-    places: ['Бидний кофе шоп', 'Зайсан, нар жаргахад', 'Чиний гал тогоо', 'Тэрэлжийн аялал', 'Гэр рүү харих урт зам'],
-    placeCounts: ['47 удаа', '12 нар жаргалт', 'тоолж баршгүй оройн хоол', '1 төгс амралтын өдөр', '7 хоног бүр'],
+    topPhoto: '', topCaption: '',
+    songTitles: ['', '', '', '', ''],
+    songArtists: ['', '', '', '', ''],
+    places: ['', '', '', '', ''],
+    placeCounts: ['', '', '', '', ''],
     words: ['хайраа', 'санаж байна', 'хоол уу?', 'хаха', 'сайхан нойрсоорой', 'хаана байна', 'хайртай', 'өлсөж байна'],
     personaEmoji: '🐶', personaTitle: 'Алтан ретривер',
     personaText: 'Үнэнч, дулаахан, намайг хармагцаа баярладаг, тэгээд зууш гэхээр л бүр ч их баярладаг.',
     photos: [],
-    message: 'Энэ жилийн бүх өдрүүдээс надад хамгийн их таалагдсан нь чи байсан өдрүүд.\n\nДуу, аялал, оройн хоол, чимээгүй мөчүүдэд баярлалаа. Ирэх жилдээ — яг л чи, харин илүү олон адал явдал.',
+    message: 'Энэ жил чамтай өнгөрүүлсэн өдөр бүр надад таалагдсан даа.\n\nДуу, аялал, оройн хоол, чимээгүй мөчүүдэд баярлалаа. Ирэх жил ч яг л чи шиг байгаасай, ганцхан илүү олон адал явдалтай.',
     music: '',
   },
-  demo: { topPhoto: COUPLES[0], photos: [COUPLES[1], PHOTOS.mnGer2, COUPLES[2], PHOTOS.ubNight, COUPLES[4], PHOTOS.mnYurtsSnow] },
+  demo: { topCaption: TOP_CAPTION, songTitles: SONGS, songArtists: ARTISTS, places: PLACES, placeCounts: COUNTS, topPhoto: COUPLES[0], photos: [COUPLES[1], PHOTOS.mnGer2, COUPLES[2], PHOTOS.ubNight, COUPLES[4], PHOTOS.mnYurtsSnow] },
 };

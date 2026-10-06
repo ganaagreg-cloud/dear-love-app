@@ -2,7 +2,9 @@ import 'server-only';
 import { Wire, type PaymentIntent } from '@buildry-wire/wire';
 
 /** Wire (api.wire.mn) — unified MN payment gateway; QPay is one of its operators. */
-export const wireConfigured = () => !!process.env.WIRE_API_KEY;
+/** Local-only switch: skip real Wire/QPay and use the mock checkout even when WIRE_API_KEY is set. Ignored in production. */
+const forceMock = () => process.env.NODE_ENV !== 'production' && process.env.LOCAL_MOCK_PAYMENTS === '1';
+export const wireConfigured = () => !!process.env.WIRE_API_KEY && !forceMock();
 export const mockPaymentsAllowed = () =>
   !wireConfigured()
     ? process.env.NODE_ENV !== 'production' || process.env.ALLOW_MOCK_PAYMENTS === '1' || process.env.DEMO_MODE === '1'

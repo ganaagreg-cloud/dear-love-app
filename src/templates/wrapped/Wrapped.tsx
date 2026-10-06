@@ -162,7 +162,10 @@ export default function Wrapped({ data, pin }: { data: WrappedData; pin?: string
   ) });
 
   const pinnedIndex = pin === '__intro__' ? -1 : pin ? slides.findIndex((sl) => sl.id === pin) : -1;
-  const [i, setI] = useState(pin === '__intro__' || pinnedIndex >= 0 ? pinnedIndex : -1);
+  const [played, setI] = useState(pin === '__intro__' || pinnedIndex >= 0 ? pinnedIndex : -1);
+  // In the editor (pin set) the shown slide follows the pin by id — the slide list can change as the buyer
+  // types, and the page is never remounted — otherwise it's wherever the story has played to.
+  const i = pin ? pinnedIndex : played;
   const [paused, setPaused] = useState(false);
   const [prog, setProg] = useState(0);
   const audio = useRef<HTMLAudioElement | null>(null);
@@ -177,21 +180,6 @@ export default function Wrapped({ data, pin }: { data: WrappedData; pin?: string
     go(0);
   };
   useEffect(() => () => audio.current?.pause(), []);
-
-  // Switching sections in the editor changes `pin` without editing any field, so `content`
-  // (and therefore WrappedView's remount key) doesn't change — the initializer above only
-  // covers the first mount. Re-apply `pin` reactively so pure section-switching works too.
-  useEffect(() => {
-    if (!pin) return;
-    if (pin === '__intro__') { setI(-1); return; }
-    const idx = slides.findIndex((sl) => sl.id === pin);
-    // Target slide missing (e.g. the buyer cleared its content) — fall back to the
-    // cover, same as the initializer above, rather than silently keeping stale content
-    // from whichever slide was showing before. `go()` clamps to index 0, so the
-    // fallback needs a direct `setI(-1)`, not `go(-1)`.
-    if (idx >= 0) go(idx); else setI(-1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pin]);
 
   // auto-advance
   useEffect(() => {
