@@ -71,7 +71,7 @@ export const wrappedMeta: TemplateMeta = {
     },
     {
       id: 'photos', title: 'Зургийн цуглуулга', summary: 'Зургийн цуглуулгын слайд.', previewPage: 'photos',
-      fields: [{ type: 'images', key: 'photos', label: '6 хүртэл зураг', max: 6 }],
+      fields: [{ type: 'images', key: 'photos', label: 'Зургууд (4 эсвэл 6)', max: 6, help: 'Яг 4 эсвэл 6 зураг оруулна. 4–5 зурагтай бол эхний 4-ийг, 6-той бол бүгдийг үзүүлнэ. 4-өөс цөөн бол энэ слайд харагдахгүй.' }],
     },
     {
       id: 'message', title: 'Мессеж', summary: 'Сүүлийн слайд: өөрөө бичигдэх таны мессеж.', previewPage: 'msg',
