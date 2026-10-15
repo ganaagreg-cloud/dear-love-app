@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import TourEmbed from '@/components/TourEmbed';
+import { PixelEvent } from '@/components/MetaPixel';
 import { TEMPLATES, formatMnt, getTemplate, resolveContent } from '@/templates/registry';
 import './gift.css';
 
@@ -26,6 +27,7 @@ export default async function GiftPage({ params }: { params: Promise<{ id: strin
   const fan = [others[0], t, others[1]].filter(Boolean);
   return (
     <div className="container gift">
+      <PixelEvent event="ViewContent" params={{ content_ids: [t.id], content_type: 'product', content_name: t.name, value: t.price, currency: 'MNT' }} />
       <section className="gift-top">
         <div className="gift-demo">
           <TourEmbed templateId={t.id} content={resolveContent(t, null, true)} tour={t.tour} />

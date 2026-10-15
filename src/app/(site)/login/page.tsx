@@ -4,6 +4,7 @@ import { getUser } from '@/lib/supabase/server';
 import { safeNext } from '@/lib/safeNext';
 import { isDemo, supabaseConfigured } from '@/lib/env';
 import GoogleButton from './GoogleButton';
+import InAppBrowserNotice from '@/components/InAppBrowserNotice';
 
 export const metadata = { title: 'Нэвтрэх' };
 
@@ -19,6 +20,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
         <p className="muted small" style={{ margin: 0 }}>
           Таны хуудсууд Google бүртгэлтэй тань холбогдоно — худалдаж авсан хуудсаа зөвхөн та засна.
         </p>
+        {supabaseConfigured() && <InAppBrowserNotice />}
         {supabaseConfigured() && <GoogleButton next={next} />}
         {isDemo() && (
           <form action="/auth/demo" method="post" className="stack" style={{ gap: 8 }}>

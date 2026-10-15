@@ -1,6 +1,6 @@
 # Dear Love — хайрын дижитал бэлгийн платформ
 
-Худалдан авагч загвараа үзнэ → Google-ээр нэвтэрнэ → **QPay (Wire)-ээр** төлнө → зөвхөн өөрийн хуудсаа засна → нийтэлнэ → **`anu-bat.dearlove.mn`** гэх мэт өөрийн нэртэй линкээр илгээнэ.
+Худалдан авагч загвараа үзнэ → Google-ээр нэвтэрнэ → **QPay (Wire)-ээр** төлнө → зөвхөн өөрийн хуудсаа засна → нийтэлнэ → **`dearlove.mn/p/anu-bat`** гэх мэт өөрийн нэртэй линкээр илгээнэ.
 
 6 загвар: **Бидний жил (Wrapped)** · **Хайрын нислэг** · **Хайрын адал явдал** (тоглоом) · **Медальон түүх** · **Дурсамжийн ном** · **LoveFlix**
 
@@ -12,7 +12,7 @@ npm install
 cp .env.example .env.local
 npm run dev
 ```
-http://localhost:3000 → «Нэвтрэх» → **Туршилтын горимоор нэвтрэх** → загвар сонгох → туршилтын QPay дээр «Төлбөр амжилттай болсныг дуурайх» → засварлагч → «Нийтлэх» → линкээ нэрлэх → `http://anu-bat.localhost:3000` нээгдэнэ.
+http://localhost:3000 → «Нэвтрэх» → **Туршилтын горимоор нэвтрэх** → загвар сонгох → туршилтын QPay дээр «Төлбөр амжилттай болсныг дуурайх» → засварлагч → «Нийтлэх» → линкээ нэрлэх → `http://localhost:3000/p/anu-bat` нээгдэнэ.
 Туршилтын өгөгдөл `.demo-data/` хавтсанд хадгалагдана (устгаад дахин эхэлж болно).
 
 ## 2. Жинхэнэ ажиллуулах
@@ -28,17 +28,14 @@ http://localhost:3000 → «Нэвтрэх» → **Туршилтын горим
 2. Webhooks → `https://dearlove.mn/api/webhooks/wire`, event: `payment_intent.succeeded`, `payment_intent.canceled`, `payment_intent.payment_failed` → `whsec_…` → `WIRE_WEBHOOK_SECRET`.
 3. Live болохдоо `sk_live_…` болгож, `WIRE_ALLOWED_OPERATORS`-г Wire-ийн идэвхжүүлсэн operator id болгоно (ж: `qpay`).
 
-## 3. Домэйн ба дэд домэйн (anu-bat.dearlove.mn)
+## 3. Домэйн ба линк (dearlove.mn/p/anu-bat)
 
-Худалдан авсан хуудас бүр **тусдаа дэд домэйн** авна — нэг wildcard тохиргоогоор бүгд ажиллана, хуудас тус бүрд DNS хийх шаардлагагүй.
+Нийтэлсэн бэлэг бүр **`https://dearlove.mn/p/<нэр>`** линк авна — нэмэлт DNS тохиргоо шаардлагагүй.
 
-1. Домэйн худалдаж авна (ж: `dearlove.mn` — Datacom.mn гэх мэт, эсвэл `.com` — Namecheap/Cloudflare).
-2. Кодоо GitHub руу хийгээд **Vercel** дээр import хийнэ, бүх env-ээ Vercel → Settings → Environment Variables-д оруулна:
-   - `NEXT_PUBLIC_SITE_URL=https://dearlove.mn`
-   - `NEXT_PUBLIC_ROOT_DOMAIN=dearlove.mn`
-3. Vercel → Project → **Domains**: `dearlove.mn`, `www.dearlove.mn` болон **`*.dearlove.mn`** гурвыг нэмнэ.
-4. Wildcard (`*.`) домэйн ажиллахын тулд домэйн худалдаж авсан газраа **nameserver**-ээ `ns1.vercel-dns.com`, `ns2.vercel-dns.com` болгож солино. Vercel SSL (https) сертификатыг бүх дэд домэйнд автоматаар гаргана.
-5. Дууслаа: хэрэглэгч «Нийтлэх» дээр `anu-bat` гэж бичихэд `https://anu-bat.dearlove.mn` шууд ажиллана. `dearlove.mn/p/anu-bat` линк ч мөн ажиллана.
+1. Кодоо **Vercel** дээр import хийж, бүх env-ээ Vercel → Settings → Environment Variables-д оруулна (`NEXT_PUBLIC_SITE_URL=https://dearlove.mn` гэх мэт).
+2. Vercel → Project → **Domains**: `dearlove.mn`, `www.dearlove.mn`.
+3. **`NEXT_PUBLIC_ROOT_DOMAIN`-ийг production дээр бүү тохируул.** Тохируулбал бүх линк `anu-bat.dearlove.mn` хэлбэртэй болно, харин `*.dearlove.mn` wildcard DNS тохируулаагүй тул линк бүр нээгдэхгүй. (Дэд домэйн горимыг ашиглах бол эхлээд Vercel-д `*.dearlove.mn` нэмж, nameserver-ээ `ns1/ns2.vercel-dns.com` болгож, ажиллаж байгааг шалгасны дараа л энэ хувьсагчийг тохируулна.)
+4. Production-д гаргахаас өмнө `npm run preflight`-ийг production-ий env-ээр ажиллуулна (ж: `vercel env pull .env.production.local && npm run preflight`).
 
 > Нэр давхцахгүй (unique), зөвхөн латин жижиг үсэг/тоо/зураас, `www, api, admin…` зэрэг нөөц нэрийг хориглосон.
 > `NEXT_PUBLIC_*` хувьсагчид build хийх үед кодонд шингэдэг тул өөрчилсний дараа дахин deploy хийнэ.
@@ -67,5 +64,5 @@ http://localhost:3000 → «Нэвтрэх» → **Туршилтын горим
 | `src/app/(bare)` | бүтэн дэлгэц: жишээ, засварлагч, render, нийтлэгдсэн хуудас |
 | `src/app/api` | захиалга, хадгалах/нийтлэх, Wire webhook, (demo) файл upload |
 | `src/lib/store.ts` | өгөгдлийн давхарга: Supabase эсвэл demo JSON файл |
-| `src/proxy.ts` | дэд домэйн → `/p/<нэр>` rewrite, нэвтрэлтийн хамгаалалт |
+| `src/proxy.ts` | нэвтрэлтийн хамгаалалт; (сонголтоор) дэд домэйн → `/p/<нэр>` rewrite |
 | `src/templates` | 6 загвар + schema/шалгалт |

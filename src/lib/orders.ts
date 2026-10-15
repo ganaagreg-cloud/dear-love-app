@@ -41,7 +41,7 @@ export async function createOrder(userId: string, input: { templateId?: string; 
     checkoutUrl = `/pay/mock/${order.id}`;
     await db.updateOrder(order.id, { checkout_url: checkoutUrl });
   }
-  return { orderId: order.id, pageId, checkoutUrl };
+  return { orderId: order.id, pageId, checkoutUrl, amount: meta.price, templateId: meta.id };
 }
 
 /** Idempotent fulfilment: marks the order paid and unlocks editing on its page. */

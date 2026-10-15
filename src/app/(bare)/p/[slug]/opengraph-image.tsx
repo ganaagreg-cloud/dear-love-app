@@ -1,4 +1,4 @@
-import { OG_SIZE, OG_TYPE, coverUrl, ogCard } from '@/lib/og';
+import { OG_SIZE, OG_TYPE, ogCard } from '@/lib/og';
 import { getPublicPage } from '@/lib/publicPage';
 import { getTemplate } from '@/templates/registry';
 
@@ -15,6 +15,6 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     title: 'Танд зориулсан бэлэг байна',
     sub: 'Дуугаа асаагаад, тайван нэг минут гаргаж нээгээрэй',
     pill: 'Нээхийн тулд дарна уу',
-    covers: [coverUrl(t ? t.id : 'wrapped')],
+    covers: [t ? t.id : 'wrapped'],
   });
 }

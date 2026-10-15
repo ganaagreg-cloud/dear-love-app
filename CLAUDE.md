@@ -15,6 +15,7 @@ npm run dev         # start dev server (localhost:3000)
 npm run build        # next build
 npm start             # next start (production server)
 npm run typecheck    # tsc --noEmit — run this after any change, it's the only static check configured
+npm run preflight    # launch check against the PRODUCTION env (live Wire key, no demo/mock flags, real prices, no NEXT_PUBLIC_ROOT_DOMAIN)
 ```
 
 There is no test suite and no lint script configured in this repo.
@@ -64,6 +65,12 @@ Published pages are cached for 60s (`src/lib/publicPage.ts`); anything that chan
 ### Auth
 
 `src/lib/supabase/{client,server,admin}.ts` — `server.ts`'s `getUser()` is the source of truth for the signed-in user in API routes/server components; `admin.ts`'s `supabaseAdmin()` uses the service-role key and bypasses RLS (only ever used from `store.ts`'s `sbStore`, never exposed to routes directly). In demo mode there's no real Supabase client; auth is a `dl_demo_uid` cookie set by `src/app/auth/demo/route.ts`.
+
+### Launch extras
+
+- **Facebook/Instagram in-app browsers** can't do Google OAuth (`disallowed_useragent`); `src/components/InAppBrowserNotice.tsx` on the login page tells those buyers to reopen in Chrome/Safari. Ad traffic lands there — keep it.
+- **Meta Pixel** (`src/lib/pixel.ts`) is off unless `NEXT_PUBLIC_META_PIXEL_ID` is set, and only loads on `(site)` pages — never on a recipient's `/p/<slug>` or in the editor. Funnel: PageView → ViewContent (`/gift/[id]`) → InitiateCheckout (`PayButton`) → Purchase (once per order, `PayStatus`).
+- **Support contact** comes from `NEXT_PUBLIC_CONTACT_*` (`src/lib/contact.ts`); shown in the footer, `/terms`, `/privacy`, `/refund` and on the payment status page.
 
 ### Security invariants worth knowing before touching related code
 
