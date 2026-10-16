@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { BRANCH_EP, type LoveData, type View } from './data';
 import { useAudio } from './parts/useAudio';
 import Grain from './parts/Grain';
@@ -38,6 +38,25 @@ export default function LoveFlix({ data, pin }: { data: LoveData; pin: View | nu
   const nextEp = ep ? eps[eps.findIndex((e) => e.n === ep!.n) + 1] ?? null : null;
   const lastPhoto = [...(eps[eps.length - 1]?.slides ?? [])].reverse().find((s) => s.photo)?.photo ?? data.trailer[0]?.src ?? '';
   const backdrop = data.trailer[0]?.src || data.profilePhoto;
+
+  /* Warm the browser cache while the viewer is still on the gate/intro: backdrop + home posters first, then every
+     episode photo in watch order. Without this each photo only starts downloading when its screen mounts. */
+  const photoKey = [backdrop, data.profilePhoto, ...data.trailer.map((t) => t.src), ...eps.flatMap((e) => e.slides.map((s) => s.photo))]
+    .filter(Boolean).join('|');
+  useEffect(() => {
+    if (frozen) return;
+    let dead = false;
+    const urls = [...new Set(photoKey.split('|'))];
+    const next = (i: number) => {
+      if (dead || i >= urls.length) return;
+      const img = new Image();
+      img.decoding = 'async';
+      img.onload = img.onerror = () => next(i + 1);
+      img.src = urls[i];
+    };
+    next(0); next(1); // two parallel lanes
+    return () => { dead = true; };
+  }, [photoKey, frozen]);
 
   const start = useCallback(() => { audio.unlock(); audio.tadum(); setScreen('intro'); }, [audio]);
   const introDone = useCallback(() => { audio.startMusic(); setScreen('home'); }, [audio]);

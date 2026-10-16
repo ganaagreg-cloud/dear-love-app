@@ -8,7 +8,6 @@
 .fl-btn:hover { transform: translateY(-2px); } .fl-btn:disabled { opacity: .6; }
 .fl-btn.sm { margin-top: 14px; padding: 11px 20px; font-size: 14px; }
 .fl-btn.ghost { background: transparent; color: var(--ink); border: 2px solid color-mix(in srgb, var(--ink) 30%, transparent); box-shadow: none; }
-.fl-hint { margin-top: 14px; font-size: 12px; color: color-mix(in srgb, var(--ink) 75%, transparent); }
 
 /* ── split flap ── */
 .fl-flap { display: inline-flex; gap: 3px; }

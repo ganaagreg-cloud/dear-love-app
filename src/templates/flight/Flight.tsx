@@ -170,9 +170,7 @@ export default function Flight({ data, pin }: { data: FlightData; pin?: string |
               </div>
             </div>
           </div>
-          <button className="fl-btn" onClick={board} disabled={torn}>{torn ? 'Онгоцонд сууж байна…' : 'Тасалж онгоцонд суух ✂︎'}</button>
-          <small className="fl-hint">Замдаа {stops.length} буудал · аятайхан нислэг хүсье</small>
-        </div>
+          <button className="fl-btn" onClick={board} disabled={torn}>{torn ? 'Онгоцонд сууж байна…' : 'Тасалж онгоцонд суух ✂︎'}</button>        </div>
       )}
       {scene === 'fly' && (
         <Journey

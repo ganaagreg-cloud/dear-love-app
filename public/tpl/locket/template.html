@@ -196,15 +196,20 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 /* letter modal */
 .modal{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:16px;background:rgba(4,3,10,.72);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);visibility:hidden;opacity:0}
 .paper{position:relative;width:min(600px,100%);height:min(86vh,820px);overflow:auto;border-radius:4px;
-  background-color:#fbf6ea;color:#3a2a1d;padding:68px clamp(22px,6vw,58px) 30px;
+  background-color:#fbf6ea;color:#3a2a1d;
+  box-shadow:0 40px 90px -20px rgba(0,0,0,.9),inset 0 0 80px rgba(160,120,70,.18);
+  overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  user-select:text;-webkit-user-select:text;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:#c9b187 transparent}
+/* the ruled lines live on this inner sheet (scrolls as one composited layer) instead of on the scroller with
+   background-attachment:local, which repaints every frame on phones and made the lines judder */
+.paper .sheet{min-height:100%;box-sizing:border-box;padding:68px clamp(22px,6vw,58px) 30px;
   background-image:
     linear-gradient(90deg,transparent calc(clamp(22px,6vw,58px) - 16px),rgba(216,40,63,.28) calc(clamp(22px,6vw,58px) - 16px),rgba(216,40,63,.28) calc(clamp(22px,6vw,58px) - 15px),transparent calc(clamp(22px,6vw,58px) - 15px)),
-    repeating-linear-gradient(180deg,transparent 0 33px,rgba(110,80,50,.16) 33px 34px);
-  background-attachment:local;
-  box-shadow:0 40px 90px -20px rgba(0,0,0,.9),inset 0 0 80px rgba(160,120,70,.18);
-  user-select:text;-webkit-user-select:text;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:#c9b187 transparent}
+    repeating-linear-gradient(180deg,transparent 0 33px,rgba(110,80,50,.16) 33px 34px)}
 .paper h3{font-family:var(--script);font-weight:400;font-size:clamp(2.2rem,6vw,3rem);text-align:center;color:#6b1420;line-height:68px}
-.paper .date{text-align:center;font-size:.7rem;letter-spacing:.34em;text-transform:uppercase;color:#7a5f43;margin:0;height:34px;line-height:34px}
+.paper .date{text-align:center;font-size:.7rem;letter-spacing:.34em;text-transform:uppercase;color:#7a5f43;margin:0;min-height:34px;line-height:34px}
+@media (max-width:480px){.paper .date{letter-spacing:.18em;font-size:.66rem}}
+@media (max-width:700px){.modal{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(4,3,10,.88)}}
 .paper .body p{font-size:clamp(1.08rem,2.6vw,1.24rem);line-height:34px;margin-bottom:34px;text-align:left;min-height:34px}
 .paper .body p.sig{font-family:var(--script);font-size:1.5rem;margin-bottom:0;color:#6b1420}
 .caret{display:inline-block;width:1px;height:1.05em;background:#6b1420;vertical-align:-3px;margin-left:1px;animation:blink .9s steps(1) infinite}
@@ -436,10 +441,12 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 <div class="modal" id="modal">
   <article class="paper" id="paper" data-hl-label="outside">
     <button class="x" id="closeLetter" aria-label="Хаах">×</button>
-    <h3 id="letterTitle"></h3>
-    <div class="date" id="letterDate"></div>
-    <div class="body" id="letterBody"></div>
-    <div class="actions"><button class="skip" id="skipBtn">Бүгдийг харуулах</button></div>
+    <div class="sheet">
+      <h3 id="letterTitle"></h3>
+      <div class="date" id="letterDate"></div>
+      <div class="body" id="letterBody"></div>
+      <div class="actions"><button class="skip" id="skipBtn">Бүгдийг харуулах</button></div>
+    </div>
   </article>
 </div>
 

@@ -10,7 +10,7 @@ export const locketMeta: TemplateMeta = {
     'Одод, хувь заяаны улаан утас, дурсамжуудын од эрхэс, өдөр тоологч',
   category: 'Ой',
   badge: 'ОНЦЛОХ',
-  price: 600,
+  price: 39900,
   cover: '/covers/locket.jpg',
   accent: '#d9b46a',
   features: ['2 зураг', '5 дурсамжийн зураг', 'Захидал ', 'Өдөр тоологч', 'Хөгжим'],
