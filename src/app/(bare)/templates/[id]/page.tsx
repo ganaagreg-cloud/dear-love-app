@@ -10,9 +10,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return { title: t ? `${t.name} — жишээ` : 'Жишээ' };
 }
 
-export default async function PreviewPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function PreviewPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ clean?: string }> }) {
   const t = getTemplate((await params).id);
   if (!t) notFound();
+  // ?clean=1 — for screen-recording ads: just the gift, no fullscreen question, no «Жишээ» tag, no bottom bar
+  if ((await searchParams).clean === '1') return <TemplateView templateId={t.id} content={resolveContent(t, null, true)} />;
   return (
     <>
       <FullscreenGate><TemplateView templateId={t.id} content={resolveContent(t, null, true)} /></FullscreenGate>
