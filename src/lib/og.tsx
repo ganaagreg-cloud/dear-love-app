@@ -2,7 +2,6 @@ import 'server-only';
 import { ImageResponse } from 'next/og';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { SITE_URL } from './env';
 
 export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_TYPE = 'image/png';
@@ -11,14 +10,21 @@ export const OG_TYPE = 'image/png';
 const font = (f: string) => readFile(join(process.cwd(), 'src/assets/og', f));
 const fonts = Promise.all([font('manrope-cyrillic-800-normal.woff'), font('manrope-latin-800-normal.woff')]);
 
-export const coverUrl = (id: string) => `${SITE_URL}/covers/${id}.jpg`;
+/**
+ * Template cover as a data URI, read from disk. (Fetching our own /covers/… over HTTP fails at build
+ * time — Next's image SSRF guard blocks localhost — and silently breaks when the site is down.)
+ */
+const cover = async (id: string) => {
+  const buf = await readFile(join(process.cwd(), 'public/covers', `${id.replace(/[^a-z0-9-]/g, '')}.jpg`));
+  return `data:image/jpeg;base64,${buf.toString('base64')}`;
+};
 
 const INK = '#2a1f2d', ROSE = '#e2557a';
 const HEART = 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
 
-/** Brand card for link previews: text on the left, one to three template covers fanned on the right. */
-export async function ogCard({ title, sub, pill, covers }: { title: string; sub: string; pill: string; covers: string[] }) {
-  const [cyr, lat] = await fonts;
+/** Brand card for link previews: text on the left, one to three template covers (by template id) fanned on the right. */
+export async function ogCard({ title, sub, pill, covers: ids }: { title: string; sub: string; pill: string; covers: string[] }) {
+  const [[cyr, lat], covers] = await Promise.all([fonts, Promise.all(ids.map(cover))]);
   const tilt = covers.length === 1 ? [0] : covers.length === 2 ? [-7, 5] : [-9, 0, 8];
   return new ImageResponse(
     (
@@ -53,8 +59,8 @@ export async function ogCard({ title, sub, pill, covers }: { title: string; sub:
 export async function templateOgCard(id: string) {
   const { getTemplate, formatMnt } = await import('@/templates/registry');
   const t = getTemplate(id);
-  if (!t) return ogCard({ title: 'Хайртай хүндээ дижитал бэлэг', sub: 'Загвараа сонго, зураг дуугаа оруул, нэг линкээр илгээ', pill: 'dearlove.mn', covers: ['wrapped', 'locket', 'flight'].map(coverUrl) });
+  if (!t) return ogCard({ title: 'Хайртай хүндээ дижитал бэлэг', sub: 'Загвараа сонго, зураг дуугаа оруул, нэг линкээр илгээ', pill: 'dearlove.mn', covers: ['wrapped', 'locket', 'flight'] });
   // Manrope has no ₮ glyph, so spell it out; keep the subtitle to two lines
   const sub = t.tagline.length > 90 ? t.tagline.slice(0, 88).replace(/s+S*$/, '') + '…' : t.tagline;
-  return ogCard({ title: t.name, sub, pill: `${formatMnt(t.price).replace('₮', '')} төгрөг · нэг удаа`, covers: [coverUrl(t.id)] });
+  return ogCard({ title: t.name, sub, pill: `${formatMnt(t.price).replace('₮', '')} төгрөг · нэг удаа`, covers: [t.id] });
 }

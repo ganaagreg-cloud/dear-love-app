@@ -23,5 +23,6 @@ export function pageUrl(slug: string) {
 }
 
 export const RESERVED_SLUGS = new Set(['www', 'app', 'api', 'admin', 'mail', 'smtp', 'ftp', 'dashboard', 'login', 'p', 'edit', 'buy', 'pay',
-  'render', 'templates', 'static', 'assets', 'cdn', 'help', 'support', 'blog', 'auth', 'demo', 'status', 'docs', 'shop']);
+  'render', 'templates', 'static', 'assets', 'cdn', 'help', 'support', 'blog', 'auth', 'demo', 'status', 'docs', 'shop',
+  'gift', 'terms', 'privacy', 'refund', 'contact']);
 export const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$/;

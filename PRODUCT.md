@@ -38,9 +38,9 @@ is what a generic e-card or website-builder competitor doesn't offer together:
 
 - **Buy → pay → edit → publish** flow: buying creates a pending page and order, payment happens
   through Wire/QPay (or a mock checkout in local/demo use), editing unlocks only once paid, and
-  publishing assigns the page's public slug/subdomain.
-- Each published page is served at its own subdomain (`<slug>.dearlove.mn`) via a single wildcard
-  DNS entry, so no per-page DNS setup is needed.
+  publishing assigns the page's public slug.
+- Each published page is served at `dearlove.mn/p/<slug>`. Subdomain links (`<slug>.dearlove.mn`)
+  are an optional mode that is off in production (no wildcard DNS) — see CLAUDE.md.
 - A **demo mode** (file-based store + one-click fake login + mock checkout) lets the whole flow be
   tried and developed against without any real Supabase/Wire accounts; it's how this project is
   normally developed and tested locally.

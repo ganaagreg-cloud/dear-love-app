@@ -25,6 +25,9 @@ export default async function Buy({ params }: { params: Promise<{ id: string }> 
         <p className="small muted center" style={{ margin: '12px 0 0' }}>
           Нэг удаагийн төлбөр · засах эрх зөвхөн танд · <Link href={`/gift/${t.id}`} style={{ textDecoration: 'underline' }}>дахин үзэх</Link>
         </p>
+        <p className="small muted center" style={{ margin: '8px 0 0' }}>
+          Төлбөр төлснөөр та <Link href="/terms" style={{ textDecoration: 'underline' }}>Үйлчилгээний нөхцөл</Link>, <Link href="/refund" style={{ textDecoration: 'underline' }}>Буцаалтын бодлого</Link>-ыг зөвшөөрч байна.
+        </p>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { OG_SIZE, OG_TYPE, coverUrl, ogCard } from '@/lib/og';
+import { OG_SIZE, OG_TYPE, ogCard } from '@/lib/og';
 
 export const alt = 'Dear Love — хайртай хүндээ зориулсан дижитал бэлэг';
 export const size = OG_SIZE;
@@ -9,6 +9,6 @@ export default function Image() {
     title: 'Хайртай хүндээ дижитал бэлэг',
     sub: 'Загвараа сонго, зураг дуугаа оруул, нэг линкээр илгээ',
     pill: 'dearlove.mn',
-    covers: ['wrapped', 'locket', 'flight'].map(coverUrl),
+    covers: ['wrapped', 'locket', 'flight'],
   });
 }

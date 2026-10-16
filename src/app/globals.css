@@ -123,6 +123,20 @@ input, textarea, select { font: inherit; color: inherit; }
 .qpay-mark { display: inline-grid; place-items: center; height: 22px; padding: 0 7px; border-radius: 6px; background: #fff; color: #1a73e8; font-weight: 900; font-size: .72rem; letter-spacing: .02em; }
 .google-btn { display: flex; align-items: center; justify-content: center; gap: 12px; height: 50px; width: 100%; border-radius: 14px; border: 1px solid var(--line); background: #fff; font-weight: 600; transition: box-shadow .2s, transform .15s; }
 .google-btn:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.inapp { display: grid; gap: 10px; text-align: left; padding: 16px; border-radius: 16px; background: var(--rose-soft); border: 1px solid var(--line); }
+.inapp strong { font-size: .95rem; }
+.inapp p { margin: 0; font-size: .88rem; color: var(--ink-2); line-height: 1.5; }
+.inapp .btn-ghost { justify-self: start; }
+
+/* ── legal pages ─────────────────── */
+.legal { line-height: 1.65; color: var(--ink-2); }
+.legal h1 { margin-bottom: 4px; }
+.legal h2 { font-size: 1.05rem; color: var(--ink); margin: 26px 0 8px; }
+.legal p, .legal li { font-size: .93rem; }
+.legal ul { padding-left: 20px; margin: 0; display: grid; gap: 6px; }
+.legal a { text-decoration: underline; }
+footer.site nav { display: flex; flex-wrap: wrap; gap: 14px; }
+footer.site nav a { text-decoration: underline; text-underline-offset: 3px; }
 .spinner { width: 42px; height: 42px; border-radius: 50%; border: 3px solid var(--rose-soft); border-top-color: var(--rose); animation: spin 1s linear infinite; margin: 8px auto 18px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
